@@ -740,12 +740,13 @@ a:hover{
 -----------------------------------------------------------------*/
 .single_service{
     text-align: center;
-    padding: 40px 30px;
+    padding: 20px 30px;
     background: #fff;
     margin-bottom: 30px;
 	position: relative;
     transition: 0.4s;
-    min-height: 290px;
+    height: 300px;
+    /* max-height: 310px; */
 }
 .dark_bg_2 .single_service{
     background: #000;
