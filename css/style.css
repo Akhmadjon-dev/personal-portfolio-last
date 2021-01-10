@@ -745,6 +745,7 @@ a:hover{
     margin-bottom: 30px;
 	position: relative;
     transition: 0.4s;
+    min-height: 290px;
 }
 .dark_bg_2 .single_service{
     background: #000;
