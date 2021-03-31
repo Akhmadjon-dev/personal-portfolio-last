@@ -1,9 +1,10 @@
+
 {
-  "apiKey": "AIzaSyCmjXBOD6qx0_vg_mC6nMN6yEcT9pMAUTE",
-  "authDomain": "portfolio-website-8b99c.firebaseapp.com",
-  "projectId": "portfolio-website-8b99c",
-  "storageBucket": "portfolio-website-8b99c.appspot.com",
-  "messagingSenderId": "727859770448",
-  "appId": "1:727859770448:web:529fe08f90fd1465bc8d55",
-  "measurementId": "G-B47WWM3BQ1"
+  "apiKey": "AIzaSyD_tUiKcmVDCjiGi0Pdn7mFXiYPMdBHYjs",
+  "authDomain": "portfolio-forum.firebaseapp.com",
+  "projectId": "portfolio-forum",
+  "storageBucket": "portfolio-forum.appspot.com",
+  "messagingSenderId": "106011696265",
+  "appId": "1:106011696265:web:59b09ae558783c054dba58",
+  "measurementId": "G-RKPRZNL7E1"
 }
