@@ -132,8 +132,17 @@
 		/*PRELOADER JS*/
 			$(window).on('load', function() {  
 				$('.spinner').fadeOut();
-				$('.preloader').delay(350).fadeOut('slow'); 
-			}); 
+				$('.preloader').fadeOut('fast');
+
+			/* START HOVERDIR JS */
+			$('.box').each(function () {
+				$(this).hoverdir({
+					hoverDelay: 50,
+					inverse: true
+				});
+			});
+			/* END HOVERDIR JS */
+			});
 		/*END PRELOADER JS*/
 			
 		/*START WOW ANIMATION JS*/

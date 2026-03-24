@@ -36,7 +36,7 @@
 			// transition properties
 			this.transitionProp = 'all ' + this.options.speed + 'ms ' + this.options.easing;
 			// support for CSS transitions
-			this.support = Modernizr.csstransitions;
+			this.support = true;
 			// load the events
 			this._loadEvents();
 
