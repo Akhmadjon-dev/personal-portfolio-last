@@ -1,0 +1,10 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Placeholder from '../../components/portfolio/Placeholder.astro';
+import { getDict } from '../../i18n/utils';
+const t = getDict('ru');
+---
+
+<Layout title={`${t.nav.cv} — Ahmadjon Abdusamadov`} locale="ru">
+  <Placeholder locale="ru" title={t.nav.cv} note="Веб-резюме появится в Фазе 1. Пока доступен PDF." />
+</Layout>

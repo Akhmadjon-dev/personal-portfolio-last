@@ -1,0 +1,31 @@
+---
+import { locales, stripLocale, localizePath, type Locale } from '../../i18n/utils';
+
+interface Props {
+  current: Locale;
+  pathname: string;
+}
+
+const { current, pathname } = Astro.props;
+const basePath = stripLocale(pathname);
+---
+
+<div class="flex items-center gap-1 text-sm font-mono">
+  {locales.map((loc, i) => (
+    <>
+      {i > 0 && <span class="text-muted">/</span>}
+      <a
+        href={localizePath(basePath, loc)}
+        class:list={[
+          'px-1.5 py-0.5 rounded transition-colors',
+          current === loc
+            ? 'text-ink dark:text-paper font-semibold'
+            : 'text-muted hover:text-ink dark:hover:text-paper',
+        ]}
+        aria-current={current === loc ? 'true' : undefined}
+      >
+        {loc.toUpperCase()}
+      </a>
+    </>
+  ))}
+</div>

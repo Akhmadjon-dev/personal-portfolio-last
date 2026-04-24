@@ -1,0 +1,10 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import Placeholder from '../../../components/portfolio/Placeholder.astro';
+import { getDict } from '../../../i18n/utils';
+const t = getDict('ru');
+---
+
+<Layout title={`${t.tools.french.title} — Ahmadjon Abdusamadov`} locale="ru">
+  <Placeholder locale="ru" title={t.tools.french.title} note="Mon Français переезжает со старого single-file приложения. Полная перестройка — в Фазе 3." />
+</Layout>

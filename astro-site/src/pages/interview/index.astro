@@ -1,0 +1,10 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Placeholder from '../../components/portfolio/Placeholder.astro';
+import { getDict } from '../../i18n/utils';
+const t = getDict('en');
+---
+
+<Layout title={`${t.tools.interview.title} — Ahmadjon Abdusamadov`} locale="en">
+  <Placeholder locale="en" title={t.tools.interview.title} note="DevPrep is migrating from the legacy single-file app. Full rebuild lands in Phase 2." />
+</Layout>

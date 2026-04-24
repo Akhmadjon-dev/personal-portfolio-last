@@ -1,0 +1,51 @@
+{
+  "meta": {
+    "lang": "O‘zbekcha",
+    "short": "UZ"
+  },
+  "nav": {
+    "projects": "Loyihalar",
+    "about": "Men haqimda",
+    "tools": "Vositalar",
+    "contact": "Bog‘lanish",
+    "cv": "Rezyume"
+  },
+  "hero": {
+    "eyebrow": "Full-stack dasturchi",
+    "headline": "Odamlar haqiqatan foydalanadigan tez va ishonchli veb-ilovalar yarataman",
+    "subline": "6+ yil davomida veb, mobil va AI asosidagi mahsulotlarni ishlab chiqaraman.",
+    "cta_hire": "Yollash",
+    "cta_cv": "Rezyumeni yuklab olish"
+  },
+  "what_i_do": {
+    "title": "Nima qilaman",
+    "items": {
+      "web": { "title": "Full-stack veb", "body": "React, Next.js, Node — birinchi pikseldan prodakshenagacha." },
+      "ai": { "title": "AI asosidagi vositalar", "body": "Real biznes ko‘rsatkichlarni harakatga keltiruvchi LLM xususiyatlari." },
+      "mobile": { "title": "Mobil-tayyor platformalar", "body": "Hatto eng sekin telefonlarda ham tez ishlaydi." }
+    }
+  },
+  "projects": {
+    "title": "Tanlangan loyihalar",
+    "subtitle": "Men chiqargan ishlarning tanlovi."
+  },
+  "about": {
+    "title": "Men haqimda",
+    "body": "Men Ahmadjon, O‘zbekistondagi full-stack dasturchiman. Tez, ishonchli va qo‘llab-quvvatlashga qulay dasturiy ta’minotni qadrlayman."
+  },
+  "contact": {
+    "title": "Keling, birga ishlaymiz",
+    "body": "Loyiha borkmi? Menga yozing.",
+    "name": "Ismingiz",
+    "email": "Email manzilingiz",
+    "message": "Xabaringiz",
+    "send": "Yuborish"
+  },
+  "footer": {
+    "built": "Astro yordamida qurildi"
+  },
+  "tools": {
+    "french": { "title": "Mon Français", "body": "Fransuz tilini o‘rganish yordamchim." },
+    "interview": { "title": "DevPrep", "body": "Taraqqiyotni kuzatib boradigan intervyu tayyorgarligi." }
+  }
+}
