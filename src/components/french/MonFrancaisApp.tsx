@@ -1,18 +1,27 @@
-import { useState } from 'react';
+import { Suspense, lazy, useState } from 'react';
 import '../../styles/french-content.css';
-import GrammarPanel from './GrammarPanel';
-import UnitListPanel from './UnitListPanel';
-import AIBox from './AIBox';
-import TopWordsPanel from './TopWordsPanel';
-import QuizPanel from './QuizPanel';
-import TensesPanel from './TensesPanel';
-import ConjugatorPanel from './ConjugatorPanel';
-import { GRAMMAR, GRAMMAR_UZ } from '../../data/french/grammar';
-import { VOCAB_UNITS } from '../../data/french/vocab';
-import { SPEAKING_UNITS } from '../../data/french/speaking';
 import type { AIMode } from '../../data/french/ai';
 
-type PanelKey = 'grammar' | 'top_words' | 'tenses' | 'conjugator' | 'vocab' | 'speaking' | 'quiz' | 'ai';
+// Lazy-loaded panels — each ships its own data + dependencies in its own
+// chunk, so the initial /french load only includes the shell + tab nav.
+const GrammarPanel = lazy(() => import('./GrammarPanel'));
+const TopWordsPanel = lazy(() => import('./TopWordsPanel'));
+const TensesPanel = lazy(() => import('./TensesPanel'));
+const ConjugatorPanel = lazy(() => import('./ConjugatorPanel'));
+const VocabPanel = lazy(() => import('./VocabPanel'));
+const SpeakingPanel = lazy(() => import('./SpeakingPanel'));
+const QuizPanel = lazy(() => import('./QuizPanel'));
+const AIBox = lazy(() => import('./AIBox'));
+
+type PanelKey =
+  | 'grammar'
+  | 'top_words'
+  | 'tenses'
+  | 'conjugator'
+  | 'vocab'
+  | 'speaking'
+  | 'quiz'
+  | 'ai';
 
 interface CategoryLabels {
   verb: string;
@@ -170,12 +179,19 @@ interface Props {
   locale: 'en' | 'ru' | 'uz';
 }
 
+function PanelLoading() {
+  return (
+    <div className="py-12 text-center text-muted font-mono text-sm">
+      <span className="inline-block w-4 h-4 border-2 border-mist dark:border-white/15 border-t-accent rounded-full animate-spin align-middle mr-2"></span>
+      Loading…
+    </div>
+  );
+}
+
 export default function MonFrancaisApp({ labels, locale }: Props) {
   const [panel, setPanel] = useState<PanelKey>('grammar');
   const [seedAiText, setSeedAiText] = useState('');
   const [seedConjugatorVerb, setSeedConjugatorVerb] = useState<string | undefined>(undefined);
-
-  const grammarData = locale === 'uz' ? GRAMMAR_UZ : GRAMMAR;
 
   const panels: Array<{ key: PanelKey; icon: string }> = [
     { key: 'grammar', icon: '📐' },
@@ -234,60 +250,20 @@ export default function MonFrancaisApp({ labels, locale }: Props) {
 
       <p className="text-sm text-muted mb-6 md:mb-8 max-w-2xl">{labels.panel_descriptions[panel]}</p>
 
-      {panel === 'grammar' && (
-        <GrammarPanel
-          data={grammarData}
-          labels={labels.grammar}
-          storageKey={`mon-francais:${locale}:grammar`}
-        />
-      )}
-
-      {panel === 'top_words' && <TopWordsPanel locale={locale} labels={labels.top_words} />}
-
-      {panel === 'tenses' && (
-        <TensesPanel locale={locale} labels={labels.tenses} onConjugate={jumpToConjugator} />
-      )}
-
-      {panel === 'conjugator' && (
-        <ConjugatorPanel locale={locale} labels={labels.conjugator} initialVerb={seedConjugatorVerb} />
-      )}
-
-      {panel === 'vocab' && (
-        <UnitListPanel
-          units={VOCAB_UNITS}
-          labels={labels.vocab}
-          titleSelector=".vb-unit-title"
-        />
-      )}
-
-      {panel === 'speaking' && (
-        <UnitListPanel
-          units={SPEAKING_UNITS}
-          labels={labels.speaking}
-          titleSelector=".sp-unit-title"
-          renderExtra={(unit) => (
-            <button
-              onClick={() => {
-                const div = document.createElement('div');
-                div.innerHTML = unit.bodyHtml;
-                const fr: string[] = [];
-                div.querySelectorAll('.sp-fr').forEach((el) => {
-                  const text = el.textContent?.trim();
-                  if (text) fr.push(text);
-                });
-                sendToAI(fr.join('\n'));
-              }}
-              className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-accent text-paper text-sm font-medium hover:opacity-90 transition-opacity"
-            >
-              ✨ {labels.speaking.analyse_with_ai}
-            </button>
-          )}
-        />
-      )}
-
-      {panel === 'quiz' && <QuizPanel locale={locale} labels={labels.quiz} />}
-
-      {panel === 'ai' && <AIBox labels={labels.ai} initialText={seedAiText} />}
+      <Suspense fallback={<PanelLoading />}>
+        {panel === 'grammar' && <GrammarPanel locale={locale} labels={labels.grammar} />}
+        {panel === 'top_words' && <TopWordsPanel locale={locale} labels={labels.top_words} />}
+        {panel === 'tenses' && (
+          <TensesPanel locale={locale} labels={labels.tenses} onConjugate={jumpToConjugator} />
+        )}
+        {panel === 'conjugator' && (
+          <ConjugatorPanel locale={locale} labels={labels.conjugator} initialVerb={seedConjugatorVerb} />
+        )}
+        {panel === 'vocab' && <VocabPanel labels={labels.vocab} />}
+        {panel === 'speaking' && <SpeakingPanel labels={labels.speaking} onSendToAI={sendToAI} />}
+        {panel === 'quiz' && <QuizPanel locale={locale} labels={labels.quiz} />}
+        {panel === 'ai' && <AIBox labels={labels.ai} initialText={seedAiText} />}
+      </Suspense>
     </div>
   );
 }

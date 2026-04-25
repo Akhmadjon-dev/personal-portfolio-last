@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import '../../styles/devprep-content.css';
 import type { DataMap, Level, Question } from '../../data/interview/types';
 import { LEVELS } from '../../data/interview/types';
 
