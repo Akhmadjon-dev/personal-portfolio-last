@@ -1,0 +1,32 @@
+---
+import { getDict, type Locale } from '../../i18n/utils';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getDict(locale);
+---
+
+<section id="testimonials" class="max-w-6xl mx-auto px-6 py-20 md:py-28">
+  <div class="mb-12 md:mb-16 max-w-2xl">
+    <p class="font-mono text-xs uppercase tracking-widest text-accent mb-3">{t.testimonials.eyebrow}</p>
+    <h2 class="font-display text-4xl md:text-5xl tracking-tight">{t.testimonials.title}</h2>
+  </div>
+
+  <div class="grid md:grid-cols-3 gap-5">
+    {t.testimonials.items.map((item: { quote: string; name: string; role: string }) => (
+      <figure class="relative p-7 rounded-[var(--radius-card)] border border-mist dark:border-white/10 bg-paper dark:bg-white/[0.02]">
+        <span class="absolute -top-4 left-6 font-display text-6xl text-accent/40 select-none leading-none" aria-hidden="true">"</span>
+        <blockquote class="text-ink-soft dark:text-paper/85 leading-relaxed relative">
+          {item.quote}
+        </blockquote>
+        <figcaption class="mt-5 pt-4 border-t border-mist dark:border-white/10">
+          <div class="font-medium">{item.name}</div>
+          <div class="text-sm text-muted">{item.role}</div>
+        </figcaption>
+      </figure>
+    ))}
+  </div>
+</section>

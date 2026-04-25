@@ -1,0 +1,53 @@
+---
+import { getDict, type Locale } from '../../i18n/utils';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getDict(locale);
+
+type ServiceKey = 'frontend' | 'fullstack' | 'ai';
+const items: Array<{ key: ServiceKey; icon: string; accent: string }> = [
+  {
+    key: 'frontend',
+    icon: '<path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/>',
+    accent: 'from-accent/20 to-accent/0',
+  },
+  {
+    key: 'fullstack',
+    icon: '<path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M14 14h7v7h-7z"/><path d="M3 14h7v7H3z"/>',
+    accent: 'from-accent-warm/20 to-accent-warm/0',
+  },
+  {
+    key: 'ai',
+    icon: '<path d="M12 8V4H8"/><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>',
+    accent: 'from-success/20 to-success/0',
+  },
+];
+
+const services = t.what_i_do.items;
+---
+
+<section id="services" class="max-w-6xl mx-auto px-6 py-20 md:py-28">
+  <div class="mb-12 md:mb-16 max-w-2xl">
+    <p class="font-mono text-xs uppercase tracking-widest text-accent mb-3">{t.what_i_do.eyebrow}</p>
+    <h2 class="font-display text-4xl md:text-5xl tracking-tight">{t.what_i_do.title}</h2>
+  </div>
+
+  <div class="grid md:grid-cols-3 gap-5">
+    {items.map((item) => (
+      <div class="group relative p-7 rounded-[var(--radius-card)] border border-mist dark:border-white/10 bg-paper dark:bg-white/[0.02] hover:border-ink/30 dark:hover:border-white/30 transition-colors overflow-hidden">
+        <div class={`absolute -top-12 -right-12 w-40 h-40 rounded-full bg-gradient-to-br ${item.accent} blur-2xl opacity-60 group-hover:opacity-100 transition-opacity`} aria-hidden="true"></div>
+        <div class="relative">
+          <div class="w-11 h-11 rounded-xl bg-paper-dim dark:bg-white/5 flex items-center justify-center mb-5 text-ink dark:text-paper">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" set:html={item.icon}></svg>
+          </div>
+          <h3 class="font-display text-2xl mb-2">{services[item.key].title}</h3>
+          <p class="text-muted leading-relaxed">{services[item.key].body}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+</section>

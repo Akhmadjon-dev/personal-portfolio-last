@@ -1,0 +1,13 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import DevPrepApp from '../../../components/interview/DevPrepApp';
+import { DATA } from '../../../data/interview/uz';
+import { getDict } from '../../../i18n/utils';
+
+const t = getDict('uz');
+const labels = t.interview;
+---
+
+<Layout title={t.interview.title} locale="uz">
+  <DevPrepApp client:load data={DATA} labels={labels} storageKey="devprep:uz:completed" />
+</Layout>

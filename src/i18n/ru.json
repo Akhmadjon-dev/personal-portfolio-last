@@ -1,0 +1,295 @@
+{
+  "meta": {
+    "lang": "Русский",
+    "short": "RU"
+  },
+  "nav": {
+    "projects": "Проекты",
+    "about": "Обо мне",
+    "tools": "Инструменты",
+    "contact": "Контакты",
+    "cv": "Резюме"
+  },
+  "hero": {
+    "eyebrow": "Senior Frontend Engineer",
+    "headline": "Создаю быстрые и надёжные веб-приложения, которыми хочется пользоваться.",
+    "subline": "Шесть лет работы с React и Next.js — Pearson, EPAM, FinTech-стартапы, платформы с десятками тысяч активных пользователей.",
+    "cta_hire": "Связаться",
+    "cta_cv": "Скачать резюме",
+    "available": "Открыт к senior frontend ролям",
+    "scroll": "Прокрутить"
+  },
+  "what_i_do": {
+    "eyebrow": "Чем я занимаюсь",
+    "title": "Три направления, в которых я силён.",
+    "items": {
+      "frontend": {
+        "title": "Frontend в масштабе",
+        "body": "Архитектуры на React, Next.js и TypeScript, выдерживающие нагрузку 20 000+ одновременных пользователей."
+      },
+      "fullstack": {
+        "title": "Full-stack разработка",
+        "body": "Node, Express, REST и GraphQL — собираю продукт целиком, не только интерфейс."
+      },
+      "ai": {
+        "title": "AI-инструменты",
+        "body": "Функции на основе LLM, которые превращаются в реальные продукты, которыми пользуются."
+      }
+    }
+  },
+  "projects": {
+    "eyebrow": "Избранные работы",
+    "title": "Несколько проектов за последние шесть лет.",
+    "view_project": "Открыть проект",
+    "view_site": "Открыть сайт",
+    "tech_label": "Стек"
+  },
+  "tools": {
+    "eyebrow": "Личные инструменты",
+    "title": "Вещи, которые я сделал для себя — и они стали продуктами.",
+    "french": {
+      "title": "Mon Français",
+      "tagline": "AI-помощник по французскому",
+      "body": "63 темы по грамматике, 500+ слов, разговорная практика с обратной связью на базе Anthropic.",
+      "cta": "Открыть Mon Français"
+    },
+    "interview": {
+      "title": "DevPrep",
+      "tagline": "Подготовка к собеседованиям",
+      "body": "6 уровней сложности, отслеживание прогресса, режим только-код и мгновенный поиск по базе вопросов.",
+      "cta": "Открыть DevPrep"
+    }
+  },
+  "about": {
+    "eyebrow": "Обо мне",
+    "title": "Привет, я Ахмаджон.",
+    "body_1": "Senior Frontend Engineer, базируюсь в Джизаке, Узбекистан. Последние шесть лет работаю с компаниями из США, Великобритании и Восточной Европы — Pearson, EPAM, Codemotion Ninjas — над продуктами с большой нагрузкой.",
+    "body_2": "Мне важно, чтобы код быстро загружался, выдерживал нагрузку и оставался удобным для тех, кто будет его поддерживать после меня. В свободное время я делаю собственные инструменты — Mon Français и DevPrep, оба указаны выше.",
+    "currently": "Сейчас открыт к senior frontend позициям с удалённым форматом — глобально."
+  },
+  "skills": {
+    "title": "Стек",
+    "groups": {
+      "frontend": { "label": "Frontend", "items": ["React", "Next.js", "TypeScript", "Redux", "Tailwind", "MUI"] },
+      "backend": { "label": "Backend", "items": ["Node.js", "Express", "REST", "GraphQL"] },
+      "data": { "label": "Данные", "items": ["MongoDB", "SQL"] },
+      "tooling": { "label": "Инструменты", "items": ["Webpack", "Jest", "CI/CD", "Производительность"] }
+    }
+  },
+  "experience": {
+    "eyebrow": "Опыт работы",
+    "title": "Где я работал.",
+    "items": [
+      {
+        "company": "Pearson",
+        "role": "Web Developer",
+        "period": "Июл 2023 — Янв 2026",
+        "location": "Удалённо",
+        "summary": "React и Next.js для корпоративных e-commerce платформ с 20 000+ одновременных пользователей. Витрины на BigCommerce. Прямое взаимодействие со стейкхолдерами по требованиям и оценкам."
+      },
+      {
+        "company": "Codemotion Ninjas",
+        "role": "React Software Engineer",
+        "period": "Май 2022 — Июл 2023",
+        "location": "Украина, удалённо",
+        "summary": "Frontend-системы для FinTech и логистических стартапов. Масштабируемая UI-архитектура на React, Vue и TypeScript."
+      },
+      {
+        "company": "EPAM Systems",
+        "role": "Software Engineer",
+        "period": "2021 — 2022",
+        "location": "США",
+        "summary": "React + TypeScript на высоконагруженных корпоративных платформах. 10 000+ пользователей, 2 ТБ+ CDN, 1 000+ маркетинговых кампаний. Менторство и технические интервью."
+      },
+      {
+        "company": "Alitech Website Solutions",
+        "role": "Full-stack Developer",
+        "period": "2019 — 2021",
+        "location": "Узбекистан",
+        "summary": "Full-stack приложения на React, Node, Express, MongoDB. REST API, реалтайм-трекинг, интеграции и оптимизация производительности."
+      },
+      {
+        "company": "Alitech Website Solutions",
+        "role": "Frontend Developer",
+        "period": "2018 — 2019",
+        "location": "Узбекистан",
+        "summary": "UI на React + TypeScript. Ролевая авторизация, автоплатежи, KYC-системы для 20 000+ одновременных пользователей."
+      }
+    ]
+  },
+  "testimonials": {
+    "eyebrow": "Отзывы",
+    "title": "Что говорят те, с кем я работал.",
+    "items": [
+      {
+        "quote": "С Ахмаджоном работать — настоящее удовольствие. Тот самый программист, которому можно доверить проект от начала до конца.",
+        "name": "Клиент",
+        "role": "Бизнесмен"
+      },
+      {
+        "quote": "Чёткий коммуникатор с упорством и уверенностью, чтобы глубоко погружаться в сложные дизайн-задачи и выдавать отличный результат.",
+        "name": "Lead Designer",
+        "role": "Продуктовый дизайнер"
+      },
+      {
+        "quote": "Каждый проект сдан в срок и в точности по ТЗ. Самая высокая рекомендация с нашей стороны.",
+        "name": "Engineering Lead",
+        "role": "Разработчик"
+      }
+    ]
+  },
+  "contact": {
+    "eyebrow": "Связаться",
+    "title": "Есть идея? Давайте её соберём.",
+    "body": "Напишите мне — обычно отвечаю в течение 24 часов.",
+    "fields": {
+      "name": "Ваше имя",
+      "email": "Эл. почта",
+      "subject": "Тема (необязательно)",
+      "message": "Расскажите о проекте"
+    },
+    "send": "Отправить",
+    "sending": "Отправка…",
+    "success_title": "Получил — скоро отвечу.",
+    "success_body": "Спасибо за сообщение. Отвечу в течение дня.",
+    "error_title": "Что-то пошло не так",
+    "error_body": "Попробуйте ещё раз или напишите напрямую на info.ahmadjon@gmail.com.",
+    "or_email": "Или напишите напрямую",
+    "email_address": "info.ahmadjon@gmail.com",
+    "telegram_label": "Telegram",
+    "phone_label": "Телефон",
+    "location_label": "Местоположение",
+    "location": "Джизак, Узбекистан"
+  },
+  "footer": {
+    "tagline": "Сделано с заботой в Джизаке, Узбекистан.",
+    "built": "На Astro, React и Tailwind."
+  },
+  "french": {
+    "title": "Mon Français — Французская грамматика и обучение",
+    "hero_eyebrow": "Mon Français",
+    "hero_title": "Французская грамматика, лексика и диалоги — в одном месте.",
+    "hero_subtitle": "63+ темы грамматики, 500+ слов из Vite et Bien, реальные диалоги с культурными заметками и AI-тьютор, который объяснит любой ваш текст.",
+    "panels": {
+      "grammar": "Грамматика",
+      "vocab": "Лексика",
+      "speaking": "Разговор",
+      "ai": "AI-инструменты"
+    },
+    "panel_descriptions": {
+      "grammar": "Просматривайте и ищите 63+ темы грамматики со спряжениями, примерами и советами.",
+      "vocab": "Лексика по юнитам Vite et Bien. Поиск по французскому и английскому.",
+      "speaking": "20 тематических юнитов с диалогами, выражениями и культурными заметками.",
+      "ai": "Вставьте любой французский текст и получите AI-резюме, перевод или разбор грамматики."
+    },
+    "grammar_panel": {
+      "search_placeholder": "Поиск по темам…",
+      "diff": "Уровень",
+      "topic": "Тема",
+      "source": "Источник",
+      "no_results": "По фильтрам ничего не найдено.",
+      "total": "Показано",
+      "back_to_list": "Назад к списку"
+    },
+    "vocab_panel": {
+      "search_placeholder": "Поиск (французский или английский)…",
+      "no_results": "По поиску ничего не найдено.",
+      "total_units": "Показано",
+      "open": "Открыть",
+      "close": "Закрыть"
+    },
+    "speaking_panel": {
+      "search_placeholder": "Поиск по диалогам, выражениям, лексике…",
+      "no_results": "По поиску ничего не найдено.",
+      "total_units": "Показано",
+      "open": "Открыть",
+      "close": "Закрыть",
+      "analyse_with_ai": "Разобрать диалоги с AI"
+    },
+    "ai_panel": {
+      "title": "AI-помощник",
+      "body": "Вставьте любой французский текст — диалог, статью, упражнение — и получите мгновенное объяснение.",
+      "mode_label": "Что сделать с текстом?",
+      "modes": {
+        "summarize": "Резюме",
+        "explain": "Объяснить грамматику",
+        "translate": "Перевести",
+        "vocab": "Ключевая лексика",
+        "dialogue": "Разобрать диалог"
+      },
+      "text_label": "Французский текст",
+      "text_placeholder": "Вставьте ваш французский текст…",
+      "extra_label": "Доп. указания (необязательно)",
+      "extra_placeholder": "напр. сфокусируйся на сослагательном наклонении…",
+      "run": "Разобрать с AI",
+      "running": "Анализирую…",
+      "result_label": "Результат",
+      "copy": "Скопировать",
+      "copied": "Скопировано!",
+      "api_notice": "Сначала добавьте ваш Anthropic API ключ.",
+      "api_key_label": "Anthropic API ключ",
+      "api_key_placeholder": "sk-ant-…",
+      "api_key_save": "Сохранить",
+      "api_key_saved": "Сохранено",
+      "api_key_get": "Получить ключ —",
+      "api_key_url_label": "console.anthropic.com"
+    }
+  },
+  "interview": {
+    "title": "DevPrep — Подготовка к собеседованиям",
+    "headline_pre": "Сдай",
+    "headline_highlight": "технический интервью",
+    "subtitle": "Вопросы для full-stack, web и frontend собеседований — с ответами.",
+    "search_placeholder": "Поиск по вопросам…",
+    "code_only": "Только код-задачи",
+    "hide_completed": "Скрыть выполненные",
+    "all_levels": "Все уровни",
+    "results": "{count} совпадений",
+    "progress": "Прогресс: {done} / {total} ({pct}%)",
+    "no_results": "Ничего не найдено по фильтрам.",
+    "back_home": "На главную",
+    "footer": "Личный инструмент подготовки. Не сдавайтесь.",
+    "levels": {
+      "entry": "Entry",
+      "junior": "Junior",
+      "mid": "Mid",
+      "senior": "Senior",
+      "expert": "Expert",
+      "architect": "Architect"
+    },
+    "type_code": "Код",
+    "type_theory": "Теория"
+  },
+  "cv": {
+    "title": "Резюме",
+    "subtitle": "Senior Frontend Engineer — React, Next.js, TypeScript",
+    "summary_label": "Кратко",
+    "summary_body": "Senior Frontend Engineer с опытом 6+ лет в создании масштабируемых, высокопроизводительных веб-приложений для корпоративных и продуктовых компаний, включая Pearson и EPAM. Специализация — React, Next.js и TypeScript, опыт работы с платформами на 10 000–20 000+ одновременных пользователей.",
+    "location_label": "Местоположение",
+    "location_value": "Узбекистан — открыт к удалённой работе, глобально",
+    "email_label": "Эл. почта",
+    "site_label": "Сайт",
+    "linkedin_label": "LinkedIn",
+    "skills_label": "Технические навыки",
+    "experience_label": "Опыт работы",
+    "education_label": "Образование",
+    "leadership_label": "Лидерство и менторство",
+    "additional_label": "Дополнительно",
+    "languages_label": "Языки",
+    "certifications_label": "Сертификаты",
+    "download_pdf": "Скачать PDF",
+    "back_home": "На главную",
+    "education_item": {
+      "degree": "Бакалавр радиоустройств и сетей",
+      "school": "Джизакский политехнический институт",
+      "period": "2018 — 2022"
+    },
+    "leadership_items": [
+      "Ментор программы EPAM lab — поддержка новых инженеров.",
+      "Frontend-ментор-волонтёр в IT Park Jizzakh (2020–2021).",
+      "Технический интервьюер для junior frontend кандидатов."
+    ],
+    "languages_value": "Английский (продвинутый), французский, русский (элементарный)",
+    "certifications_value": "JavaScript: Best Practices for Functions and Classes; Node.js: Microservices; React Native CRM Application Development."
+  }
+}

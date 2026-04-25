@@ -1,0 +1,10 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Cv from '../../components/portfolio/Cv.astro';
+import { getDict } from '../../i18n/utils';
+const t = getDict('ru');
+---
+
+<Layout title={`${t.cv.title} — Ahmadjon Abdusamadov`} locale="ru">
+  <Cv locale="ru" />
+</Layout>

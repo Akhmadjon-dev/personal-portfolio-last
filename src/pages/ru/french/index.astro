@@ -1,0 +1,22 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import MonFrancaisApp from '../../../components/french/MonFrancaisApp';
+import { getDict } from '../../../i18n/utils';
+
+const t = getDict('ru');
+const labels = {
+  hero_eyebrow: t.french.hero_eyebrow,
+  hero_title: t.french.hero_title,
+  hero_subtitle: t.french.hero_subtitle,
+  panels: t.french.panels,
+  panel_descriptions: t.french.panel_descriptions,
+  grammar: t.french.grammar_panel,
+  vocab: t.french.vocab_panel,
+  speaking: t.french.speaking_panel,
+  ai: t.french.ai_panel,
+};
+---
+
+<Layout title={t.french.title} locale="ru">
+  <MonFrancaisApp client:load locale="ru" labels={labels} />
+</Layout>

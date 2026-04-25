@@ -1,0 +1,56 @@
+---
+import { getDict, localizePath, type Locale } from '../../i18n/utils';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getDict(locale);
+
+const tools = [
+  {
+    key: 'french' as const,
+    href: localizePath('/french', locale),
+    accent: 'from-accent-warm/20 via-accent-warm/5 to-transparent',
+    glyph: 'Fr',
+  },
+  {
+    key: 'interview' as const,
+    href: localizePath('/interview', locale),
+    accent: 'from-accent/20 via-accent/5 to-transparent',
+    glyph: '</>',
+  },
+];
+---
+
+<section id="tools" class="max-w-6xl mx-auto px-6 py-20 md:py-28">
+  <div class="mb-12 md:mb-16 max-w-2xl">
+    <p class="font-mono text-xs uppercase tracking-widest text-accent mb-3">{t.tools.eyebrow}</p>
+    <h2 class="font-display text-4xl md:text-5xl tracking-tight">{t.tools.title}</h2>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-6">
+    {tools.map((tool) => (
+      <a
+        href={tool.href}
+        class="group relative overflow-hidden rounded-[var(--radius-card)] border border-mist dark:border-white/10 bg-paper dark:bg-white/[0.02] p-8 md:p-10 hover:border-ink/25 dark:hover:border-white/25 transition-colors"
+      >
+        <div class={`absolute inset-0 bg-gradient-to-br ${tool.accent} opacity-70 group-hover:opacity-100 transition-opacity`} aria-hidden="true"></div>
+        <div class="relative">
+          <div class="flex items-baseline justify-between mb-6">
+            <span class="font-display text-5xl md:text-6xl text-ink/20 dark:text-white/15 select-none">{tool.glyph}</span>
+            <span class="font-mono text-[11px] uppercase tracking-widest text-accent">Tool</span>
+          </div>
+          <p class="font-mono text-xs uppercase tracking-widest text-muted mb-2">{t.tools[tool.key].tagline}</p>
+          <h3 class="font-display text-3xl md:text-4xl tracking-tight mb-3">{t.tools[tool.key].title}</h3>
+          <p class="text-muted leading-relaxed mb-6 max-w-md">{t.tools[tool.key].body}</p>
+          <span class="inline-flex items-center gap-2 text-sm font-medium text-ink dark:text-paper">
+            {t.tools[tool.key].cta}
+            <span class="transition-transform group-hover:translate-x-1">→</span>
+          </span>
+        </div>
+      </a>
+    ))}
+  </div>
+</section>

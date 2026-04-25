@@ -1,0 +1,84 @@
+---
+import { Image } from 'astro:assets';
+import { getDict, localizePath, type Locale } from '../../i18n/utils';
+import photo from '../../assets/photos/ahmadjon.jpg';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getDict(locale);
+---
+
+<section class="relative overflow-hidden">
+  <div class="absolute inset-0 -z-10 pointer-events-none">
+    <div class="absolute -top-40 -left-40 w-[42rem] h-[42rem] rounded-full bg-accent/10 blur-3xl"></div>
+    <div class="absolute -bottom-32 right-0 w-[34rem] h-[34rem] rounded-full bg-accent-warm/10 blur-3xl"></div>
+  </div>
+
+  <div class="max-w-6xl mx-auto px-6 pt-16 md:pt-24 pb-20 md:pb-28">
+    <div class="grid md:grid-cols-[1.4fr_1fr] gap-10 md:gap-16 items-center">
+      <div class="order-2 md:order-1">
+        <div
+          class="inline-flex items-center gap-2 rounded-full border border-mist dark:border-white/10 bg-paper/50 dark:bg-white/[0.02] backdrop-blur px-3 py-1.5 mb-8"
+        >
+          <span class="relative flex h-2 w-2">
+            <span class="absolute inline-flex h-full w-full rounded-full bg-success/60 animate-ping"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-success"></span>
+          </span>
+          <span class="text-xs font-mono text-muted">{t.hero.available}</span>
+        </div>
+
+        <p class="font-mono text-xs uppercase tracking-widest text-accent mb-5">{t.hero.eyebrow}</p>
+
+        <h1 class="font-display text-5xl md:text-7xl leading-[1.02] tracking-tight max-w-3xl">
+          {t.hero.headline}
+        </h1>
+
+        <p class="mt-7 text-lg md:text-xl text-muted max-w-2xl leading-relaxed">
+          {t.hero.subline}
+        </p>
+
+        <div class="mt-9 flex flex-wrap gap-3">
+          <a
+            href={localizePath('/#contact', locale)}
+            class="group inline-flex items-center gap-2 px-6 py-3 rounded-full bg-ink text-paper dark:bg-paper dark:text-ink font-medium hover:opacity-90 transition-opacity"
+          >
+            {t.hero.cta_hire}
+            <span class="transition-transform group-hover:translate-x-0.5">→</span>
+          </a>
+          <a
+            href="/cv.pdf"
+            class="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-ink/15 dark:border-white/15 hover:bg-paper-dim dark:hover:bg-white/5 transition-colors"
+          >
+            {t.hero.cta_cv}
+          </a>
+        </div>
+      </div>
+
+      <div class="order-1 md:order-2">
+        <div class="relative max-w-sm mx-auto md:max-w-none">
+          <div
+            class="absolute inset-0 -translate-x-3 translate-y-3 rounded-[2rem] bg-accent/15 dark:bg-accent/10"
+            aria-hidden="true"
+          >
+          </div>
+          <div class="absolute inset-0 translate-x-3 -translate-y-3 rounded-[2rem] bg-accent-warm/15 dark:bg-accent-warm/10" aria-hidden="true"></div>
+          <div
+            class="relative rounded-[2rem] overflow-hidden border border-mist dark:border-white/10 bg-paper-dim dark:bg-white/[0.02] aspect-[4/5]"
+          >
+            <Image
+              src={photo}
+              alt="Ahmadjon Abdusamadov"
+              widths={[400, 600, 800]}
+              sizes="(min-width: 768px) 380px, 80vw"
+              class="w-full h-full object-cover"
+              loading="eager"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

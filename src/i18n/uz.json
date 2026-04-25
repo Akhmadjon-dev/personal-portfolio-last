@@ -1,0 +1,295 @@
+{
+  "meta": {
+    "lang": "O'zbekcha",
+    "short": "UZ"
+  },
+  "nav": {
+    "projects": "Loyihalar",
+    "about": "Men haqimda",
+    "tools": "Vositalar",
+    "contact": "Aloqa",
+    "cv": "Rezyume"
+  },
+  "hero": {
+    "eyebrow": "Senior Frontend Engineer",
+    "headline": "Tez va ishonchli veb-ilovalar yarataman — odamlar haqiqatdan foydalanadigan.",
+    "subline": "Olti yil davomida Pearson, EPAM va FinTech startaplari uchun React va Next.js platformalarni yetkazib berdim — o'n minglab bir vaqtdagi foydalanuvchilar bilan.",
+    "cta_hire": "Bog'lanish",
+    "cta_cv": "Rezyumeni yuklab olish",
+    "available": "Senior frontend rollar uchun ochiqman",
+    "scroll": "Aylantiring"
+  },
+  "what_i_do": {
+    "eyebrow": "Nima qilaman",
+    "title": "Boshidan oxirigacha mukammal qiladigan uch yo'nalish.",
+    "items": {
+      "frontend": {
+        "title": "Katta hajmdagi frontend",
+        "body": "20 000+ bir vaqtdagi foydalanuvchini ko'taradigan React, Next.js va TypeScript arxitekturalari."
+      },
+      "fullstack": {
+        "title": "Full-stack yetkazib berish",
+        "body": "Node, Express, REST va GraphQL — faqat interfeys emas, butun mahsulotni yetkazaman."
+      },
+      "ai": {
+        "title": "AI bilan birlashgan vositalar",
+        "body": "Odamlar haqiqatdan foydalana boshlaydigan, LLM bilan ishlaydigan funksiyalar."
+      }
+    }
+  },
+  "projects": {
+    "eyebrow": "Tanlangan ishlar",
+    "title": "Oxirgi olti yildagi bir nechta loyiha.",
+    "view_project": "Loyihani ko'rish",
+    "view_site": "Saytni ko'rish",
+    "tech_label": "Stek"
+  },
+  "tools": {
+    "eyebrow": "Shaxsiy vositalar",
+    "title": "O'zim uchun yaratgan, mahsulotga aylangan narsalar.",
+    "french": {
+      "title": "Mon Français",
+      "tagline": "AI yordamida fransuz tili",
+      "body": "63 grammatika mavzusi, 500+ so'z, Anthropic asosida nutq mashqi va izohlar.",
+      "cta": "Mon Français-ni ochish"
+    },
+    "interview": {
+      "title": "DevPrep",
+      "tagline": "Suhbatga tayyorgarlik",
+      "body": "6 ta qiyinlik darajasi, taraqqiyot kuzatuvi, faqat-kod rejimi va savollar bo'yicha tezkor qidiruv.",
+      "cta": "DevPrep-ni ochish"
+    }
+  },
+  "about": {
+    "eyebrow": "Men haqimda",
+    "title": "Salom, men Ahmadjonman.",
+    "body_1": "Men O'zbekistonning Jizzax shahridanman — Senior Frontend Engineer. Oxirgi olti yil davomida AQSh, Buyuk Britaniya va Sharqiy Yevropadagi kompaniyalar bilan ishladim — Pearson, EPAM, Codemotion Ninjas — yuqori yuklamali mahsulotlar ustida.",
+    "body_2": "Men uchun muhimi — kod tez yuklansin, yuklamani ko'tarsin va mendan keyin uni qo'llab-quvvatlayotgan odamlarga qulay bo'lsin. Bo'sh vaqtda o'z vositalarimni quraman — Mon Français va DevPrep, ikkalasi ham yuqorida.",
+    "currently": "Hozir senior frontend rollarga ochiqman — masofadan, butun dunyo bo'ylab."
+  },
+  "skills": {
+    "title": "Stek",
+    "groups": {
+      "frontend": { "label": "Frontend", "items": ["React", "Next.js", "TypeScript", "Redux", "Tailwind", "MUI"] },
+      "backend": { "label": "Backend", "items": ["Node.js", "Express", "REST", "GraphQL"] },
+      "data": { "label": "Ma'lumotlar", "items": ["MongoDB", "SQL"] },
+      "tooling": { "label": "Vositalar", "items": ["Webpack", "Jest", "CI/CD", "Tezlik"] }
+    }
+  },
+  "experience": {
+    "eyebrow": "Tajriba",
+    "title": "Qayerda ishladim.",
+    "items": [
+      {
+        "company": "Pearson",
+        "role": "Web Developer",
+        "period": "Iyul 2023 — Yan 2026",
+        "location": "Masofadan",
+        "summary": "20 000+ bir vaqtdagi foydalanuvchili korporativ e-commerce platformalar uchun React va Next.js. BigCommerce do'konlari. Talablar va baholash bo'yicha to'g'ridan-to'g'ri stakeholderlar bilan ishlash."
+      },
+      {
+        "company": "Codemotion Ninjas",
+        "role": "React Software Engineer",
+        "period": "May 2022 — Iyul 2023",
+        "location": "Ukraina, masofadan",
+        "summary": "FinTech va logistika startaplari uchun frontend tizimlar. React, Vue va TypeScript da kengaytiriladigan UI arxitekturasi."
+      },
+      {
+        "company": "EPAM Systems",
+        "role": "Software Engineer",
+        "period": "2021 — 2022",
+        "location": "AQSh",
+        "summary": "Yuqori yuklamali korporativ platformalarda React + TypeScript. 10 000+ foydalanuvchi, 2 TB+ CDN, 1 000+ marketing kampaniyasi. Junior dasturchilarni o'qitish va texnik intervyu."
+      },
+      {
+        "company": "Alitech Website Solutions",
+        "role": "Full-stack Developer",
+        "period": "2019 — 2021",
+        "location": "O'zbekiston",
+        "summary": "React, Node, Express, MongoDB asosida full-stack ilovalar. REST API, real vaqt kuzatuv, integratsiyalar va tezlikni optimallashtirish."
+      },
+      {
+        "company": "Alitech Website Solutions",
+        "role": "Frontend Developer",
+        "period": "2018 — 2019",
+        "location": "O'zbekiston",
+        "summary": "React + TypeScript UI. Rolga asoslangan avtorizatsiya, avtotolov, 20 000+ bir vaqtdagi foydalanuvchili KYC tizimlar."
+      }
+    ]
+  },
+  "testimonials": {
+    "eyebrow": "Yaxshi so'zlar",
+    "title": "Birga ishlagan odamlar nima deydi.",
+    "items": [
+      {
+        "quote": "Ahmadjon bilan ishlash haqiqiy zavq edi — loyihani boshidan oxirigacha ishonib topshirsa bo'ladigan dasturchi.",
+        "name": "Mijoz",
+        "role": "Tadbirkor"
+      },
+      {
+        "quote": "Aniq muloqotchi, murakkab dizayn vaziyatlariga sabr va ishonch bilan kirib boradigan, ajoyib natija beradigan mutaxassis.",
+        "name": "Lead Designer",
+        "role": "Mahsulot dizayneri"
+      },
+      {
+        "quote": "Har bir loyiha o'z vaqtida va aniq kelishilganidek topshiriladi. Eng yuqori darajadagi tavsiyamizni bera olamiz.",
+        "name": "Engineering Lead",
+        "role": "Dasturchi"
+      }
+    ]
+  },
+  "contact": {
+    "eyebrow": "Bog'lanish",
+    "title": "G'oya bormi? Birga quramiz.",
+    "body": "Yozing — odatda 24 soat ichida javob beraman.",
+    "fields": {
+      "name": "Ismingiz",
+      "email": "Elektron pochta",
+      "subject": "Mavzu (ixtiyoriy)",
+      "message": "Loyihangiz haqida yozing"
+    },
+    "send": "Yuborish",
+    "sending": "Yuborilmoqda…",
+    "success_title": "Oldim — yaqinda javob beraman.",
+    "success_body": "Xabar uchun rahmat. Bir kun ichida javob beraman.",
+    "error_title": "Nimadir noto'g'ri ketdi",
+    "error_body": "Yana urinib ko'ring yoki to'g'ridan-to'g'ri info.ahmadjon@gmail.com ga yozing.",
+    "or_email": "Yoki to'g'ridan-to'g'ri yozing",
+    "email_address": "info.ahmadjon@gmail.com",
+    "telegram_label": "Telegram",
+    "phone_label": "Telefon",
+    "location_label": "Joylashuv",
+    "location": "Jizzax, O'zbekiston"
+  },
+  "footer": {
+    "tagline": "Jizzax, O'zbekistonda mehr bilan yaratilgan.",
+    "built": "Astro, React va Tailwind asosida."
+  },
+  "french": {
+    "title": "Mon Français — Fransuz grammatikasi va o'rganish",
+    "hero_eyebrow": "Mon Français",
+    "hero_title": "Fransuz grammatikasi, lug'at va dialoglar — bir joyda.",
+    "hero_subtitle": "63+ grammatika mavzusi, Vite et Bien'dan 500+ so'z, madaniy izohli haqiqiy dialoglar va siz qo'ygan har qanday matnni tushuntirib beradigan AI-o'qituvchi.",
+    "panels": {
+      "grammar": "Grammatika",
+      "vocab": "Lug'at",
+      "speaking": "Nutq",
+      "ai": "AI vositalari"
+    },
+    "panel_descriptions": {
+      "grammar": "63+ grammatika mavzusini tuslanish, misollar va maslahatlar bilan ko'ring va izlang.",
+      "vocab": "Vite et Bien bo'limlari bo'yicha lug'at. Fransuz va ingliz tilida qidiring.",
+      "speaking": "Haqiqiy dialoglar, iboralar va madaniy izohlari bilan 20 ta mavzuli bo'lim.",
+      "ai": "Har qanday fransuzcha matnni qo'ying — AI yordamida xulosa, tarjima yoki grammatika tahlilini oling."
+    },
+    "grammar_panel": {
+      "search_placeholder": "Grammatika mavzularini qidiring…",
+      "diff": "Daraja",
+      "topic": "Mavzu",
+      "source": "Manba",
+      "no_results": "Filtrlar bo'yicha hech narsa topilmadi.",
+      "total": "Ko'rinmoqda",
+      "back_to_list": "Ro'yxatga qaytish"
+    },
+    "vocab_panel": {
+      "search_placeholder": "Lug'atni qidirish (fransuz yoki ingliz)…",
+      "no_results": "Hech narsa topilmadi.",
+      "total_units": "Ko'rinmoqda",
+      "open": "Ochish",
+      "close": "Yopish"
+    },
+    "speaking_panel": {
+      "search_placeholder": "Dialoglar, iboralar, lug'at bo'yicha qidirish…",
+      "no_results": "Hech narsa topilmadi.",
+      "total_units": "Ko'rinmoqda",
+      "open": "Ochish",
+      "close": "Yopish",
+      "analyse_with_ai": "Bu dialoglarni AI bilan tahlil qilish"
+    },
+    "ai_panel": {
+      "title": "AI matn yordamchisi",
+      "body": "Har qanday fransuzcha matn — dialog, maqola yoki mashq — qo'ying, AI sizga tushuntirib beradi.",
+      "mode_label": "Matn bilan nima qilay?",
+      "modes": {
+        "summarize": "Xulosa",
+        "explain": "Grammatikani tushuntir",
+        "translate": "Tarjima",
+        "vocab": "Asosiy lug'at",
+        "dialogue": "Dialogni tushuntir"
+      },
+      "text_label": "Fransuzcha matn",
+      "text_placeholder": "Fransuzcha matningizni shu yerga qo'ying…",
+      "extra_label": "Qo'shimcha ko'rsatmalar (ixtiyoriy)",
+      "extra_placeholder": "masalan, subjonctif ishlatilishiga e'tibor qarating…",
+      "run": "AI bilan tahlil",
+      "running": "Tahlil qilinmoqda…",
+      "result_label": "Natija",
+      "copy": "Nusxalash",
+      "copied": "Nusxalandi!",
+      "api_notice": "Avval Anthropic API kalitingizni qo'shing.",
+      "api_key_label": "Anthropic API kaliti",
+      "api_key_placeholder": "sk-ant-…",
+      "api_key_save": "Saqlash",
+      "api_key_saved": "Saqlandi",
+      "api_key_get": "Kalit oling —",
+      "api_key_url_label": "console.anthropic.com"
+    }
+  },
+  "interview": {
+    "title": "DevPrep — Suhbatga tayyorgarlik",
+    "headline_pre": "Texnik",
+    "headline_highlight": "intervyuni yeng",
+    "subtitle": "Full-stack, web va frontend intervyu savollari — javoblar bilan.",
+    "search_placeholder": "Savollarni qidiring…",
+    "code_only": "Faqat kod mashqlari",
+    "hide_completed": "Bajarilganlarni yashirish",
+    "all_levels": "Barcha darajalar",
+    "results": "{count} mos",
+    "progress": "Jarayon: {done} / {total} ({pct}%)",
+    "no_results": "Filtrlar bo'yicha hech narsa topilmadi.",
+    "back_home": "Bosh sahifaga",
+    "footer": "Shaxsiy intervyuga tayyorgarlik vositangiz. Davom eting.",
+    "levels": {
+      "entry": "Entry",
+      "junior": "Junior",
+      "mid": "Mid",
+      "senior": "Senior",
+      "expert": "Expert",
+      "architect": "Architect"
+    },
+    "type_code": "Kod",
+    "type_theory": "Nazariya"
+  },
+  "cv": {
+    "title": "Rezyume",
+    "subtitle": "Senior Frontend Engineer — React, Next.js, TypeScript",
+    "summary_label": "Qisqa ma'lumot",
+    "summary_body": "Pearson va EPAM kabi korporativ va mahsulot kompaniyalari uchun kengaytiriladigan, yuqori unumdorlikdagi veb-ilovalar yaratish bo'yicha 6+ yillik tajribaga ega Senior Frontend Engineer. React, Next.js va TypeScript bo'yicha mutaxassislashgan, 10 000–20 000+ bir vaqtdagi foydalanuvchili platformalarda tajribaga ega.",
+    "location_label": "Joylashuv",
+    "location_value": "O'zbekiston — masofaviy, global hamkorlikka ochiq",
+    "email_label": "Elektron pochta",
+    "site_label": "Sayt",
+    "linkedin_label": "LinkedIn",
+    "skills_label": "Texnik ko'nikmalar",
+    "experience_label": "Ish tajribasi",
+    "education_label": "Ta'lim",
+    "leadership_label": "Yetakchilik va mentorlik",
+    "additional_label": "Qo'shimcha",
+    "languages_label": "Tillar",
+    "certifications_label": "Sertifikatlar",
+    "download_pdf": "PDF yuklab olish",
+    "back_home": "Bosh sahifaga",
+    "education_item": {
+      "degree": "Radio qurilmalar va tarmoqlar bo'yicha bakalavr",
+      "school": "Jizzax Politexnika Instituti",
+      "period": "2018 — 2022"
+    },
+    "leadership_items": [
+      "EPAM lab dasturida mentor — yangi muhandislarning onboardingiga yordam.",
+      "IT Park Jizzakhda volontyor frontend mentor (2020–2021).",
+      "Junior frontend nomzodlar uchun texnik intervyuer."
+    ],
+    "languages_value": "Ingliz (yuqori daraja), fransuz, rus (boshlang'ich)",
+    "certifications_value": "JavaScript: Best Practices for Functions and Classes; Node.js: Microservices; React Native CRM Application Development."
+  }
+}

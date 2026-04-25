@@ -1,0 +1,18 @@
+{
+  "title": "LinguaLift",
+  "tagline": {
+    "en": "A complete language-learning program with personalized plans, tools, and guided lessons.",
+    "ru": "Комплексная программа изучения языков с персональными планами, инструментами и уроками.",
+    "uz": "Shaxsiy rejalar, vositalar va yo'naltirilgan darslar bilan to'liq til o'rganish dasturi."
+  },
+  "outcome": {
+    "en": "Frontend for adaptive learning paths plus tutoring tools. Smooth UX even on slow connections.",
+    "ru": "Frontend для адаптивных треков обучения и инструментов тьюторов. Плавный UX даже на слабом интернете.",
+    "uz": "Adaptiv o'quv yo'llari va tyutorlar uchun vositalar uchun frontend. Sekin internetda ham silliq UX."
+  },
+  "tech": ["React", "TypeScript", "Redux"],
+  "image": "../../assets/projects/lingua.webp",
+  "link": "https://app.lingualift.com/",
+  "siteLink": "https://www.lingualift.com/",
+  "order": 4
+}

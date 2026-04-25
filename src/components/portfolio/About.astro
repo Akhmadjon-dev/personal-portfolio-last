@@ -1,0 +1,52 @@
+---
+import { getDict, type Locale } from '../../i18n/utils';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getDict(locale);
+
+const groups = [
+  { key: 'frontend' as const },
+  { key: 'backend' as const },
+  { key: 'data' as const },
+  { key: 'tooling' as const },
+];
+---
+
+<section id="about" class="max-w-6xl mx-auto px-6 py-20 md:py-28">
+  <div class="grid md:grid-cols-[1fr_1fr] gap-12 md:gap-20">
+    <div>
+      <p class="font-mono text-xs uppercase tracking-widest text-accent mb-3">{t.about.eyebrow}</p>
+      <h2 class="font-display text-4xl md:text-5xl tracking-tight mb-8">{t.about.title}</h2>
+      <div class="space-y-5 text-lg leading-relaxed text-ink-soft dark:text-paper/80">
+        <p>{t.about.body_1}</p>
+        <p>{t.about.body_2}</p>
+      </div>
+      <p class="mt-8 inline-flex items-center gap-2 text-sm font-mono text-muted">
+        <span class="w-1.5 h-1.5 rounded-full bg-success"></span>
+        {t.about.currently}
+      </p>
+    </div>
+
+    <div>
+      <h3 class="font-display text-2xl mb-6">{t.skills.title}</h3>
+      <div class="space-y-6">
+        {groups.map((g) => (
+          <div>
+            <p class="font-mono text-[11px] uppercase tracking-widest text-muted mb-3">{t.skills.groups[g.key].label}</p>
+            <div class="flex flex-wrap gap-1.5">
+              {t.skills.groups[g.key].items.map((item: string) => (
+                <span class="px-3 py-1 rounded-full border border-mist dark:border-white/10 bg-paper-dim dark:bg-white/[0.03] text-sm">
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>

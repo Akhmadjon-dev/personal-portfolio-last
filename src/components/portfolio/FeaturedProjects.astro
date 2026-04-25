@@ -1,0 +1,28 @@
+---
+import { getCollection } from 'astro:content';
+import ProjectCard from './ProjectCard.astro';
+import { getDict, type Locale } from '../../i18n/utils';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getDict(locale);
+
+const all = await getCollection('projects', ({ data }) => data.featured !== false);
+const projects = all.sort((a, b) => a.data.order - b.data.order);
+---
+
+<section id="projects" class="max-w-6xl mx-auto px-6 py-20 md:py-28">
+  <div class="mb-12 md:mb-16 max-w-2xl">
+    <p class="font-mono text-xs uppercase tracking-widest text-accent mb-3">{t.projects.eyebrow}</p>
+    <h2 class="font-display text-4xl md:text-5xl tracking-tight">{t.projects.title}</h2>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-6 md:gap-8">
+    {projects.map((project) => (
+      <ProjectCard project={project} locale={locale} />
+    ))}
+  </div>
+</section>

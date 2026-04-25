@@ -1,0 +1,61 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import { getDict, type Locale } from '../../i18n/utils';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+  locale: Locale;
+}
+
+const { project, locale } = Astro.props;
+const { title, tagline, outcome, tech, image, link, siteLink } = project.data;
+const t = getDict(locale);
+---
+
+<article class="group rounded-[var(--radius-card)] border border-mist dark:border-white/10 bg-paper dark:bg-white/[0.02] overflow-hidden hover:border-ink/25 dark:hover:border-white/25 transition-colors">
+  <div class="aspect-[16/10] overflow-hidden bg-paper-dim dark:bg-white/[0.03] border-b border-mist dark:border-white/10">
+    <Image
+      src={image}
+      alt={`${title} — screenshot`}
+      widths={[480, 800, 1200]}
+      sizes="(min-width: 768px) 500px, 90vw"
+      class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+      loading="lazy"
+    />
+  </div>
+
+  <div class="p-6 md:p-7">
+    <h3 class="font-display text-2xl md:text-3xl tracking-tight mb-2">{title}</h3>
+    <p class="text-muted leading-relaxed">{tagline[locale]}</p>
+
+    {outcome && (
+      <p class="mt-4 text-sm leading-relaxed border-l-2 border-accent/40 pl-3">
+        {outcome[locale]}
+      </p>
+    )}
+
+    <div class="mt-5 flex flex-wrap gap-1.5">
+      {tech.map((t) => (
+        <span class="font-mono text-[11px] uppercase tracking-wider text-muted px-2 py-1 rounded-full border border-mist dark:border-white/10 bg-paper-dim dark:bg-white/[0.03]">
+          {t}
+        </span>
+      ))}
+    </div>
+
+    {(link || siteLink) && (
+      <div class="mt-6 flex flex-wrap gap-4 text-sm">
+        {link && (
+          <a href={link} target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-accent hover:underline">
+            {t.projects.view_project} <span aria-hidden="true">↗</span>
+          </a>
+        )}
+        {siteLink && (
+          <a href={siteLink} target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-muted hover:text-ink dark:hover:text-paper">
+            {t.projects.view_site} <span aria-hidden="true">↗</span>
+          </a>
+        )}
+      </div>
+    )}
+  </div>
+</article>
