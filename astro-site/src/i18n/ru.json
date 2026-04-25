@@ -165,6 +165,31 @@
     "tagline": "Сделано с заботой в Джизаке, Узбекистан.",
     "built": "На Astro, React и Tailwind."
   },
+  "interview": {
+    "title": "DevPrep — Подготовка к собеседованиям",
+    "headline_pre": "Сдай",
+    "headline_highlight": "технический интервью",
+    "subtitle": "Вопросы для full-stack, web и frontend собеседований — с ответами.",
+    "search_placeholder": "Поиск по вопросам…",
+    "code_only": "Только код-задачи",
+    "hide_completed": "Скрыть выполненные",
+    "all_levels": "Все уровни",
+    "results": "{count} совпадений",
+    "progress": "Прогресс: {done} / {total} ({pct}%)",
+    "no_results": "Ничего не найдено по фильтрам.",
+    "back_home": "На главную",
+    "footer": "Личный инструмент подготовки. Не сдавайтесь.",
+    "levels": {
+      "entry": "Entry",
+      "junior": "Junior",
+      "mid": "Mid",
+      "senior": "Senior",
+      "expert": "Expert",
+      "architect": "Architect"
+    },
+    "type_code": "Код",
+    "type_theory": "Теория"
+  },
   "cv": {
     "title": "Резюме",
     "subtitle": "Senior Frontend Engineer — React, Next.js, TypeScript",

@@ -1,10 +1,13 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
-import Placeholder from '../../../components/portfolio/Placeholder.astro';
+import DevPrepApp from '../../../components/interview/DevPrepApp';
+import { DATA } from '../../../data/interview/en';
 import { getDict } from '../../../i18n/utils';
+
 const t = getDict('ru');
+const labels = t.interview;
 ---
 
-<Layout title={`${t.tools.interview.title} — Ahmadjon Abdusamadov`} locale="ru">
-  <Placeholder locale="ru" title={t.tools.interview.title} note="DevPrep переезжает со старого single-file приложения. Полная перестройка — в Фазе 2." />
+<Layout title={t.interview.title} locale="ru">
+  <DevPrepApp client:load data={DATA} labels={labels} storageKey="devprep:ru:completed" />
 </Layout>

@@ -165,6 +165,31 @@
     "tagline": "Jizzax, O'zbekistonda mehr bilan yaratilgan.",
     "built": "Astro, React va Tailwind asosida."
   },
+  "interview": {
+    "title": "DevPrep — Suhbatga tayyorgarlik",
+    "headline_pre": "Texnik",
+    "headline_highlight": "intervyuni yeng",
+    "subtitle": "Full-stack, web va frontend intervyu savollari — javoblar bilan.",
+    "search_placeholder": "Savollarni qidiring…",
+    "code_only": "Faqat kod mashqlari",
+    "hide_completed": "Bajarilganlarni yashirish",
+    "all_levels": "Barcha darajalar",
+    "results": "{count} mos",
+    "progress": "Jarayon: {done} / {total} ({pct}%)",
+    "no_results": "Filtrlar bo'yicha hech narsa topilmadi.",
+    "back_home": "Bosh sahifaga",
+    "footer": "Shaxsiy intervyuga tayyorgarlik vositangiz. Davom eting.",
+    "levels": {
+      "entry": "Entry",
+      "junior": "Junior",
+      "mid": "Mid",
+      "senior": "Senior",
+      "expert": "Expert",
+      "architect": "Architect"
+    },
+    "type_code": "Kod",
+    "type_theory": "Nazariya"
+  },
   "cv": {
     "title": "Rezyume",
     "subtitle": "Senior Frontend Engineer — React, Next.js, TypeScript",

@@ -1,10 +1,13 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import Placeholder from '../../components/portfolio/Placeholder.astro';
+import DevPrepApp from '../../components/interview/DevPrepApp';
+import { DATA } from '../../data/interview/en';
 import { getDict } from '../../i18n/utils';
+
 const t = getDict('en');
+const labels = t.interview;
 ---
 
-<Layout title={`${t.tools.interview.title} — Ahmadjon Abdusamadov`} locale="en">
-  <Placeholder locale="en" title={t.tools.interview.title} note="DevPrep is migrating from the legacy single-file app. Full rebuild lands in Phase 2." />
+<Layout title={t.interview.title} locale="en">
+  <DevPrepApp client:load data={DATA} labels={labels} storageKey="devprep:en:completed" />
 </Layout>

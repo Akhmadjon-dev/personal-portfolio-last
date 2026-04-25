@@ -165,6 +165,31 @@
     "tagline": "Made with care in Jizzakh, Uzbekistan.",
     "built": "Built with Astro, React, Tailwind."
   },
+  "interview": {
+    "title": "DevPrep — Frontend Interview Prep",
+    "headline_pre": "Kill Your",
+    "headline_highlight": "Tech Interview",
+    "subtitle": "Full-stack, web & frontend interview questions — answered.",
+    "search_placeholder": "Search questions…",
+    "code_only": "Only code challenges",
+    "hide_completed": "Hide completed",
+    "all_levels": "All levels",
+    "results": "{count} matching",
+    "progress": "Progress: {done} / {total} ({pct}%)",
+    "no_results": "No questions match your filters.",
+    "back_home": "Back home",
+    "footer": "Your personal interview prep tool. Keep grinding.",
+    "levels": {
+      "entry": "Entry",
+      "junior": "Junior",
+      "mid": "Mid",
+      "senior": "Senior",
+      "expert": "Expert",
+      "architect": "Architect"
+    },
+    "type_code": "Code",
+    "type_theory": "Theory"
+  },
   "cv": {
     "title": "Curriculum Vitae",
     "subtitle": "Senior Frontend Engineer — React, Next.js, TypeScript",
