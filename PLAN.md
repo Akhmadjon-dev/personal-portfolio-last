@@ -1,4 +1,6 @@
-# Portfolio Rebuild — Full Plan
+# Portfolio Rebuild — Full Plan (historical)
+
+> **Note:** This plan was authored while the rebuild lived in `astro-site/` (Phases 0–3). After the swap, those paths are now the repo root. Phases 1–3 are complete; Phase 4 (polish) is next. Keep as historical context — paths in this doc reference the old layout.
 
 Detailed plan for the Astro rebuild of ahmadjon.uz. Use this to resume work from any machine.
 
