@@ -8,6 +8,8 @@ import { PHRASES } from './phrases';
 
 export { VERBS, ADVERBS, ADJECTIVES, NOUNS, CONNECTORS, PHRASES };
 export * from './types';
+export { PRONUNCIATIONS, pronunciationFor, type Pronunciation } from './pronunciations';
+export { VERB_META, verbMetaFor, type VerbMeta, type Auxiliary } from './verb-meta';
 
 export const BY_CATEGORY: Record<WordCategory, Word[]> = {
   verb: VERBS,

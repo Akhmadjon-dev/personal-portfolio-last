@@ -220,6 +220,8 @@
       "level_label": "Daraja",
       "example_label": "Misol",
       "all": "Barchasi",
+      "irregular_only": "Faqat noto'g'ri",
+      "speak_label": "Eshitish",
       "category_labels": {
         "verb": "Fe'llar",
         "adverb": "Ravishlar",

@@ -220,6 +220,8 @@
       "level_label": "Уровень",
       "example_label": "Пример",
       "all": "Все",
+      "irregular_only": "Только неправильные",
+      "speak_label": "Прослушать",
       "category_labels": {
         "verb": "Глаголы",
         "adverb": "Наречия",

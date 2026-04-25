@@ -220,6 +220,8 @@
       "level_label": "Level",
       "example_label": "Example",
       "all": "All",
+      "irregular_only": "Irregular only",
+      "speak_label": "Listen",
       "category_labels": {
         "verb": "Verbs",
         "adverb": "Adverbs",
