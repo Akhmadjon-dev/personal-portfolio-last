@@ -22,3 +22,6 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# generated at install/build time from french-verbs-lefff (6 MB)
+public/french-conjugations.json

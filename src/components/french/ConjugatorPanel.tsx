@@ -116,17 +116,22 @@ function pronounWithSubjunctive(p: string): string {
   return `que ${p}`;
 }
 
-let lefffPromise: Promise<unknown> | null = null;
-let verbsLibPromise: Promise<unknown> | null = null;
+let lefffPromise: Promise<Record<string, unknown>> | null = null;
+let verbsLibPromise: Promise<typeof import('french-verbs')> | null = null;
 
 async function loadConjugator() {
   if (!verbsLibPromise) verbsLibPromise = import('french-verbs');
-  if (!lefffPromise) lefffPromise = import('french-verbs-lefff/dist/conjugations.json');
-  const [lib, dataMod] = await Promise.all([verbsLibPromise, lefffPromise]);
-  return {
-    lib: lib as typeof import('french-verbs'),
-    data: ((dataMod as { default?: unknown }).default ?? dataMod) as Record<string, unknown>,
-  };
+  if (!lefffPromise) {
+    // Fetch the 6 MB Lefff data as a static asset from /public, not as a JS chunk.
+    // Vite's dynamic-import-of-JSON path produces a 6 MB JS chunk that browsers
+    // sometimes fail to fetch reliably; a plain fetch is far more robust.
+    lefffPromise = fetch('/french-conjugations.json').then((r) => {
+      if (!r.ok) throw new Error(`Failed to load conjugation data (${r.status})`);
+      return r.json();
+    });
+  }
+  const [lib, data] = await Promise.all([verbsLibPromise, lefffPromise]);
+  return { lib, data };
 }
 
 async function conjugateVerb(verb: string, labels: Labels): Promise<ConjugationResult | null> {
