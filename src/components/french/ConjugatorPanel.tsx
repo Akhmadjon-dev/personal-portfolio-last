@@ -139,59 +139,78 @@ async function conjugateVerb(verb: string, labels: Labels): Promise<ConjugationR
   const meta = verbMetaFor(verb);
   const auxiliary: 'AVOIR' | 'ETRE' = alwaysAuxEtre(verb) || meta?.auxiliary === 'être' ? 'ETRE' : 'AVOIR';
 
+  /** Wrap every getConjugation call — some verbs lack certain tenses (pouvoir
+   *  has no imperative, falloir only conjugates il/3sg, etc.). The library
+   *  throws InvalidArgumentError; we catch and return null so the renderer
+   *  shows an em-dash. */
+  function safeConj(
+    tense: string,
+    person: number,
+    composed: boolean,
+    shape?: (typeof PRONOUN_SHAPES)[number],
+  ): string {
+    try {
+      const opts =
+        composed && shape
+          ? { aux: auxiliary, agreeGender: shape.gender, agreeNumber: shape.number }
+          : {};
+      const result = getConjugation(
+        data as never,
+        verb,
+        tense as never,
+        person,
+        opts as never,
+        false,
+        undefined,
+        undefined,
+        'Act',
+      );
+      return result || '';
+    } catch {
+      return '';
+    }
+  }
+
   function getOne(tense: string, shape: (typeof PRONOUN_SHAPES)[number], composed: boolean): string {
-    const opts = composed
-      ? { aux: auxiliary, agreeGender: shape.gender, agreeNumber: shape.number }
-      : {};
-    return getConjugation(
-      data as never,
-      verb,
-      tense as never,
-      shape.person,
-      opts as never,
-      false,
-      undefined,
-      undefined,
-      'Act',
-    );
+    return safeConj(tense, shape.person, composed, shape);
   }
 
   function buildSimple(tense: string): ConjugatedForm[] {
     return PRONOUN_SHAPES.map((shape) => {
       const form = getOne(tense, shape, false);
-      return { pronoun: labels[`pronoun_${shape.pronoun}` as keyof Labels], conjugated: elide(shape.pronoun, form) };
+      const pronounLabel = labels[`pronoun_${shape.pronoun}` as keyof Labels];
+      return { pronoun: pronounLabel, conjugated: form ? elide(shape.pronoun, form) : '—' };
     });
   }
 
   function buildCompound(tense: string): ConjugatedForm[] {
     return PRONOUN_SHAPES.map((shape) => {
       const form = getOne(tense, shape, true);
-      return { pronoun: labels[`pronoun_${shape.pronoun}` as keyof Labels], conjugated: elide(shape.pronoun, form) };
+      const pronounLabel = labels[`pronoun_${shape.pronoun}` as keyof Labels];
+      return { pronoun: pronounLabel, conjugated: form ? elide(shape.pronoun, form) : '—' };
     });
   }
 
   function buildSubjunctive(): ConjugatedForm[] {
     return PRONOUN_SHAPES.map((shape) => {
       const form = getOne('SUBJONCTIF_PRESENT', shape, false);
+      const pronounLabel = labels[`pronoun_${shape.pronoun}` as keyof Labels];
+      if (!form) return { pronoun: pronounLabel, conjugated: '—' };
       const pronounWithQue = pronounWithSubjunctive(shape.pronoun);
-      // pronoun_je → "que j'..." pattern handled by elide
       let display: string;
-      if (pronounWithQue.startsWith("qu'")) {
-        // qu'il + form, qu'elle + form, etc. — no extra space if form starts with vowel? Actually "qu'il" is already eliding.
-        display = `${pronounWithQue} ${form}`;
-      } else if (pronounWithQue === 'que je' && VOWEL_RE.test(form)) {
+      if (pronounWithQue === 'que je' && VOWEL_RE.test(form)) {
         display = `que j'${form}`;
       } else {
         display = `${pronounWithQue} ${form}`;
       }
-      return { pronoun: labels[`pronoun_${shape.pronoun}` as keyof Labels], conjugated: display };
+      return { pronoun: pronounLabel, conjugated: display };
     });
   }
 
   function buildImperative(): ConjugatedForm[] {
-    const tu = getConjugation(data as never, verb, 'IMPERATIF_PRESENT' as never, 1, {} as never, false, undefined, undefined, 'Act');
-    const nous = getConjugation(data as never, verb, 'IMPERATIF_PRESENT' as never, 3, {} as never, false, undefined, undefined, 'Act');
-    const vous = getConjugation(data as never, verb, 'IMPERATIF_PRESENT' as never, 4, {} as never, false, undefined, undefined, 'Act');
+    const tu = safeConj('IMPERATIF_PRESENT', 1, false);
+    const nous = safeConj('IMPERATIF_PRESENT', 3, false);
+    const vous = safeConj('IMPERATIF_PRESENT', 4, false);
     return [
       { pronoun: labels.pronoun_tu_imp, conjugated: tu ? `${tu} !` : '—' },
       { pronoun: labels.pronoun_nous_imp, conjugated: nous ? `${nous} !` : '—' },
@@ -199,14 +218,37 @@ async function conjugateVerb(verb: string, labels: Labels): Promise<ConjugationR
     ];
   }
 
-  function buildPeriphrastic(prefix: string, infinitive: string, helperVerb: 'aller' | 'venir', usePreposition: boolean): ConjugatedForm[] {
+  function buildPeriphrastic(_prefix: string, infinitive: string, helperVerb: 'aller' | 'venir', usePreposition: boolean): ConjugatedForm[] {
     return PRONOUN_SHAPES.map((shape) => {
-      const helper = getConjugation(data as never, helperVerb, 'PRESENT' as never, shape.person, {} as never, false, undefined, undefined, 'Act');
-      const helperWithPronoun = elide(shape.pronoun, helper);
-      const tail = usePreposition ? `de ${infinitive}` : infinitive;
+      const helper = safeConj.call(null, 'PRESENT', shape.person, false);
+      const helperFromAux = (() => {
+        try {
+          return getConjugation(
+            data as never,
+            helperVerb,
+            'PRESENT' as never,
+            shape.person,
+            {} as never,
+            false,
+            undefined,
+            undefined,
+            'Act',
+          ) || '';
+        } catch {
+          return '';
+        }
+      })();
+      const pronounLabel = labels[`pronoun_${shape.pronoun}` as keyof Labels];
+      if (!helperFromAux) return { pronoun: pronounLabel, conjugated: '—' };
+      const helperWithPronoun = elide(shape.pronoun, helperFromAux);
       // For "venir de + vowel-starting infinitive", "de" elides to "d'"
-      const tailFormatted = usePreposition && VOWEL_RE.test(infinitive) ? `d'${infinitive}` : tail;
-      return { pronoun: labels[`pronoun_${shape.pronoun}` as keyof Labels], conjugated: `${helperWithPronoun} ${tailFormatted}` };
+      const tailFormatted =
+        usePreposition && VOWEL_RE.test(infinitive)
+          ? `d'${infinitive}`
+          : usePreposition
+            ? `de ${infinitive}`
+            : infinitive;
+      return { pronoun: pronounLabel, conjugated: `${helperWithPronoun} ${tailFormatted}` };
     });
   }
 
