@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import type { GrammarTopic } from '../../data/french/types';
+import { GRAMMAR, GRAMMAR_UZ } from '../../data/french/grammar';
 
 interface Labels {
   search_placeholder: string;
@@ -12,9 +12,8 @@ interface Labels {
 }
 
 interface Props {
-  data: GrammarTopic[];
+  locale: 'en' | 'ru' | 'uz';
   labels: Labels;
-  storageKey: string;
 }
 
 const DIFF_COLORS: Record<string, string> = {
@@ -26,7 +25,8 @@ const DIFF_COLORS: Record<string, string> = {
   C2: 'bg-indigo-700/15 text-indigo-700 dark:text-indigo-400 border-indigo-700/30',
 };
 
-export default function GrammarPanel({ data, labels, storageKey }: Props) {
+export default function GrammarPanel({ locale, labels }: Props) {
+  const data = locale === 'uz' ? GRAMMAR_UZ : GRAMMAR;
   const [search, setSearch] = useState('');
   const [activeDiff, setActiveDiff] = useState<Set<string>>(new Set());
   const [activeTopic, setActiveTopic] = useState<Set<string>>(new Set());

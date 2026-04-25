@@ -1,5 +1,9 @@
 /* Mon Français — content styles for the legacy HTML rendered via dangerouslySetInnerHTML.
-   Scoped under `.french-content` so it does not leak. */
+   Scoped under `.french-content` so it does not leak.
+   Fonts (Playfair Display + Lora) are imported here rather than in Layout.astro
+   so they only ship for the /french route. */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap');
 
 .french-content {
   --fr-navy: #1c2b4a;
