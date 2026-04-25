@@ -9,7 +9,10 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "postinstall": "node scripts/copy-conjugations.mjs",
+    "predev": "node scripts/copy-conjugations.mjs",
+    "prebuild": "node scripts/copy-conjugations.mjs"
   },
   "dependencies": {
     "@astrojs/react": "^5.0.4",
@@ -17,6 +20,8 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "astro": "^6.1.9",
+    "french-verbs": "^5.4.0",
+    "french-verbs-lefff": "^3.4.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "tailwindcss": "^4.2.4"

@@ -17,11 +17,11 @@ const t = getDict(locale);
     <div class="absolute -bottom-32 right-0 w-[34rem] h-[34rem] rounded-full bg-accent-warm/10 blur-3xl"></div>
   </div>
 
-  <div class="max-w-6xl mx-auto px-6 pt-16 md:pt-24 pb-20 md:pb-28">
-    <div class="grid md:grid-cols-[1.4fr_1fr] gap-10 md:gap-16 items-center">
+  <div class="max-w-6xl mx-auto px-6 pt-12 md:pt-24 pb-16 md:pb-28">
+    <div class="grid md:grid-cols-[1.4fr_1fr] gap-8 md:gap-16 items-center">
       <div class="order-2 md:order-1">
         <div
-          class="inline-flex items-center gap-2 rounded-full border border-mist dark:border-white/10 bg-paper/50 dark:bg-white/[0.02] backdrop-blur px-3 py-1.5 mb-8"
+          class="inline-flex items-center gap-2 rounded-full border border-mist dark:border-white/10 bg-paper/50 dark:bg-white/[0.02] backdrop-blur px-3 py-1.5 mb-6 md:mb-8"
         >
           <span class="relative flex h-2 w-2">
             <span class="absolute inline-flex h-full w-full rounded-full bg-success/60 animate-ping"></span>
@@ -30,27 +30,27 @@ const t = getDict(locale);
           <span class="text-xs font-mono text-muted">{t.hero.available}</span>
         </div>
 
-        <p class="font-mono text-xs uppercase tracking-widest text-accent mb-5">{t.hero.eyebrow}</p>
+        <p class="font-mono text-xs uppercase tracking-widest text-accent mb-4 md:mb-5">{t.hero.eyebrow}</p>
 
-        <h1 class="font-display text-5xl md:text-7xl leading-[1.02] tracking-tight max-w-3xl">
+        <h1 class="font-display text-4xl sm:text-5xl md:text-7xl leading-[1.05] md:leading-[1.02] tracking-tight max-w-3xl">
           {t.hero.headline}
         </h1>
 
-        <p class="mt-7 text-lg md:text-xl text-muted max-w-2xl leading-relaxed">
+        <p class="mt-5 md:mt-7 text-base sm:text-lg md:text-xl text-muted max-w-2xl leading-relaxed">
           {t.hero.subline}
         </p>
 
-        <div class="mt-9 flex flex-wrap gap-3">
+        <div class="mt-7 md:mt-9 flex flex-wrap gap-3">
           <a
             href={localizePath('/#contact', locale)}
-            class="group inline-flex items-center gap-2 px-6 py-3 rounded-full bg-ink text-paper dark:bg-paper dark:text-ink font-medium hover:opacity-90 transition-opacity"
+            class="group inline-flex items-center gap-2 px-5 sm:px-6 py-3 rounded-full bg-ink text-paper dark:bg-paper dark:text-ink font-medium hover:opacity-90 transition-opacity"
           >
             {t.hero.cta_hire}
             <span class="transition-transform group-hover:translate-x-0.5">→</span>
           </a>
           <a
             href="/cv.pdf"
-            class="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-ink/15 dark:border-white/15 hover:bg-paper-dim dark:hover:bg-white/5 transition-colors"
+            class="inline-flex items-center gap-2 px-5 sm:px-6 py-3 rounded-full border border-ink/15 dark:border-white/15 hover:bg-paper-dim dark:hover:bg-white/5 transition-colors"
           >
             {t.hero.cta_cv}
           </a>
@@ -58,7 +58,7 @@ const t = getDict(locale);
       </div>
 
       <div class="order-1 md:order-2">
-        <div class="relative max-w-sm mx-auto md:max-w-none">
+        <div class="relative max-w-[260px] sm:max-w-xs mx-auto md:max-w-none">
           <div
             class="absolute inset-0 -translate-x-3 translate-y-3 rounded-[2rem] bg-accent/15 dark:bg-accent/10"
             aria-hidden="true"
