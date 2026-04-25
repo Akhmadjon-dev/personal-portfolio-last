@@ -5,12 +5,14 @@ import UnitListPanel from './UnitListPanel';
 import AIBox from './AIBox';
 import TopWordsPanel from './TopWordsPanel';
 import QuizPanel from './QuizPanel';
+import TensesPanel from './TensesPanel';
+import ConjugatorPanel from './ConjugatorPanel';
 import { GRAMMAR, GRAMMAR_UZ } from '../../data/french/grammar';
 import { VOCAB_UNITS } from '../../data/french/vocab';
 import { SPEAKING_UNITS } from '../../data/french/speaking';
 import type { AIMode } from '../../data/french/ai';
 
-type PanelKey = 'grammar' | 'top_words' | 'vocab' | 'speaking' | 'quiz' | 'ai';
+type PanelKey = 'grammar' | 'top_words' | 'tenses' | 'conjugator' | 'vocab' | 'speaking' | 'quiz' | 'ai';
 
 interface CategoryLabels {
   verb: string;
@@ -62,6 +64,60 @@ interface FrenchLabels {
     example_label: string;
     category_labels: CategoryLabels;
     all: string;
+    irregular_only?: string;
+    speak_label?: string;
+  };
+  tenses: {
+    title: string;
+    subtitle: string;
+    formula_label: string;
+    usage_label: string;
+    examples_label: string;
+    conjugation_label: string;
+    group_labels: {
+      present: string;
+      past: string;
+      future: string;
+      conditional: string;
+      mood: string;
+      literary: string;
+    };
+    jump_to_conjugator: string;
+  };
+  conjugator: {
+    title: string;
+    subtitle: string;
+    input_label: string;
+    input_placeholder: string;
+    search_button: string;
+    loading: string;
+    not_found: string;
+    not_found_hint: string;
+    suggestions_label: string;
+    pronoun_je: string;
+    pronoun_tu: string;
+    pronoun_il: string;
+    pronoun_elle: string;
+    pronoun_nous: string;
+    pronoun_vous: string;
+    pronoun_ils: string;
+    pronoun_elles: string;
+    pronoun_tu_imp: string;
+    pronoun_nous_imp: string;
+    pronoun_vous_imp: string;
+    tense_present: string;
+    tense_passe_compose: string;
+    tense_imparfait: string;
+    tense_plus_que_parfait: string;
+    tense_passe_simple: string;
+    tense_passe_recent: string;
+    tense_futur_proche: string;
+    tense_futur_simple: string;
+    tense_futur_anterieur: string;
+    tense_conditionnel: string;
+    tense_conditionnel_passe: string;
+    tense_subjonctif: string;
+    tense_imperatif: string;
   };
   quiz: {
     title: string;
@@ -117,12 +173,15 @@ interface Props {
 export default function MonFrancaisApp({ labels, locale }: Props) {
   const [panel, setPanel] = useState<PanelKey>('grammar');
   const [seedAiText, setSeedAiText] = useState('');
+  const [seedConjugatorVerb, setSeedConjugatorVerb] = useState<string | undefined>(undefined);
 
   const grammarData = locale === 'uz' ? GRAMMAR_UZ : GRAMMAR;
 
   const panels: Array<{ key: PanelKey; icon: string }> = [
     { key: 'grammar', icon: '📐' },
     { key: 'top_words', icon: '🏆' },
+    { key: 'tenses', icon: '⏱' },
+    { key: 'conjugator', icon: '🔁' },
     { key: 'vocab', icon: '📖' },
     { key: 'speaking', icon: '🗣️' },
     { key: 'quiz', icon: '🎯' },
@@ -132,6 +191,11 @@ export default function MonFrancaisApp({ labels, locale }: Props) {
   function sendToAI(text: string) {
     setSeedAiText(text);
     setPanel('ai');
+  }
+
+  function jumpToConjugator(verb: string) {
+    setSeedConjugatorVerb(verb);
+    setPanel('conjugator');
   }
 
   return (
@@ -179,6 +243,14 @@ export default function MonFrancaisApp({ labels, locale }: Props) {
       )}
 
       {panel === 'top_words' && <TopWordsPanel locale={locale} labels={labels.top_words} />}
+
+      {panel === 'tenses' && (
+        <TensesPanel locale={locale} labels={labels.tenses} onConjugate={jumpToConjugator} />
+      )}
+
+      {panel === 'conjugator' && (
+        <ConjugatorPanel locale={locale} labels={labels.conjugator} initialVerb={seedConjugatorVerb} />
+      )}
 
       {panel === 'vocab' && (
         <UnitListPanel
