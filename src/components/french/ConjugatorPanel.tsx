@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { alwaysAuxEtre, getConjugation } from 'french-verbs';
 import { VERBS, verbMetaFor } from '../../data/french/words';
 
 type DisplayLang = 'en' | 'ru' | 'uz';
@@ -117,35 +118,32 @@ function pronounWithSubjunctive(p: string): string {
 }
 
 let lefffPromise: Promise<Record<string, unknown>> | null = null;
-let verbsLibPromise: Promise<typeof import('french-verbs')> | null = null;
 
-async function loadConjugator() {
-  if (!verbsLibPromise) verbsLibPromise = import('french-verbs');
+async function loadLefff(): Promise<Record<string, unknown>> {
   if (!lefffPromise) {
-    // Fetch the 6 MB Lefff data as a static asset from /public, not as a JS chunk.
-    // Vite's dynamic-import-of-JSON path produces a 6 MB JS chunk that browsers
-    // sometimes fail to fetch reliably; a plain fetch is far more robust.
+    // Lefff data is ~6 MB JSON — fetch as a plain static asset from /public.
+    // Vite's dynamic-import-of-JSON path produced an unreliable 6 MB JS chunk;
+    // fetch() is much more forgiving and the asset caches normally.
     lefffPromise = fetch('/french-conjugations.json').then((r) => {
       if (!r.ok) throw new Error(`Failed to load conjugation data (${r.status})`);
       return r.json();
     });
   }
-  const [lib, data] = await Promise.all([verbsLibPromise, lefffPromise]);
-  return { lib, data };
+  return lefffPromise;
 }
 
 async function conjugateVerb(verb: string, labels: Labels): Promise<ConjugationResult | null> {
-  const { lib, data } = await loadConjugator();
+  const data = await loadLefff();
   if (!data[verb]) return null;
 
   const meta = verbMetaFor(verb);
-  const auxiliary: 'AVOIR' | 'ETRE' = lib.alwaysAuxEtre(verb) || meta?.auxiliary === 'être' ? 'ETRE' : 'AVOIR';
+  const auxiliary: 'AVOIR' | 'ETRE' = alwaysAuxEtre(verb) || meta?.auxiliary === 'être' ? 'ETRE' : 'AVOIR';
 
   function getOne(tense: string, shape: (typeof PRONOUN_SHAPES)[number], composed: boolean): string {
     const opts = composed
       ? { aux: auxiliary, agreeGender: shape.gender, agreeNumber: shape.number }
       : {};
-    return lib.getConjugation(
+    return getConjugation(
       data as never,
       verb,
       tense as never,
@@ -191,9 +189,9 @@ async function conjugateVerb(verb: string, labels: Labels): Promise<ConjugationR
   }
 
   function buildImperative(): ConjugatedForm[] {
-    const tu = lib.getConjugation(data as never, verb, 'IMPERATIF_PRESENT' as never, 1, {} as never, false, undefined, undefined, 'Act');
-    const nous = lib.getConjugation(data as never, verb, 'IMPERATIF_PRESENT' as never, 3, {} as never, false, undefined, undefined, 'Act');
-    const vous = lib.getConjugation(data as never, verb, 'IMPERATIF_PRESENT' as never, 4, {} as never, false, undefined, undefined, 'Act');
+    const tu = getConjugation(data as never, verb, 'IMPERATIF_PRESENT' as never, 1, {} as never, false, undefined, undefined, 'Act');
+    const nous = getConjugation(data as never, verb, 'IMPERATIF_PRESENT' as never, 3, {} as never, false, undefined, undefined, 'Act');
+    const vous = getConjugation(data as never, verb, 'IMPERATIF_PRESENT' as never, 4, {} as never, false, undefined, undefined, 'Act');
     return [
       { pronoun: labels.pronoun_tu_imp, conjugated: tu ? `${tu} !` : '—' },
       { pronoun: labels.pronoun_nous_imp, conjugated: nous ? `${nous} !` : '—' },
@@ -203,7 +201,7 @@ async function conjugateVerb(verb: string, labels: Labels): Promise<ConjugationR
 
   function buildPeriphrastic(prefix: string, infinitive: string, helperVerb: 'aller' | 'venir', usePreposition: boolean): ConjugatedForm[] {
     return PRONOUN_SHAPES.map((shape) => {
-      const helper = lib.getConjugation(data as never, helperVerb, 'PRESENT' as never, shape.person, {} as never, false, undefined, undefined, 'Act');
+      const helper = getConjugation(data as never, helperVerb, 'PRESENT' as never, shape.person, {} as never, false, undefined, undefined, 'Act');
       const helperWithPronoun = elide(shape.pronoun, helper);
       const tail = usePreposition ? `de ${infinitive}` : infinitive;
       // For "venir de + vowel-starting infinitive", "de" elides to "d'"
