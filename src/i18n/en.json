@@ -172,14 +172,18 @@
     "hero_subtitle": "63+ grammar topics, 500+ vocabulary words from Vite et Bien, real-life dialogues with cultural notes, and an AI tutor that explains anything you paste.",
     "panels": {
       "grammar": "Grammar",
+      "top_words": "Top words",
       "vocab": "Vocabulary",
       "speaking": "Speaking",
+      "quiz": "Quiz",
       "ai": "AI Tools"
     },
     "panel_descriptions": {
       "grammar": "Browse and search 63+ grammar topics with full conjugations, examples, and tips.",
+      "top_words": "The most-frequent French words by category — verbs, adjectives, nouns, and more — with translations and example sentences.",
       "vocab": "Browse vocabulary by Vite et Bien unit. Search across French and English.",
       "speaking": "20 thematic units with authentic dialogues, expressions, and cultural notes.",
+      "quiz": "Test yourself on the top words — multiple-choice, 10 questions per round, your best score is saved.",
       "ai": "Paste any French text and get an AI-powered summary, translation, or grammar breakdown."
     },
     "grammar_panel": {
@@ -205,6 +209,54 @@
       "open": "Open",
       "close": "Close",
       "analyse_with_ai": "Analyse these dialogues with AI"
+    },
+    "top_words_panel": {
+      "title": "Top words",
+      "subtitle": "Most-frequent French words by category, with translations and example sentences.",
+      "daily_label": "Word of the day",
+      "search_placeholder": "Search (French or English)…",
+      "results": "Showing",
+      "no_results": "No words match your search.",
+      "level_label": "Level",
+      "example_label": "Example",
+      "all": "All",
+      "category_labels": {
+        "verb": "Verbs",
+        "adverb": "Adverbs",
+        "adjective": "Adjectives",
+        "noun": "Nouns",
+        "connector": "Connectors",
+        "phrase": "Daily phrases"
+      }
+    },
+    "quiz_panel": {
+      "title": "Vocabulary quiz",
+      "subtitle": "10 multiple-choice questions per round. Pick a category and a direction to start.",
+      "pick_category": "Pick a category",
+      "pick_mode": "Pick a direction",
+      "mode_fr_to_x": "See a French word, choose its meaning.",
+      "mode_x_to_fr": "See a meaning, choose the French word.",
+      "start": "Start quiz",
+      "question_progress": "Question {n} of {total}",
+      "score": "Score",
+      "what_does_it_mean": "What does this mean?",
+      "pick_french": "Which French word is it?",
+      "next": "Next",
+      "finish": "Finish",
+      "result_score": "You scored {n} out of {total}.",
+      "best": "Best",
+      "retry_missed": "Retry missed words",
+      "play_again": "Play again",
+      "pick_another": "Change category",
+      "no_missed": "Perfect round!",
+      "category_labels": {
+        "verb": "Verbs",
+        "adverb": "Adverbs",
+        "adjective": "Adjectives",
+        "noun": "Nouns",
+        "connector": "Connectors",
+        "phrase": "Daily phrases"
+      }
     },
     "ai_panel": {
       "title": "AI text assistant",

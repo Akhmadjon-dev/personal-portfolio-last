@@ -172,14 +172,18 @@
     "hero_subtitle": "63+ grammatika mavzusi, Vite et Bien'dan 500+ so'z, madaniy izohli haqiqiy dialoglar va siz qo'ygan har qanday matnni tushuntirib beradigan AI-o'qituvchi.",
     "panels": {
       "grammar": "Grammatika",
+      "top_words": "Top so'zlar",
       "vocab": "Lug'at",
       "speaking": "Nutq",
+      "quiz": "Test",
       "ai": "AI vositalari"
     },
     "panel_descriptions": {
       "grammar": "63+ grammatika mavzusini tuslanish, misollar va maslahatlar bilan ko'ring va izlang.",
+      "top_words": "Toifalar bo'yicha eng ko'p ishlatiladigan fransuzcha so'zlar — fe'llar, sifatlar, otlar va boshqalar — tarjimalar va misol gaplar bilan.",
       "vocab": "Vite et Bien bo'limlari bo'yicha lug'at. Fransuz va ingliz tilida qidiring.",
       "speaking": "Haqiqiy dialoglar, iboralar va madaniy izohlari bilan 20 ta mavzuli bo'lim.",
+      "quiz": "Top so'zlar bo'yicha o'zingizni sinab ko'ring — har raundda 10 ta savol, eng yaxshi natijangiz saqlanadi.",
       "ai": "Har qanday fransuzcha matnni qo'ying — AI yordamida xulosa, tarjima yoki grammatika tahlilini oling."
     },
     "grammar_panel": {
@@ -205,6 +209,54 @@
       "open": "Ochish",
       "close": "Yopish",
       "analyse_with_ai": "Bu dialoglarni AI bilan tahlil qilish"
+    },
+    "top_words_panel": {
+      "title": "Top so'zlar",
+      "subtitle": "Eng ko'p ishlatiladigan fransuzcha so'zlar toifalar bo'yicha, tarjimalar va misollar bilan.",
+      "daily_label": "Kunning so'zi",
+      "search_placeholder": "Qidiring (fransuzcha yoki o'zbekcha)…",
+      "results": "Ko'rinmoqda",
+      "no_results": "Hech narsa topilmadi.",
+      "level_label": "Daraja",
+      "example_label": "Misol",
+      "all": "Barchasi",
+      "category_labels": {
+        "verb": "Fe'llar",
+        "adverb": "Ravishlar",
+        "adjective": "Sifatlar",
+        "noun": "Otlar",
+        "connector": "Bog'lovchilar",
+        "phrase": "Kundalik iboralar"
+      }
+    },
+    "quiz_panel": {
+      "title": "Lug'at testi",
+      "subtitle": "Har raundda 10 ta tanlovli savol. Boshlash uchun toifa va yo'nalishni tanlang.",
+      "pick_category": "Toifani tanlang",
+      "pick_mode": "Yo'nalishni tanlang",
+      "mode_fr_to_x": "Fransuzcha so'z — tarjimani tanlang.",
+      "mode_x_to_fr": "Tarjima — fransuzcha so'zni tanlang.",
+      "start": "Testni boshlash",
+      "question_progress": "Savol {n} / {total}",
+      "score": "Hisob",
+      "what_does_it_mean": "Bu nima ma'noni anglatadi?",
+      "pick_french": "Qaysi fransuzcha so'z?",
+      "next": "Keyingi",
+      "finish": "Tugatish",
+      "result_score": "Sizning natijangiz: {n} / {total}.",
+      "best": "Eng yaxshi",
+      "retry_missed": "Xatolarni qaytarish",
+      "play_again": "Yana o'ynash",
+      "pick_another": "Toifani o'zgartirish",
+      "no_missed": "Mukammal raund!",
+      "category_labels": {
+        "verb": "Fe'llar",
+        "adverb": "Ravishlar",
+        "adjective": "Sifatlar",
+        "noun": "Otlar",
+        "connector": "Bog'lovchilar",
+        "phrase": "Kundalik iboralar"
+      }
     },
     "ai_panel": {
       "title": "AI matn yordamchisi",

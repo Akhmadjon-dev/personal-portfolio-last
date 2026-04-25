@@ -50,16 +50,20 @@
 .dark .french-content em { color: var(--color-accent-warm); }
 .french-content strong { color: var(--fr-text); font-weight: 600; }
 
-/* Grammar tables */
+/* Grammar tables — wrap in horizontal scroll on narrow screens */
 .french-content .grammar-table {
+  display: block;
   width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   border-collapse: collapse;
   margin: 0.75rem 0 1rem;
   font-size: 0.9rem;
   background: var(--fr-cream-dark);
   border-radius: 8px;
-  overflow: hidden;
 }
+.french-content .grammar-table tbody { display: table; width: 100%; min-width: 100%; }
 .french-content .grammar-table th,
 .french-content .grammar-table td {
   padding: 0.55rem 0.85rem;
