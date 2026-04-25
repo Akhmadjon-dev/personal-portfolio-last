@@ -165,6 +165,76 @@
     "tagline": "Made with care in Jizzakh, Uzbekistan.",
     "built": "Built with Astro, React, Tailwind."
   },
+  "french": {
+    "title": "Mon Français — French Grammar & Learning",
+    "hero_eyebrow": "Mon Français",
+    "hero_title": "French grammar, vocab, and dialogues — in one place.",
+    "hero_subtitle": "63+ grammar topics, 500+ vocabulary words from Vite et Bien, real-life dialogues with cultural notes, and an AI tutor that explains anything you paste.",
+    "panels": {
+      "grammar": "Grammar",
+      "vocab": "Vocabulary",
+      "speaking": "Speaking",
+      "ai": "AI Tools"
+    },
+    "panel_descriptions": {
+      "grammar": "Browse and search 63+ grammar topics with full conjugations, examples, and tips.",
+      "vocab": "Browse vocabulary by Vite et Bien unit. Search across French and English.",
+      "speaking": "20 thematic units with authentic dialogues, expressions, and cultural notes.",
+      "ai": "Paste any French text and get an AI-powered summary, translation, or grammar breakdown."
+    },
+    "grammar_panel": {
+      "search_placeholder": "Search grammar topics…",
+      "diff": "Level",
+      "topic": "Topic",
+      "source": "Source",
+      "no_results": "No grammar topics match your filters.",
+      "total": "Showing",
+      "back_to_list": "Back to all topics"
+    },
+    "vocab_panel": {
+      "search_placeholder": "Search vocabulary (French or English)…",
+      "no_results": "No vocabulary units match your search.",
+      "total_units": "Showing",
+      "open": "Open",
+      "close": "Close"
+    },
+    "speaking_panel": {
+      "search_placeholder": "Search dialogues, expressions, vocabulary…",
+      "no_results": "No speaking units match your search.",
+      "total_units": "Showing",
+      "open": "Open",
+      "close": "Close",
+      "analyse_with_ai": "Analyse these dialogues with AI"
+    },
+    "ai_panel": {
+      "title": "AI text assistant",
+      "body": "Paste any French text — dialogue, article, exercise — and get an instant English explanation.",
+      "mode_label": "What should I do with the text?",
+      "modes": {
+        "summarize": "Summarize",
+        "explain": "Explain grammar",
+        "translate": "Translate",
+        "vocab": "Key vocabulary",
+        "dialogue": "Explain dialogue"
+      },
+      "text_label": "French text",
+      "text_placeholder": "Paste your French text here…",
+      "extra_label": "Extra instructions (optional)",
+      "extra_placeholder": "e.g. focus on subjunctive usage, or explain for A2 level…",
+      "run": "Analyse with AI",
+      "running": "Analysing…",
+      "result_label": "Result",
+      "copy": "Copy",
+      "copied": "Copied!",
+      "api_notice": "Add your Anthropic API key first.",
+      "api_key_label": "Anthropic API key",
+      "api_key_placeholder": "sk-ant-…",
+      "api_key_save": "Save key",
+      "api_key_saved": "Saved",
+      "api_key_get": "Get a key at",
+      "api_key_url_label": "console.anthropic.com"
+    }
+  },
   "interview": {
     "title": "DevPrep — Frontend Interview Prep",
     "headline_pre": "Kill Your",

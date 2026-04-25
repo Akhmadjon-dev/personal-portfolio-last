@@ -1,0 +1,282 @@
+/* Mon Français — content styles for the legacy HTML rendered via dangerouslySetInnerHTML.
+   Scoped under `.french-content` so it does not leak. */
+
+.french-content {
+  --fr-navy: #1c2b4a;
+  --fr-navy-light: #2d4070;
+  --fr-gold: #b8922a;
+  --fr-gold-light: #d4a843;
+  --fr-cream: var(--color-paper);
+  --fr-cream-dark: var(--color-paper-dim);
+  --fr-red: #a93226;
+  --fr-text: var(--color-ink);
+  --fr-text-muted: var(--color-muted);
+  --fr-border: var(--color-mist);
+  font-family: 'Lora', ui-serif, Georgia, serif;
+  line-height: 1.7;
+  color: var(--color-ink-soft);
+}
+.dark .french-content {
+  --fr-cream: rgba(255, 255, 255, 0.02);
+  --fr-cream-dark: rgba(255, 255, 255, 0.04);
+  --fr-border: rgba(255, 255, 255, 0.10);
+  --fr-text: var(--color-paper);
+  --fr-text-muted: rgba(242, 241, 236, 0.65);
+}
+
+.french-content h2,
+.french-content h3,
+.french-content h4 {
+  font-family: 'Playfair Display', ui-serif, Georgia, serif;
+  font-weight: 600;
+  color: var(--fr-text);
+}
+.french-content h3 {
+  font-size: 1.15rem;
+  margin: 1.5rem 0 0.75rem;
+  color: var(--fr-navy);
+  border-bottom: 1px solid var(--fr-border);
+  padding-bottom: 0.3rem;
+}
+.dark .french-content h3 { color: var(--color-accent-warm); }
+.french-content h4 {
+  font-size: 1rem;
+  margin: 1rem 0 0.5rem;
+  color: var(--fr-navy);
+}
+.dark .french-content h4 { color: var(--color-accent-warm); }
+.french-content p { margin: 0.5rem 0; }
+.french-content em { color: var(--fr-navy); font-style: italic; }
+.dark .french-content em { color: var(--color-accent-warm); }
+.french-content strong { color: var(--fr-text); font-weight: 600; }
+
+/* Grammar tables */
+.french-content .grammar-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.75rem 0 1rem;
+  font-size: 0.9rem;
+  background: var(--fr-cream-dark);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.french-content .grammar-table th,
+.french-content .grammar-table td {
+  padding: 0.55rem 0.85rem;
+  border: 1px solid var(--fr-border);
+  vertical-align: top;
+  text-align: left;
+}
+.french-content .grammar-table th {
+  background: var(--fr-navy);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.french-content .form-cell {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  color: var(--fr-gold);
+  font-weight: 600;
+}
+.dark .french-content .form-cell { color: var(--fr-gold-light); }
+.french-content .fr-cell { font-style: italic; color: var(--fr-navy); }
+.dark .french-content .fr-cell { color: var(--color-accent-warm); }
+.french-content .en-cell { color: var(--fr-text-muted); font-size: 0.85rem; }
+
+/* Boxes */
+.french-content .example-box,
+.french-content .tip-box,
+.french-content .warning-box {
+  margin: 0.85rem 0;
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  border-left: 3px solid;
+  background: var(--fr-cream-dark);
+}
+.french-content .example-box { border-left-color: var(--fr-navy); }
+.french-content .tip-box { border-left-color: var(--fr-gold); background: rgba(212, 168, 67, 0.08); }
+.french-content .warning-box { border-left-color: var(--fr-red); background: rgba(169, 50, 38, 0.06); }
+.french-content .example-box .fr {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  color: var(--fr-navy);
+  font-size: 1.02rem;
+}
+.dark .french-content .example-box .fr { color: var(--color-accent-warm); }
+
+/* Speaking panel — outer unit chrome (we replace this with our own; keep inner styles only) */
+.french-content .sp-unit-header,
+.french-content .sp-unit-body,
+.french-content .sp-tabs,
+.french-content .sp-tab,
+.french-content .sp-content { display: revert; }
+
+/* Inner speaking content */
+.french-content .sp-dialogue {
+  margin: 0.85rem 0;
+  padding: 0.9rem 1rem;
+  background: var(--fr-cream-dark);
+  border-radius: 8px;
+}
+.french-content .sp-dialogue-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--fr-navy);
+  margin-bottom: 0.6rem;
+}
+.dark .french-content .sp-dialogue-title { color: var(--color-accent-warm); }
+.french-content .sp-dialogue-num {
+  width: 26px; height: 26px;
+  background: var(--fr-navy);
+  color: #fff;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+}
+.french-content .sp-line { margin: 0.5rem 0; }
+.french-content .sp-fr {
+  font-style: italic;
+  color: var(--fr-navy);
+}
+.dark .french-content .sp-fr { color: var(--color-accent-warm); }
+.french-content .sp-en {
+  color: var(--fr-text-muted);
+  font-size: 0.88rem;
+  margin-top: 0.15rem;
+}
+.french-content .sp-line-header {
+  margin: 0.6rem 0;
+  font-style: italic;
+  color: var(--fr-text-muted);
+  font-size: 0.85rem;
+}
+.french-content .sp-speaker {
+  display: inline-block;
+  margin-right: 0.5rem;
+  padding: 0.05rem 0.5rem;
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: var(--fr-navy);
+  color: #fff;
+  border-radius: 999px;
+}
+.french-content .sp-speaker.sp-speaker-2 { background: var(--fr-gold); }
+.french-content .sp-speaker.sp-speaker-3 { background: var(--fr-red); }
+.french-content .sp-speaker.sp-speaker-4 { background: #557a4f; }
+
+.french-content .sp-expressions {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.6rem;
+}
+.french-content .sp-expr-card {
+  background: var(--fr-cream-dark);
+  padding: 0.7rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid var(--fr-border);
+}
+.french-content .sp-expr-fr {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-weight: 600;
+  color: var(--fr-navy);
+}
+.dark .french-content .sp-expr-fr { color: var(--color-accent-warm); }
+.french-content .sp-expr-en { font-size: 0.85rem; color: var(--fr-text-muted); margin-top: 0.15rem; }
+.french-content .sp-expr-note {
+  font-size: 0.72rem;
+  color: var(--fr-text-muted);
+  margin-top: 0.3rem;
+  font-style: italic;
+}
+
+.french-content .sp-vocab-section { margin: 0.8rem 0; }
+.french-content .sp-vocab-grid,
+.french-content .vb-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.4rem 0.8rem;
+}
+.french-content .sp-vocab-item,
+.french-content .vb-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: 6px;
+  background: var(--fr-cream-dark);
+  font-size: 0.88rem;
+}
+.french-content .sp-vocab-fr,
+.french-content .vb-fr {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  color: var(--fr-navy);
+  font-weight: 500;
+}
+.dark .french-content .sp-vocab-fr,
+.dark .french-content .vb-fr { color: var(--color-accent-warm); }
+.french-content .sp-vocab-en,
+.french-content .vb-en {
+  color: var(--fr-text-muted);
+  text-align: right;
+  font-size: 0.85rem;
+}
+
+.french-content .sp-civ {
+  margin: 0.85rem 0;
+  padding: 0.85rem 1rem;
+  background: var(--fr-cream-dark);
+  border-radius: 8px;
+  border-left: 3px solid var(--fr-gold);
+}
+.french-content .sp-grammar-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.3rem 0.4rem 0.3rem 0;
+  padding: 0.4rem 0.85rem;
+  background: var(--fr-cream-dark);
+  border: 1px solid var(--fr-border);
+  border-radius: 999px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.french-content .sp-grammar-link:hover {
+  border-color: var(--color-accent);
+  background: rgba(244, 120, 88, 0.08);
+}
+.french-content .sp-gl-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.05rem 0.45rem;
+  background: var(--fr-navy);
+  color: #fff;
+  border-radius: 4px;
+}
+
+/* AI button inside speaking dialogues — neutralized; the real button lives in our React UI */
+.french-content .sp-ai-btn { display: none; }
+
+/* Vocab panel inner content */
+.french-content .vb-category { margin: 0.8rem 0; }
+.french-content .vb-category h4 {
+  font-size: 0.95rem;
+  color: var(--fr-navy);
+  margin-bottom: 0.4rem;
+}
+.dark .french-content .vb-category h4 { color: var(--color-accent-warm); }

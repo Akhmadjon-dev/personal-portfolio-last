@@ -1,10 +1,22 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import Placeholder from '../../components/portfolio/Placeholder.astro';
+import MonFrancaisApp from '../../components/french/MonFrancaisApp';
 import { getDict } from '../../i18n/utils';
+
 const t = getDict('en');
+const labels = {
+  hero_eyebrow: t.french.hero_eyebrow,
+  hero_title: t.french.hero_title,
+  hero_subtitle: t.french.hero_subtitle,
+  panels: t.french.panels,
+  panel_descriptions: t.french.panel_descriptions,
+  grammar: t.french.grammar_panel,
+  vocab: t.french.vocab_panel,
+  speaking: t.french.speaking_panel,
+  ai: t.french.ai_panel,
+};
 ---
 
-<Layout title={`${t.tools.french.title} — Ahmadjon Abdusamadov`} locale="en">
-  <Placeholder locale="en" title={t.tools.french.title} note="Mon Français is migrating from the legacy single-file app. Full rebuild lands in Phase 3." />
+<Layout title={t.french.title} locale="en">
+  <MonFrancaisApp client:load locale="en" labels={labels} />
 </Layout>

@@ -165,6 +165,76 @@
     "tagline": "Jizzax, O'zbekistonda mehr bilan yaratilgan.",
     "built": "Astro, React va Tailwind asosida."
   },
+  "french": {
+    "title": "Mon Français — Fransuz grammatikasi va o'rganish",
+    "hero_eyebrow": "Mon Français",
+    "hero_title": "Fransuz grammatikasi, lug'at va dialoglar — bir joyda.",
+    "hero_subtitle": "63+ grammatika mavzusi, Vite et Bien'dan 500+ so'z, madaniy izohli haqiqiy dialoglar va siz qo'ygan har qanday matnni tushuntirib beradigan AI-o'qituvchi.",
+    "panels": {
+      "grammar": "Grammatika",
+      "vocab": "Lug'at",
+      "speaking": "Nutq",
+      "ai": "AI vositalari"
+    },
+    "panel_descriptions": {
+      "grammar": "63+ grammatika mavzusini tuslanish, misollar va maslahatlar bilan ko'ring va izlang.",
+      "vocab": "Vite et Bien bo'limlari bo'yicha lug'at. Fransuz va ingliz tilida qidiring.",
+      "speaking": "Haqiqiy dialoglar, iboralar va madaniy izohlari bilan 20 ta mavzuli bo'lim.",
+      "ai": "Har qanday fransuzcha matnni qo'ying — AI yordamida xulosa, tarjima yoki grammatika tahlilini oling."
+    },
+    "grammar_panel": {
+      "search_placeholder": "Grammatika mavzularini qidiring…",
+      "diff": "Daraja",
+      "topic": "Mavzu",
+      "source": "Manba",
+      "no_results": "Filtrlar bo'yicha hech narsa topilmadi.",
+      "total": "Ko'rinmoqda",
+      "back_to_list": "Ro'yxatga qaytish"
+    },
+    "vocab_panel": {
+      "search_placeholder": "Lug'atni qidirish (fransuz yoki ingliz)…",
+      "no_results": "Hech narsa topilmadi.",
+      "total_units": "Ko'rinmoqda",
+      "open": "Ochish",
+      "close": "Yopish"
+    },
+    "speaking_panel": {
+      "search_placeholder": "Dialoglar, iboralar, lug'at bo'yicha qidirish…",
+      "no_results": "Hech narsa topilmadi.",
+      "total_units": "Ko'rinmoqda",
+      "open": "Ochish",
+      "close": "Yopish",
+      "analyse_with_ai": "Bu dialoglarni AI bilan tahlil qilish"
+    },
+    "ai_panel": {
+      "title": "AI matn yordamchisi",
+      "body": "Har qanday fransuzcha matn — dialog, maqola yoki mashq — qo'ying, AI sizga tushuntirib beradi.",
+      "mode_label": "Matn bilan nima qilay?",
+      "modes": {
+        "summarize": "Xulosa",
+        "explain": "Grammatikani tushuntir",
+        "translate": "Tarjima",
+        "vocab": "Asosiy lug'at",
+        "dialogue": "Dialogni tushuntir"
+      },
+      "text_label": "Fransuzcha matn",
+      "text_placeholder": "Fransuzcha matningizni shu yerga qo'ying…",
+      "extra_label": "Qo'shimcha ko'rsatmalar (ixtiyoriy)",
+      "extra_placeholder": "masalan, subjonctif ishlatilishiga e'tibor qarating…",
+      "run": "AI bilan tahlil",
+      "running": "Tahlil qilinmoqda…",
+      "result_label": "Natija",
+      "copy": "Nusxalash",
+      "copied": "Nusxalandi!",
+      "api_notice": "Avval Anthropic API kalitingizni qo'shing.",
+      "api_key_label": "Anthropic API kaliti",
+      "api_key_placeholder": "sk-ant-…",
+      "api_key_save": "Saqlash",
+      "api_key_saved": "Saqlandi",
+      "api_key_get": "Kalit oling —",
+      "api_key_url_label": "console.anthropic.com"
+    }
+  },
   "interview": {
     "title": "DevPrep — Suhbatga tayyorgarlik",
     "headline_pre": "Texnik",
