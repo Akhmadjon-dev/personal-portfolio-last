@@ -1,6 +1,6 @@
 # Portfolio Rebuild — Full Plan
 
-Detailed plan for the Astro rebuild of ahmadjon.dev. Use this to resume work from any machine.
+Detailed plan for the Astro rebuild of ahmadjon.uz. Use this to resume work from any machine.
 
 ---
 
@@ -108,7 +108,7 @@ Goal: replace the Home placeholder with the real B+A design and ship to a Vercel
 - [ ] **Professional photo** (any of: headshot, product shot, at-desk photo). Drop into `astro-site/src/assets/photos/ahmadjon.jpg`. Ideal: 1200×1600 portrait, color-corrected.
 - [ ] **Formspree form ID** — sign up at [formspree.io](https://formspree.io), create a form, paste the ID. Or pick an alternative (Resend + Vercel function, EmailJS, Web3Forms).
 - [ ] **Social URLs** — confirm GitHub / LinkedIn / Telegram / Twitter handles to wire real links in `Footer.astro` (currently placeholder `#`).
-- [ ] **Custom domain** — is `ahmadjon.dev` the intended domain? Update `site` in `astro.config.mjs` if different.
+- [ ] **Custom domain** — is `ahmadjon.uz` the intended domain? Update `site` in `astro.config.mjs` if different.
 - [ ] **Testimonials** — skip the section entirely, or provide 1–3 quotes from past clients/colleagues.
 
 ### 1.2 Port real content from legacy `js/i18n.js`

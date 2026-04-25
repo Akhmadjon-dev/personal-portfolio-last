@@ -1,51 +1,200 @@
 {
   "meta": {
-    "lang": "O‘zbekcha",
+    "lang": "O'zbekcha",
     "short": "UZ"
   },
   "nav": {
     "projects": "Loyihalar",
     "about": "Men haqimda",
     "tools": "Vositalar",
-    "contact": "Bog‘lanish",
+    "contact": "Aloqa",
     "cv": "Rezyume"
   },
   "hero": {
-    "eyebrow": "Full-stack dasturchi",
-    "headline": "Odamlar haqiqatan foydalanadigan tez va ishonchli veb-ilovalar yarataman",
-    "subline": "6+ yil davomida veb, mobil va AI asosidagi mahsulotlarni ishlab chiqaraman.",
-    "cta_hire": "Yollash",
-    "cta_cv": "Rezyumeni yuklab olish"
+    "eyebrow": "Senior Frontend Engineer",
+    "headline": "Tez va ishonchli veb-ilovalar yarataman — odamlar haqiqatdan foydalanadigan.",
+    "subline": "Olti yil davomida Pearson, EPAM va FinTech startaplari uchun React va Next.js platformalarni yetkazib berdim — o'n minglab bir vaqtdagi foydalanuvchilar bilan.",
+    "cta_hire": "Bog'lanish",
+    "cta_cv": "Rezyumeni yuklab olish",
+    "available": "Senior frontend rollar uchun ochiqman",
+    "scroll": "Aylantiring"
   },
   "what_i_do": {
-    "title": "Nima qilaman",
+    "eyebrow": "Nima qilaman",
+    "title": "Boshidan oxirigacha mukammal qiladigan uch yo'nalish.",
     "items": {
-      "web": { "title": "Full-stack veb", "body": "React, Next.js, Node — birinchi pikseldan prodakshenagacha." },
-      "ai": { "title": "AI asosidagi vositalar", "body": "Real biznes ko‘rsatkichlarni harakatga keltiruvchi LLM xususiyatlari." },
-      "mobile": { "title": "Mobil-tayyor platformalar", "body": "Hatto eng sekin telefonlarda ham tez ishlaydi." }
+      "frontend": {
+        "title": "Katta hajmdagi frontend",
+        "body": "20 000+ bir vaqtdagi foydalanuvchini ko'taradigan React, Next.js va TypeScript arxitekturalari."
+      },
+      "fullstack": {
+        "title": "Full-stack yetkazib berish",
+        "body": "Node, Express, REST va GraphQL — faqat interfeys emas, butun mahsulotni yetkazaman."
+      },
+      "ai": {
+        "title": "AI bilan birlashgan vositalar",
+        "body": "Odamlar haqiqatdan foydalana boshlaydigan, LLM bilan ishlaydigan funksiyalar."
+      }
     }
   },
   "projects": {
-    "title": "Tanlangan loyihalar",
-    "subtitle": "Men chiqargan ishlarning tanlovi."
-  },
-  "about": {
-    "title": "Men haqimda",
-    "body": "Men Ahmadjon, O‘zbekistondagi full-stack dasturchiman. Tez, ishonchli va qo‘llab-quvvatlashga qulay dasturiy ta’minotni qadrlayman."
-  },
-  "contact": {
-    "title": "Keling, birga ishlaymiz",
-    "body": "Loyiha borkmi? Menga yozing.",
-    "name": "Ismingiz",
-    "email": "Email manzilingiz",
-    "message": "Xabaringiz",
-    "send": "Yuborish"
-  },
-  "footer": {
-    "built": "Astro yordamida qurildi"
+    "eyebrow": "Tanlangan ishlar",
+    "title": "Oxirgi olti yildagi bir nechta loyiha.",
+    "view_project": "Loyihani ko'rish",
+    "view_site": "Saytni ko'rish",
+    "tech_label": "Stek"
   },
   "tools": {
-    "french": { "title": "Mon Français", "body": "Fransuz tilini o‘rganish yordamchim." },
-    "interview": { "title": "DevPrep", "body": "Taraqqiyotni kuzatib boradigan intervyu tayyorgarligi." }
+    "eyebrow": "Shaxsiy vositalar",
+    "title": "O'zim uchun yaratgan, mahsulotga aylangan narsalar.",
+    "french": {
+      "title": "Mon Français",
+      "tagline": "AI yordamida fransuz tili",
+      "body": "63 grammatika mavzusi, 500+ so'z, Anthropic asosida nutq mashqi va izohlar.",
+      "cta": "Mon Français-ni ochish"
+    },
+    "interview": {
+      "title": "DevPrep",
+      "tagline": "Suhbatga tayyorgarlik",
+      "body": "6 ta qiyinlik darajasi, taraqqiyot kuzatuvi, faqat-kod rejimi va savollar bo'yicha tezkor qidiruv.",
+      "cta": "DevPrep-ni ochish"
+    }
+  },
+  "about": {
+    "eyebrow": "Men haqimda",
+    "title": "Salom, men Ahmadjonman.",
+    "body_1": "Men O'zbekistonning Jizzax shahridanman — Senior Frontend Engineer. Oxirgi olti yil davomida AQSh, Buyuk Britaniya va Sharqiy Yevropadagi kompaniyalar bilan ishladim — Pearson, EPAM, Codemotion Ninjas — yuqori yuklamali mahsulotlar ustida.",
+    "body_2": "Men uchun muhimi — kod tez yuklansin, yuklamani ko'tarsin va mendan keyin uni qo'llab-quvvatlayotgan odamlarga qulay bo'lsin. Bo'sh vaqtda o'z vositalarimni quraman — Mon Français va DevPrep, ikkalasi ham yuqorida.",
+    "currently": "Hozir senior frontend rollarga ochiqman — masofadan, butun dunyo bo'ylab."
+  },
+  "skills": {
+    "title": "Stek",
+    "groups": {
+      "frontend": { "label": "Frontend", "items": ["React", "Next.js", "TypeScript", "Redux", "Tailwind", "MUI"] },
+      "backend": { "label": "Backend", "items": ["Node.js", "Express", "REST", "GraphQL"] },
+      "data": { "label": "Ma'lumotlar", "items": ["MongoDB", "SQL"] },
+      "tooling": { "label": "Vositalar", "items": ["Webpack", "Jest", "CI/CD", "Tezlik"] }
+    }
+  },
+  "experience": {
+    "eyebrow": "Tajriba",
+    "title": "Qayerda ishladim.",
+    "items": [
+      {
+        "company": "Pearson",
+        "role": "Web Developer",
+        "period": "Iyul 2023 — Yan 2026",
+        "location": "Masofadan",
+        "summary": "20 000+ bir vaqtdagi foydalanuvchili korporativ e-commerce platformalar uchun React va Next.js. BigCommerce do'konlari. Talablar va baholash bo'yicha to'g'ridan-to'g'ri stakeholderlar bilan ishlash."
+      },
+      {
+        "company": "Codemotion Ninjas",
+        "role": "React Software Engineer",
+        "period": "May 2022 — Iyul 2023",
+        "location": "Ukraina, masofadan",
+        "summary": "FinTech va logistika startaplari uchun frontend tizimlar. React, Vue va TypeScript da kengaytiriladigan UI arxitekturasi."
+      },
+      {
+        "company": "EPAM Systems",
+        "role": "Software Engineer",
+        "period": "2021 — 2022",
+        "location": "AQSh",
+        "summary": "Yuqori yuklamali korporativ platformalarda React + TypeScript. 10 000+ foydalanuvchi, 2 TB+ CDN, 1 000+ marketing kampaniyasi. Junior dasturchilarni o'qitish va texnik intervyu."
+      },
+      {
+        "company": "Alitech Website Solutions",
+        "role": "Full-stack Developer",
+        "period": "2019 — 2021",
+        "location": "O'zbekiston",
+        "summary": "React, Node, Express, MongoDB asosida full-stack ilovalar. REST API, real vaqt kuzatuv, integratsiyalar va tezlikni optimallashtirish."
+      },
+      {
+        "company": "Alitech Website Solutions",
+        "role": "Frontend Developer",
+        "period": "2018 — 2019",
+        "location": "O'zbekiston",
+        "summary": "React + TypeScript UI. Rolga asoslangan avtorizatsiya, avtotolov, 20 000+ bir vaqtdagi foydalanuvchili KYC tizimlar."
+      }
+    ]
+  },
+  "testimonials": {
+    "eyebrow": "Yaxshi so'zlar",
+    "title": "Birga ishlagan odamlar nima deydi.",
+    "items": [
+      {
+        "quote": "Ahmadjon bilan ishlash haqiqiy zavq edi — loyihani boshidan oxirigacha ishonib topshirsa bo'ladigan dasturchi.",
+        "name": "Mijoz",
+        "role": "Tadbirkor"
+      },
+      {
+        "quote": "Aniq muloqotchi, murakkab dizayn vaziyatlariga sabr va ishonch bilan kirib boradigan, ajoyib natija beradigan mutaxassis.",
+        "name": "Lead Designer",
+        "role": "Mahsulot dizayneri"
+      },
+      {
+        "quote": "Har bir loyiha o'z vaqtida va aniq kelishilganidek topshiriladi. Eng yuqori darajadagi tavsiyamizni bera olamiz.",
+        "name": "Engineering Lead",
+        "role": "Dasturchi"
+      }
+    ]
+  },
+  "contact": {
+    "eyebrow": "Bog'lanish",
+    "title": "G'oya bormi? Birga quramiz.",
+    "body": "Yozing — odatda 24 soat ichida javob beraman.",
+    "fields": {
+      "name": "Ismingiz",
+      "email": "Elektron pochta",
+      "subject": "Mavzu (ixtiyoriy)",
+      "message": "Loyihangiz haqida yozing"
+    },
+    "send": "Yuborish",
+    "sending": "Yuborilmoqda…",
+    "success_title": "Oldim — yaqinda javob beraman.",
+    "success_body": "Xabar uchun rahmat. Bir kun ichida javob beraman.",
+    "error_title": "Nimadir noto'g'ri ketdi",
+    "error_body": "Yana urinib ko'ring yoki to'g'ridan-to'g'ri info.ahmadjon@gmail.com ga yozing.",
+    "or_email": "Yoki to'g'ridan-to'g'ri yozing",
+    "email_address": "info.ahmadjon@gmail.com",
+    "telegram_label": "Telegram",
+    "phone_label": "Telefon",
+    "location_label": "Joylashuv",
+    "location": "Jizzax, O'zbekiston"
+  },
+  "footer": {
+    "tagline": "Jizzax, O'zbekistonda mehr bilan yaratilgan.",
+    "built": "Astro, React va Tailwind asosida."
+  },
+  "cv": {
+    "title": "Rezyume",
+    "subtitle": "Senior Frontend Engineer — React, Next.js, TypeScript",
+    "summary_label": "Qisqa ma'lumot",
+    "summary_body": "Pearson va EPAM kabi korporativ va mahsulot kompaniyalari uchun kengaytiriladigan, yuqori unumdorlikdagi veb-ilovalar yaratish bo'yicha 6+ yillik tajribaga ega Senior Frontend Engineer. React, Next.js va TypeScript bo'yicha mutaxassislashgan, 10 000–20 000+ bir vaqtdagi foydalanuvchili platformalarda tajribaga ega.",
+    "location_label": "Joylashuv",
+    "location_value": "O'zbekiston — masofaviy, global hamkorlikka ochiq",
+    "email_label": "Elektron pochta",
+    "site_label": "Sayt",
+    "linkedin_label": "LinkedIn",
+    "skills_label": "Texnik ko'nikmalar",
+    "experience_label": "Ish tajribasi",
+    "education_label": "Ta'lim",
+    "leadership_label": "Yetakchilik va mentorlik",
+    "additional_label": "Qo'shimcha",
+    "languages_label": "Tillar",
+    "certifications_label": "Sertifikatlar",
+    "download_pdf": "PDF yuklab olish",
+    "back_home": "Bosh sahifaga",
+    "education_item": {
+      "degree": "Radio qurilmalar va tarmoqlar bo'yicha bakalavr",
+      "school": "Jizzax Politexnika Instituti",
+      "period": "2018 — 2022"
+    },
+    "leadership_items": [
+      "EPAM lab dasturida mentor — yangi muhandislarning onboardingiga yordam.",
+      "IT Park Jizzakhda volontyor frontend mentor (2020–2021).",
+      "Junior frontend nomzodlar uchun texnik intervyuer."
+    ],
+    "languages_value": "Ingliz (yuqori daraja), fransuz, rus (boshlang'ich)",
+    "certifications_value": "JavaScript: Best Practices for Functions and Classes; Node.js: Microservices; React Native CRM Application Development."
   }
 }

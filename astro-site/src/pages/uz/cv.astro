@@ -1,10 +1,10 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import Placeholder from '../../components/portfolio/Placeholder.astro';
+import Cv from '../../components/portfolio/Cv.astro';
 import { getDict } from '../../i18n/utils';
 const t = getDict('uz');
 ---
 
-<Layout title={`${t.nav.cv} — Ahmadjon Abdusamadov`} locale="uz">
-  <Placeholder locale="uz" title={t.nav.cv} note="Veb-rezyume 1-bosqichda qo‘shiladi. Hozircha PDF mavjud." />
+<Layout title={`${t.cv.title} — Ahmadjon Abdusamadov`} locale="uz">
+  <Cv locale="uz" />
 </Layout>

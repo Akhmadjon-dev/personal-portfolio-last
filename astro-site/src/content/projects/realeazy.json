@@ -1,0 +1,17 @@
+{
+  "title": "Realeazy",
+  "tagline": {
+    "en": "Web application for managing rental properties across Dubai.",
+    "ru": "Веб-приложение для управления арендной недвижимостью в Дубае.",
+    "uz": "Dubaydagi ijara mulklarini boshqarish uchun veb-ilova."
+  },
+  "outcome": {
+    "en": "Full property lifecycle: listings, tenants, payments, maintenance — in one dashboard.",
+    "ru": "Полный жизненный цикл недвижимости: объявления, арендаторы, платежи и обслуживание в одном дашборде.",
+    "uz": "Mulkning to'liq hayot tsikli: e'lonlar, ijarachilar, to'lovlar va xizmat ko'rsatish — bitta dashboardda."
+  },
+  "tech": ["React", "TypeScript", "Node.js", "Express", "MongoDB"],
+  "image": "../../assets/projects/property.webp",
+  "link": "https://realeazy.io/login",
+  "order": 3
+}

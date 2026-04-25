@@ -1,10 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Placeholder from '../components/portfolio/Placeholder.astro';
+import Cv from '../components/portfolio/Cv.astro';
 import { getDict } from '../i18n/utils';
 const t = getDict('en');
 ---
 
-<Layout title={`${t.nav.cv} — Ahmadjon Abdusamadov`} locale="en">
-  <Placeholder locale="en" title={t.nav.cv} note="Web CV coming in Phase 1. For now, grab the PDF." />
+<Layout title={`${t.cv.title} — Ahmadjon Abdusamadov`} locale="en">
+  <Cv locale="en" />
 </Layout>

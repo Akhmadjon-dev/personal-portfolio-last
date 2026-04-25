@@ -1,0 +1,127 @@
+---
+import { getDict, localizePath, type Locale } from '../../i18n/utils';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getDict(locale);
+
+const skillGroups = [
+  { key: 'frontend' as const },
+  { key: 'backend' as const },
+  { key: 'data' as const },
+  { key: 'tooling' as const },
+];
+---
+
+<article class="max-w-4xl mx-auto px-6 py-16 md:py-24">
+  <header class="mb-14 pb-10 border-b border-mist dark:border-white/10">
+    <p class="font-mono text-xs uppercase tracking-widest text-accent mb-4">{t.cv.title}</p>
+    <h1 class="font-display text-5xl md:text-6xl leading-[1.05] tracking-tight mb-3">Ahmadjon Abdusamadov</h1>
+    <p class="text-xl text-muted mb-8">{t.cv.subtitle}</p>
+
+    <dl class="grid sm:grid-cols-2 gap-x-10 gap-y-4 text-sm">
+      <div>
+        <dt class="font-mono text-[11px] uppercase tracking-widest text-muted mb-1">{t.cv.location_label}</dt>
+        <dd>{t.cv.location_value}</dd>
+      </div>
+      <div>
+        <dt class="font-mono text-[11px] uppercase tracking-widest text-muted mb-1">{t.cv.email_label}</dt>
+        <dd><a href="mailto:info.ahmadjon@gmail.com" class="hover:text-accent transition-colors">info.ahmadjon@gmail.com</a></dd>
+      </div>
+      <div>
+        <dt class="font-mono text-[11px] uppercase tracking-widest text-muted mb-1">{t.cv.site_label}</dt>
+        <dd><a href="https://ahmadjon.uz" class="hover:text-accent transition-colors">ahmadjon.uz</a></dd>
+      </div>
+      <div>
+        <dt class="font-mono text-[11px] uppercase tracking-widest text-muted mb-1">{t.cv.linkedin_label}</dt>
+        <dd><a href="https://www.linkedin.com/in/akhmadjonabdusamdov/" target="_blank" rel="noopener" class="hover:text-accent transition-colors">linkedin.com/in/akhmadjonabdusamdov</a></dd>
+      </div>
+    </dl>
+
+    <div class="mt-8 flex flex-wrap gap-3 print:hidden">
+      <a href="/cv.pdf" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-ink text-paper dark:bg-paper dark:text-ink text-sm font-medium hover:opacity-90 transition-opacity">
+        {t.cv.download_pdf} <span aria-hidden="true">↓</span>
+      </a>
+      <a href={localizePath('/', locale)} class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-ink/15 dark:border-white/15 text-sm hover:bg-paper-dim dark:hover:bg-white/5 transition-colors">
+        ← {t.cv.back_home}
+      </a>
+    </div>
+  </header>
+
+  <section class="mb-12">
+    <h2 class="font-display text-2xl md:text-3xl mb-4">{t.cv.summary_label}</h2>
+    <p class="text-muted leading-relaxed">{t.cv.summary_body}</p>
+  </section>
+
+  <section class="mb-12">
+    <h2 class="font-display text-2xl md:text-3xl mb-6">{t.cv.skills_label}</h2>
+    <div class="grid sm:grid-cols-2 gap-x-10 gap-y-5">
+      {skillGroups.map((g) => (
+        <div>
+          <p class="font-mono text-[11px] uppercase tracking-widest text-muted mb-2">{t.skills.groups[g.key].label}</p>
+          <p class="text-sm">{t.skills.groups[g.key].items.join(', ')}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="mb-12">
+    <h2 class="font-display text-2xl md:text-3xl mb-6">{t.cv.experience_label}</h2>
+    <div class="space-y-8">
+      {t.experience.items.map((item: { company: string; role: string; period: string; location: string; summary: string }) => (
+        <div>
+          <div class="flex flex-col md:flex-row md:items-baseline md:justify-between gap-1 mb-1">
+            <h3 class="font-display text-xl">{item.role} <span class="text-muted font-sans text-base">— {item.company}</span></h3>
+            <span class="font-mono text-xs uppercase tracking-widest text-muted">{item.period}</span>
+          </div>
+          <p class="font-mono text-[11px] uppercase tracking-widest text-accent mb-2">{item.location}</p>
+          <p class="text-muted leading-relaxed">{item.summary}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="mb-12">
+    <h2 class="font-display text-2xl md:text-3xl mb-4">{t.cv.education_label}</h2>
+    <div class="flex flex-col md:flex-row md:items-baseline md:justify-between gap-1">
+      <div>
+        <p class="font-medium">{t.cv.education_item.degree}</p>
+        <p class="text-muted text-sm">{t.cv.education_item.school}</p>
+      </div>
+      <span class="font-mono text-xs uppercase tracking-widest text-muted">{t.cv.education_item.period}</span>
+    </div>
+  </section>
+
+  <section class="mb-12">
+    <h2 class="font-display text-2xl md:text-3xl mb-4">{t.cv.leadership_label}</h2>
+    <ul class="space-y-2 text-muted">
+      {t.cv.leadership_items.map((item: string) => (
+        <li class="flex gap-3"><span class="text-accent mt-1.5 w-1 h-1 rounded-full bg-accent flex-shrink-0"></span><span>{item}</span></li>
+      ))}
+    </ul>
+  </section>
+
+  <section>
+    <h2 class="font-display text-2xl md:text-3xl mb-4">{t.cv.additional_label}</h2>
+    <dl class="space-y-3 text-sm">
+      <div>
+        <dt class="font-mono text-[11px] uppercase tracking-widest text-muted mb-1">{t.cv.languages_label}</dt>
+        <dd class="text-muted">{t.cv.languages_value}</dd>
+      </div>
+      <div>
+        <dt class="font-mono text-[11px] uppercase tracking-widest text-muted mb-1">{t.cv.certifications_label}</dt>
+        <dd class="text-muted">{t.cv.certifications_value}</dd>
+      </div>
+    </dl>
+  </section>
+</article>
+
+<style>
+  @media print {
+    @page { margin: 1.5cm; }
+    article { padding: 0; }
+  }
+</style>

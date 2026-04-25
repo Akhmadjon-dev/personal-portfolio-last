@@ -11,41 +11,190 @@
     "cv": "CV"
   },
   "hero": {
-    "eyebrow": "Full-stack engineer",
-    "headline": "I build fast, reliable web apps people actually use",
-    "subline": "6+ years shipping production software across web, mobile, and AI-powered tools.",
-    "cta_hire": "Hire me",
-    "cta_cv": "Download CV"
+    "eyebrow": "Senior Frontend Engineer",
+    "headline": "Crafting fast, reliable web apps people actually want to use.",
+    "subline": "Six years shipping React and Next.js platforms for Pearson, EPAM, and FinTech startups — supporting tens of thousands of concurrent users.",
+    "cta_hire": "Get in touch",
+    "cta_cv": "Download CV",
+    "available": "Available for senior frontend roles",
+    "scroll": "Scroll"
   },
   "what_i_do": {
-    "title": "What I do",
+    "eyebrow": "What I do",
+    "title": "Three things I'm good at, end to end.",
     "items": {
-      "web": { "title": "Full-stack web", "body": "React, Next.js, Node — from first pixel to production." },
-      "ai": { "title": "AI-powered tools", "body": "LLM-integrated features that move real business metrics." },
-      "mobile": { "title": "Mobile-ready platforms", "body": "Responsive by default, fast on the slowest phone." }
+      "frontend": {
+        "title": "Frontend at scale",
+        "body": "React, Next.js, and TypeScript architectures that hold up at 20,000+ concurrent users."
+      },
+      "fullstack": {
+        "title": "Full-stack delivery",
+        "body": "Node, Express, REST and GraphQL — shipping the whole product, not just the UI."
+      },
+      "ai": {
+        "title": "AI-integrated tools",
+        "body": "LLM-powered features that turn into real products people actually pick up and use."
+      }
     }
   },
   "projects": {
-    "title": "Featured projects",
-    "subtitle": "A selection of what I've shipped."
-  },
-  "about": {
-    "title": "About",
-    "body": "I'm Ahmadjon, a full-stack engineer based in Uzbekistan. I care about shipping software that's fast, reliable, and easy to maintain."
-  },
-  "contact": {
-    "title": "Let's work together",
-    "body": "Got a project in mind? Send me a note.",
-    "name": "Your name",
-    "email": "Your email",
-    "message": "Your message",
-    "send": "Send message"
-  },
-  "footer": {
-    "built": "Built with Astro"
+    "eyebrow": "Selected work",
+    "title": "A few projects from the last six years.",
+    "view_project": "View project",
+    "view_site": "View site",
+    "tech_label": "Stack"
   },
   "tools": {
-    "french": { "title": "Mon Français", "body": "My French learning companion." },
-    "interview": { "title": "DevPrep", "body": "Interview prep with progress tracking." }
+    "eyebrow": "Personal tools",
+    "title": "Things I built for myself that turned into products.",
+    "french": {
+      "title": "Mon Français",
+      "tagline": "AI-assisted French learning",
+      "body": "63 grammar topics, 500+ vocabulary words, speaking practice with Anthropic-powered feedback.",
+      "cta": "Open Mon Français"
+    },
+    "interview": {
+      "title": "DevPrep",
+      "tagline": "Frontend interview prep",
+      "body": "6 difficulty levels, progress tracking, code-only mode, and instant search across the question bank.",
+      "cta": "Open DevPrep"
+    }
+  },
+  "about": {
+    "eyebrow": "About",
+    "title": "Hi, I'm Ahmadjon.",
+    "body_1": "I'm a Senior Frontend Engineer based in Jizzakh, Uzbekistan. I've spent the last six years working with companies in the US, UK, and Eastern Europe — Pearson, EPAM, Codemotion Ninjas — building products at scale.",
+    "body_2": "I care about software that loads fast, holds up under load, and stays kind to the people who maintain it after me. When I'm not shipping product code, I'm tinkering with my own tools — Mon Français and DevPrep, both linked above.",
+    "currently": "Currently open to senior frontend roles, remote — globally."
+  },
+  "skills": {
+    "title": "Stack",
+    "groups": {
+      "frontend": { "label": "Frontend", "items": ["React", "Next.js", "TypeScript", "Redux", "Tailwind", "MUI"] },
+      "backend": { "label": "Backend", "items": ["Node.js", "Express", "REST", "GraphQL"] },
+      "data": { "label": "Data", "items": ["MongoDB", "SQL"] },
+      "tooling": { "label": "Tooling", "items": ["Webpack", "Jest", "CI/CD", "Performance"] }
+    }
+  },
+  "experience": {
+    "eyebrow": "Experience",
+    "title": "Where I've worked.",
+    "items": [
+      {
+        "company": "Pearson",
+        "role": "Web Developer",
+        "period": "Jul 2023 — Jan 2026",
+        "location": "Remote",
+        "summary": "React and Next.js for enterprise e-commerce serving 20,000+ concurrent users. BigCommerce storefronts. Direct stakeholder collaboration on requirements and estimations."
+      },
+      {
+        "company": "Codemotion Ninjas",
+        "role": "React Software Engineer",
+        "period": "May 2022 — Jul 2023",
+        "location": "Ukraine, Remote",
+        "summary": "Frontend systems for FinTech and logistics startups. Scalable UI architecture in React, Vue, and TypeScript. Translated complex design requirements into performant solutions."
+      },
+      {
+        "company": "EPAM Systems",
+        "role": "Software Engineer",
+        "period": "2021 — 2022",
+        "location": "USA",
+        "summary": "React + TypeScript on high-traffic enterprise platforms. 10,000+ concurrent users, 2TB+ CDN, 1,000+ marketing campaigns. Mentored juniors and ran technical interviews."
+      },
+      {
+        "company": "Alitech Website Solutions",
+        "role": "Full-stack Developer",
+        "period": "2019 — 2021",
+        "location": "Uzbekistan",
+        "summary": "Full-stack apps in React, Node, Express, MongoDB. REST APIs, real-time tracking, third-party integrations, performance optimization."
+      },
+      {
+        "company": "Alitech Website Solutions",
+        "role": "Frontend Developer",
+        "period": "2018 — 2019",
+        "location": "Uzbekistan",
+        "summary": "React + TypeScript UI. Role-based authorization, autopay, KYC systems serving 20,000+ simultaneous users."
+      }
+    ]
+  },
+  "testimonials": {
+    "eyebrow": "Kind words",
+    "title": "What people I've worked with say.",
+    "items": [
+      {
+        "quote": "Ahmadjon was a real pleasure to work with — definitely the kind of programmer you can trust with a project from start to finish.",
+        "name": "Client",
+        "role": "Businessman"
+      },
+      {
+        "quote": "A clear communicator with the tenacity and confidence to dig in to tricky design scenarios and produce excellent work.",
+        "name": "Lead Designer",
+        "role": "Product Designer"
+      },
+      {
+        "quote": "Every single project is done in a timely fashion and delivered exactly as outlined. We absolutely offer our highest possible recommendation.",
+        "name": "Engineering Lead",
+        "role": "Developer"
+      }
+    ]
+  },
+  "contact": {
+    "eyebrow": "Get in touch",
+    "title": "Have an idea? Let's build it.",
+    "body": "Drop me a note and I'll usually reply within 24 hours.",
+    "fields": {
+      "name": "Your name",
+      "email": "Email address",
+      "subject": "Subject (optional)",
+      "message": "Tell me about your project"
+    },
+    "send": "Send message",
+    "sending": "Sending…",
+    "success_title": "Got it — talk soon.",
+    "success_body": "Thanks for reaching out. I'll get back to you within a day.",
+    "error_title": "Something went wrong",
+    "error_body": "Please try again, or email me directly at info.ahmadjon@gmail.com.",
+    "or_email": "Or email directly",
+    "email_address": "info.ahmadjon@gmail.com",
+    "telegram_label": "Telegram",
+    "phone_label": "Phone",
+    "location_label": "Location",
+    "location": "Jizzakh, Uzbekistan"
+  },
+  "footer": {
+    "tagline": "Made with care in Jizzakh, Uzbekistan.",
+    "built": "Built with Astro, React, Tailwind."
+  },
+  "cv": {
+    "title": "Curriculum Vitae",
+    "subtitle": "Senior Frontend Engineer — React, Next.js, TypeScript",
+    "summary_label": "Summary",
+    "summary_body": "Senior Frontend Engineer with 6+ years building scalable, high-performance web applications for enterprise and product companies including Pearson and EPAM. Specialized in React, Next.js, and TypeScript with experience supporting platforms serving 10,000–20,000+ concurrent users.",
+    "location_label": "Based in",
+    "location_value": "Uzbekistan — Open to remote, global",
+    "email_label": "Email",
+    "site_label": "Site",
+    "linkedin_label": "LinkedIn",
+    "skills_label": "Technical skills",
+    "experience_label": "Professional experience",
+    "education_label": "Education",
+    "leadership_label": "Leadership & mentorship",
+    "additional_label": "Additional",
+    "languages_label": "Languages",
+    "certifications_label": "Certifications",
+    "download_pdf": "Download PDF",
+    "back_home": "Back home",
+    "education_item": {
+      "degree": "BSc in Radio Devices and Networks",
+      "school": "Jizzakh Polytechnic Institute",
+      "period": "2018 — 2022"
+    },
+    "leadership_items": [
+      "Mentor at EPAM lab program — supported onboarding engineers.",
+      "Volunteer Frontend Mentor at IT Park Jizzakh (2020–2021).",
+      "Technical interviewer for junior frontend candidates."
+    ],
+    "languages_value": "English (advanced), French, Russian (elementary)",
+    "certifications_value": "JavaScript: Best Practices for Functions and Classes; Node.js: Microservices; React Native CRM Application Development."
   }
 }

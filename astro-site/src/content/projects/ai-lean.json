@@ -1,0 +1,18 @@
+{
+  "title": "AI-Lean",
+  "tagline": {
+    "en": "AI-powered SaaS automating the lien-to-auction process for self-storage operators.",
+    "ru": "SaaS-платформа на базе ИИ для автоматизации процесса залога и аукциона для операторов складов.",
+    "uz": "Ombor operatorlari uchun garov va auktsion jarayonini avtomatlashtiradigan sun'iy intellektga asoslangan SaaS platformasi."
+  },
+  "outcome": {
+    "en": "Cut weeks of manual lien-to-auction work into a single guided workflow. Built the end-to-end UI.",
+    "ru": "Ручной процесс залога-аукциона на недели сжали в единый управляемый поток. End-to-end UI.",
+    "uz": "Haftalab qo'l mehnati talab qiladigan jarayonni yagona yo'naltirilgan oqimga aylantirdik."
+  },
+  "tech": ["React", "TypeScript", "Next.js", "Node.js"],
+  "image": "../../assets/projects/ai-lean.webp",
+  "link": "https://app.ai-lean.com/",
+  "siteLink": "https://home.ai-lean.com/",
+  "order": 2
+}

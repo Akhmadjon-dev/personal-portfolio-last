@@ -4,7 +4,7 @@ import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
-  site: 'https://ahmadjon.dev',
+  site: 'https://ahmadjon.uz',
   output: 'static',
   integrations: [react()],
   i18n: {

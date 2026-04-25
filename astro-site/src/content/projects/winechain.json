@@ -1,0 +1,17 @@
+{
+  "title": "WineChain",
+  "tagline": {
+    "en": "Premium wine marketplace with secure storage and worldwide trading of digital wine twins.",
+    "ru": "Премиальный винный маркетплейс с безопасным хранением и мировой торговлей цифровыми двойниками вин.",
+    "uz": "Xavfsiz saqlash va raqamli vino egizaklarining global savdosi bilan premium vino bozori."
+  },
+  "outcome": {
+    "en": "Trading platform with on-chain provenance, secure custody, and a fluid checkout. Frontend lead.",
+    "ru": "Торговая платформа с он-чейн происхождением, безопасным хранением и удобной оплатой. Frontend lead.",
+    "uz": "Onchain kelib chiqishi, xavfsiz saqlash va qulay to'lov bilan savdo platformasi. Frontend lead."
+  },
+  "tech": ["React", "TypeScript", "Next.js", "Node.js", "MongoDB"],
+  "image": "../../assets/projects/winechain.webp",
+  "link": "https://winechain.co/",
+  "order": 1
+}
