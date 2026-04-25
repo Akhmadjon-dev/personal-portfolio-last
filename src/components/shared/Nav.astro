@@ -20,7 +20,7 @@ const links = [
 ];
 ---
 
-<header class="sticky top-0 z-50 backdrop-blur-md bg-paper/70 dark:bg-[#0F0F10]/70 border-b border-mist dark:border-white/5">
+<header class="sticky top-0 z-40 backdrop-blur-md bg-paper/70 dark:bg-[#0F0F10]/70 border-b border-mist dark:border-white/5">
   <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between gap-3">
     <a href={localizePath('/', locale)} class="font-display text-2xl tracking-tight">
       Ahmadjon<span class="text-accent">.</span>
@@ -46,59 +46,61 @@ const links = [
         aria-controls="mobile-menu"
       >
         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line id="mobile-menu-line-top" x1="4" y1="6" x2="20" y2="6"></line>
-          <line id="mobile-menu-line-mid" x1="4" y1="12" x2="20" y2="12"></line>
-          <line id="mobile-menu-line-bot" x1="4" y1="18" x2="20" y2="18"></line>
+          <line x1="4" y1="6" x2="20" y2="6"></line>
+          <line x1="4" y1="12" x2="20" y2="12"></line>
+          <line x1="4" y1="18" x2="20" y2="18"></line>
         </svg>
       </button>
     </div>
   </div>
-
-  <div
-    id="mobile-menu-backdrop"
-    class="md:hidden fixed inset-0 bg-black/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-200 z-40"
-    aria-hidden="true"
-  >
-  </div>
-
-  <aside
-    id="mobile-menu"
-    class="md:hidden fixed top-0 right-0 bottom-0 w-[78%] max-w-[320px] bg-paper dark:bg-[#0F0F10] border-l border-mist dark:border-white/10 z-50 translate-x-full transition-transform duration-200 ease-out flex flex-col"
-    aria-label="Mobile navigation"
-    aria-hidden="true"
-  >
-    <div class="flex items-center justify-between h-16 px-5 border-b border-mist dark:border-white/10">
-      <span class="font-mono text-xs uppercase tracking-widest text-muted">Menu</span>
-      <button
-        id="mobile-menu-close"
-        type="button"
-        class="inline-flex items-center justify-center w-9 h-9 rounded-full border border-mist hover:bg-paper-dim dark:border-white/10 dark:hover:bg-white/5"
-        aria-label="Close menu"
-      >
-        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-        </svg>
-      </button>
-    </div>
-
-    <nav class="flex-1 px-5 py-6 flex flex-col gap-1">
-      {links.map((l) => (
-        <a
-          href={l.href}
-          class="mobile-menu-link block px-3 py-3 rounded-lg text-base font-medium text-ink dark:text-paper hover:bg-paper-dim dark:hover:bg-white/5 transition-colors"
-        >
-          {l.label}
-        </a>
-      ))}
-    </nav>
-
-    <div class="px-5 py-5 border-t border-mist dark:border-white/10">
-      <p class="font-mono text-[11px] uppercase tracking-widest text-muted mb-3">Language</p>
-      <LangSwitcher current={locale} pathname={pathname} />
-    </div>
-  </aside>
 </header>
+
+<!-- Drawer + backdrop kept OUTSIDE <header> because the header's
+     backdrop-blur creates a containing block for fixed descendants. -->
+<div
+  id="mobile-menu-backdrop"
+  class="md:hidden fixed inset-0 bg-black/40 backdrop-blur-sm opacity-0 invisible transition-[opacity,visibility] duration-200 z-[60]"
+  aria-hidden="true"
+>
+</div>
+
+<aside
+  id="mobile-menu"
+  class="md:hidden fixed top-0 right-0 bottom-0 w-[78%] max-w-[320px] bg-paper dark:bg-[#0F0F10] border-l border-mist dark:border-white/10 z-[70] translate-x-full transition-transform duration-200 ease-out flex flex-col shadow-2xl"
+  aria-label="Mobile navigation"
+  aria-hidden="true"
+>
+  <div class="flex items-center justify-between h-16 px-5 border-b border-mist dark:border-white/10">
+    <span class="font-mono text-xs uppercase tracking-widest text-muted">Menu</span>
+    <button
+      id="mobile-menu-close"
+      type="button"
+      class="inline-flex items-center justify-center w-9 h-9 rounded-full border border-mist hover:bg-paper-dim dark:border-white/10 dark:hover:bg-white/5"
+      aria-label="Close menu"
+    >
+      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+
+  <nav class="flex-1 px-5 py-6 flex flex-col gap-1 overflow-y-auto">
+    {links.map((l) => (
+      <a
+        href={l.href}
+        class="mobile-menu-link block px-3 py-3 rounded-lg text-base font-medium text-ink dark:text-paper hover:bg-paper-dim dark:hover:bg-white/5 transition-colors"
+      >
+        {l.label}
+      </a>
+    ))}
+  </nav>
+
+  <div class="px-5 py-5 border-t border-mist dark:border-white/10">
+    <p class="font-mono text-[11px] uppercase tracking-widest text-muted mb-3">Language</p>
+    <LangSwitcher current={locale} pathname={pathname} />
+  </div>
+</aside>
 
 <script is:inline>
   (() => {
@@ -115,14 +117,14 @@ const links = [
       menu.classList.remove('translate-x-full');
       menu.setAttribute('aria-hidden', 'false');
       btn.setAttribute('aria-expanded', 'true');
-      backdrop.classList.remove('opacity-0', 'pointer-events-none');
+      backdrop.classList.remove('opacity-0', 'invisible');
       document.body.style.overflow = 'hidden';
     }
     function close() {
       menu.classList.add('translate-x-full');
       menu.setAttribute('aria-hidden', 'true');
       btn.setAttribute('aria-expanded', 'false');
-      backdrop.classList.add('opacity-0', 'pointer-events-none');
+      backdrop.classList.add('opacity-0', 'invisible');
       document.body.style.overflow = '';
     }
 
