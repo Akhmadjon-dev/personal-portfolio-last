@@ -1,0 +1,84 @@
+---
+q: "What is `StyleSheet`?"
+level: entry
+type: theory
+order: 4
+---
+
+`StyleSheet.create()` is React Native's way of defining styles as JS objects. It's the most common pattern, though plain JS objects work too.
+
+```jsx
+import { StyleSheet, View, Text } from 'react-native';
+
+function Card() {
+  return (
+    <View style={styles.card}>
+      <Text style={styles.title}>Hello</Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4, // Android shadow
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1a1a1a',
+  },
+});
+```
+
+**Key differences from web CSS:**
+
+- **No selectors.** No `.card:hover`, no `.card > p`, no `body { ... }`. Each style object applies directly to a component.
+- **camelCase properties.** `backgroundColor`, not `background-color`.
+- **Flexbox only.** No CSS Grid, no `display: block`. Everything is flex or absolute.
+- **Numbers, not strings.** `padding: 16` (not `'16px'`). Some properties accept strings — `'50%'` for percentages.
+- **No units in most cases.** RN uses "density-independent pixels" — `16` means roughly the same physical size on any device.
+
+**Combining styles — array syntax:**
+
+```jsx
+<View style={[styles.card, styles.cardActive, customStyle]} />
+```
+
+Later items override earlier ones. Useful for conditional styling:
+
+```jsx
+<View style={[styles.card, isActive && styles.cardActive]} />
+```
+
+**Why use `StyleSheet.create()` over plain objects?**
+
+- **Validation.** Invalid style properties throw in development.
+- **Performance (legacy).** In the original bridge architecture, `StyleSheet.create()` registered styles once and referenced them by ID over the bridge. With the New Architecture (JSI), this matters less, but it's still good practice.
+- **Convention.** It's what every RN codebase uses; consistency makes review easier.
+
+**Modern alternatives — what teams actually use in 2026:**
+
+| Tool | Why |
+|---|---|
+| **NativeWind** | Tailwind CSS for React Native. Hugely popular — same utility classes you know from web. |
+| **Tamagui** | Cross-platform UI library with theme/variant system. Strong performance via compile-time optimization. |
+| **Restyle** (Shopify) | Theme-aware typed style props. Used in their apps. |
+| **styled-components / styled-system** | CSS-in-JS — still works, less common for new projects. |
+
+NativeWind example:
+
+```jsx
+<View className="bg-white rounded-xl p-4 shadow">
+  <Text className="text-lg font-semibold text-gray-900">Hello</Text>
+</View>
+```
+
+Same utility classes as web Tailwind, plus RN-specific extensions.
+
+**Senior touch:** the StyleSheet question is sometimes really asking "how do you style RN apps in 2026?" The right framing: "`StyleSheet.create()` is the baseline. For new projects, I'd reach for **NativeWind** — Tailwind utility classes work in RN now, and the muscle memory carries over from web. For component libraries with strong theming needs, Tamagui or Restyle. Plain StyleSheet is fine for small apps and is what most existing codebases use." Naming the modern ecosystem is the senior signal.

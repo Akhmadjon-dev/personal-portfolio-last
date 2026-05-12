@@ -1,0 +1,81 @@
+---
+q: "What is `SafeAreaView`?"
+level: entry
+type: theory
+order: 8
+---
+
+`SafeAreaView` is a component that automatically adds padding to avoid the iPhone notch, the Android camera cutout, the home indicator at the bottom, and other system UI areas. It's the difference between content "respecting the device's screen" and content "getting hidden under the notch."
+
+```jsx
+import { SafeAreaView, Text } from 'react-native';
+
+function Screen() {
+  return (
+    <SafeAreaView style={{ flex: 1 }}>
+      <Text>This won't be hidden by the notch.</Text>
+    </SafeAreaView>
+  );
+}
+```
+
+**Without `SafeAreaView`:**
+
+- iPhone X+ — content goes under the notch at the top and the home indicator at the bottom.
+- Pixel devices with cutouts — same issue.
+- Devices with rounded corners — content gets clipped at the corners.
+
+**With `SafeAreaView`:**
+
+The component automatically applies the OS-reported "safe area insets" as padding, so content stays inside the visible area.
+
+**Two implementations — pick the right one:**
+
+| Component | Source | Recommended? |
+|---|---|---|
+| `SafeAreaView` from `react-native` | Core RN | iOS only — does nothing on Android |
+| `SafeAreaView` from `react-native-safe-area-context` | Community library | **Yes — use this on every project** |
+
+Always install and use `react-native-safe-area-context`. The built-in `SafeAreaView` only handles iOS notches; the community version handles both platforms correctly and exposes the underlying insets as hooks:
+
+```jsx
+import {
+  SafeAreaProvider,
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
+
+// Wrap your root once
+function App() {
+  return (
+    <SafeAreaProvider>
+      <Screen />
+    </SafeAreaProvider>
+  );
+}
+
+// Then use SafeAreaView in screens
+function Screen() {
+  return <SafeAreaView style={{ flex: 1 }}>...</SafeAreaView>;
+}
+
+// Or read raw insets for custom layout
+function CustomScreen() {
+  const insets = useSafeAreaInsets();
+  return (
+    <View style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}>
+      ...
+    </View>
+  );
+}
+```
+
+`useSafeAreaInsets()` gives you `{ top, bottom, left, right }` numbers — useful when you need finer control than wrapping in `SafeAreaView`.
+
+**Common patterns:**
+
+- **Wrap top-level screens** in `SafeAreaView` so headers don't disappear under the notch.
+- **Edge-to-edge with safe-area insets** — for media-heavy screens (videos, photos), let content go edge-to-edge but pad only the *interactive* parts (buttons, text) using `useSafeAreaInsets`.
+- **`edges` prop** to control which edges respect the safe area: `<SafeAreaView edges={['top']}>` only pads top.
+
+**Senior touch:** the canonical mistake is using the built-in `SafeAreaView` from `react-native` and wondering why Android edge-to-edge layouts break. The senior signal: always use `react-native-safe-area-context`, know that `useSafeAreaInsets()` gives you the raw numbers, and use the `edges` prop to be precise about which edges should pad. *Most production RN apps install this library before they install anything else.*

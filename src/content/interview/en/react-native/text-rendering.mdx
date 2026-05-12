@@ -1,0 +1,75 @@
+---
+q: "Why must text be inside `<Text>` in React Native?"
+level: entry
+type: theory
+order: 12
+---
+
+In React Native, **strings can only render inside a `<Text>` component**. Trying to render a string directly inside a `<View>` (or any non-Text component) throws:
+
+```
+Error: Text strings must be rendered within a <Text> component.
+```
+
+```jsx
+// ❌ Throws
+<View>Hello</View>
+
+// ✅ Works
+<View>
+  <Text>Hello</Text>
+</View>
+```
+
+**Why this rule exists:**
+
+On the web, the browser knows how to render text inside any element — it has a built-in text engine. But native iOS and Android don't work that way: text needs a dedicated UI element (`UILabel` on iOS, `TextView` on Android) with its own font, color, size, alignment.
+
+`<Text>` maps directly to these native text-rendering primitives. `<View>` does not — it maps to a generic container (`UIView`, `android.view.View`) that has no concept of "render this string."
+
+**Style inheritance is also limited:**
+
+In CSS, setting `font-size` on a `<div>` cascades to all text inside it. In React Native, **style inheritance only works inside a `<Text>` tree.** A `fontSize` set on a `<View>` does nothing; the same prop on a `<Text>` cascades to nested `<Text>` children.
+
+```jsx
+// ❌ fontSize on View does nothing
+<View style={{ fontSize: 20 }}>
+  <Text>This is NOT 20pt</Text>
+</View>
+
+// ✅ Apply text styles to <Text>
+<Text style={{ fontSize: 20 }}>
+  <Text style={{ fontWeight: 'bold' }}>
+    This IS 20pt bold
+  </Text>
+</Text>
+```
+
+**Nesting `<Text>` for rich text:**
+
+`<Text>` components nest for mixed-style runs:
+
+```jsx
+<Text>
+  Hello, <Text style={{ fontWeight: 'bold' }}>world</Text>!
+</Text>
+```
+
+This is how you do bold/italic spans, hyperlinks, or any inline styling — `<Text>` inside `<Text>`.
+
+**Conditional rendering pitfall — the falsy-zero bug:**
+
+A classic RN bug from the text-must-be-in-Text rule:
+
+```jsx
+// ❌ If count is 0, this throws — `0` is a string outside <Text>
+{count && <Text>{count} unread</Text>}
+
+// ✅ Convert to boolean first
+{count > 0 && <Text>{count} unread</Text>}
+{Boolean(count) && <Text>{count} unread</Text>}
+```
+
+The web silently renders `0` (or nothing); RN treats it as a text node outside a `<Text>` and throws. Same family as the JSX `&&` falsy-zero issue, but louder.
+
+**Senior touch:** the text-in-Text rule is the most common rookie error in RN. The senior framing isn't just *"you have to wrap text"* — it's *why*. RN renders to native UI primitives, not the DOM. The DOM has a universal text engine; native doesn't. Every string needs a `<Text>` because that's the component that maps to the native text-rendering primitive on each platform. Once you understand the *why*, the rule stops feeling arbitrary and starts feeling correct.

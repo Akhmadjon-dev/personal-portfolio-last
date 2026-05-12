@@ -1,0 +1,84 @@
+---
+q: "How do you write platform-specific code?"
+level: entry
+type: theory
+order: 7
+---
+
+React Native gives you three ways to write code that runs differently on iOS vs Android.
+
+**1. `Platform.OS` — inline branching:**
+
+```jsx
+import { Platform, StyleSheet } from 'react-native';
+
+const styles = StyleSheet.create({
+  header: {
+    paddingTop: Platform.OS === 'ios' ? 44 : 24,
+    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : 'Roboto',
+  },
+});
+
+if (Platform.OS === 'android') {
+  // Android-specific code path
+}
+```
+
+`Platform.OS` is `'ios'`, `'android'`, or `'web'` (with RN for Web).
+
+**2. `Platform.select()` — cleaner for object-shaped values:**
+
+```jsx
+const styles = StyleSheet.create({
+  shadow: Platform.select({
+    ios: {
+      shadowColor: '#000',
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+    },
+    android: {
+      elevation: 4,
+    },
+  }),
+});
+```
+
+`Platform.select` returns the value for the current platform. Cleaner than `Platform.OS === 'ios' ? {...} : {...}` for object literals.
+
+**3. Platform-specific file extensions:**
+
+```
+components/
+  Button.tsx           ← shared default
+  Button.ios.tsx       ← iOS-specific override
+  Button.android.tsx   ← Android-specific override
+  Button.web.tsx       ← RN for Web (if applicable)
+```
+
+Importing `./Button` resolves to the right file based on the build target:
+
+```jsx
+import Button from './components/Button';
+// Metro picks Button.ios.tsx on iOS, Button.android.tsx on Android, etc.
+```
+
+Best when the two platforms diverge significantly — a date picker, file picker, or share sheet where the native UI is drastically different.
+
+**Other useful Platform checks:**
+
+```jsx
+Platform.Version  // iOS: '15.0', Android: 31 (API level)
+Platform.isPad    // iOS only
+Platform.isTV     // tvOS
+```
+
+**When to use each approach:**
+
+| Situation | Approach |
+|---|---|
+| Single number or string differs | `Platform.OS === '...'` |
+| Object / style varies | `Platform.select({...})` |
+| Whole component implementation differs | `.ios.tsx` / `.android.tsx` files |
+| Whole module differs | Separate `.ios.ts` / `.android.ts` |
+
+**Senior touch:** the temptation is to over-platform-branch. The senior heuristic — **default to one shared implementation; branch only when the two platforms genuinely diverge.** Shadows are a classic branch case (iOS uses `shadow*` props; Android uses `elevation`). Padding for the status bar is another. But most components should have *zero* platform branches — if they do, the design is likely fighting the platform. Excessive `Platform.OS ===` checks usually means the design needs revisiting, not more branches.

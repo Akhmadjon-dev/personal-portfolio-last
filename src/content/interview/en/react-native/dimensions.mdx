@@ -1,0 +1,78 @@
+---
+q: "How do you get device dimensions in React Native?"
+level: entry
+type: theory
+order: 15
+---
+
+Three main APIs, each appropriate for different cases.
+
+**1. `Dimensions.get()` — one-shot, synchronous:**
+
+```jsx
+import { Dimensions } from 'react-native';
+
+const { width, height } = Dimensions.get('window');
+// 'window' = visible area
+// 'screen' = full device screen (including system bars on Android)
+```
+
+Use case: layout decisions made once at render time, or in non-component code.
+
+**Limitation:** doesn't update if the device rotates or the window resizes (split-screen on Android, iPad multitasking). The values are frozen at the time of the call.
+
+**2. `useWindowDimensions()` — reactive hook (preferred for components):**
+
+```jsx
+import { useWindowDimensions } from 'react-native';
+
+function MyComponent() {
+  const { width, height } = useWindowDimensions();
+  // re-renders automatically when dimensions change
+  return <View style={{ width: width * 0.9 }} />;
+}
+```
+
+The hook subscribes to dimension changes — your component re-renders on rotation, split-screen, and resizing. This is the right default for any component that depends on dimensions.
+
+**3. Flexbox + percentages — the layout-first approach:**
+
+Most of the time, you shouldn't need dimensions at all. Flexbox handles responsive layout without measuring:
+
+```jsx
+<View style={{ flex: 1 }}>
+  <View style={{ flex: 1, backgroundColor: 'red' }} />
+  <View style={{ flex: 2, backgroundColor: 'blue' }} />
+</View>
+```
+
+The red view takes 1/3 of the parent; blue takes 2/3. No `Dimensions.get` needed.
+
+**When to use each:**
+
+| Need | Use |
+|---|---|
+| Component layout depending on screen size | `useWindowDimensions()` |
+| One-time calculation outside a component | `Dimensions.get('window')` |
+| Standard responsive layout | Flexbox + percentages (no measurement) |
+| Pixel density | `PixelRatio.get()` |
+
+**Pixel density and font scaling:**
+
+```jsx
+import { PixelRatio } from 'react-native';
+
+PixelRatio.get();                            // device pixel ratio (e.g., 2, 3)
+PixelRatio.getFontScale();                   // user's font-size preference
+PixelRatio.getPixelSizeForLayoutSize(40);    // convert DIP to actual pixels
+```
+
+`getFontScale()` matters for accessibility — users with large text preferences may want larger touch targets. `useWindowDimensions` doesn't tell you about font scaling.
+
+**Common patterns:**
+
+- **Tablet vs phone detection:** `width >= 768` → tablet layout.
+- **Landscape detection:** `width > height` → landscape orientation.
+- **Adaptive padding:** `padding: width * 0.04` → percentage-based spacing.
+
+**Senior touch:** the senior heuristic — **prefer flexbox + percentages; reach for `useWindowDimensions` when flexbox isn't expressive enough; use `Dimensions.get()` only outside React components.** Hard-coding pixel values from `Dimensions.get('window').width` is a common rookie pattern that breaks on rotation and tablets. The hook version is reactive; the function version is static. Both have their place, but most components shouldn't need either if the layout is built with flexbox in mind.

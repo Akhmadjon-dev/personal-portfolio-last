@@ -1,0 +1,57 @@
+---
+q: "What is Fast Refresh?"
+level: entry
+type: theory
+order: 11
+---
+
+Fast Refresh is React Native's hot reloading system. When you save a file, your changes appear in the running app **without losing component state** — much faster than restarting.
+
+**The two flavors of "live updates":**
+
+| | Hot Reload (legacy) | Fast Refresh (current) |
+|---|---|---|
+| When introduced | RN 0.20 (2016) | RN 0.61 (2019) |
+| State preservation | Best effort, often lost | Preserved when possible |
+| Component-level | No | Yes — re-renders only changed component |
+| Error recovery | Crashes the app | Recovers with red box, retries on save |
+| Reload | Reloads entire app on errors | Reloads only affected components |
+
+Fast Refresh replaced both Hot Reloading and Live Reloading. It's enabled by default in modern RN and Expo.
+
+**How it works:**
+
+1. The Metro bundler detects file changes and rebuilds only that module.
+2. The new module is sent to the device over the dev connection.
+3. React Native swaps the module in place.
+4. React re-renders only the components affected.
+5. **Component state is preserved** for components that haven't changed structurally.
+
+**When state is preserved:**
+
+- You changed only the body of a function component → state preserved.
+- You changed only JSX or styles → state preserved.
+- You changed a non-component file (utility, constants) → all consuming components re-render with new code.
+
+**When state is lost (forces a full reload):**
+
+- You added or removed a hook → forces remount (hooks are tracked by call order).
+- You changed a non-component export (e.g., type-only edit) → may force reload.
+- You changed something that affects the root of the component tree.
+
+The red banner *"Fast Refresh required a full reload"* tells you it couldn't preserve state.
+
+**Manual controls (in the dev menu — shake device, press D in iOS sim, Cmd+M in Android sim):**
+
+- **Reload** — full reload, fresh state.
+- **Toggle Fast Refresh** — useful when debugging state issues.
+- **Toggle Inspector** — DevTools-style component inspector.
+- **Performance Monitor** — FPS counters.
+
+**Things that can break Fast Refresh:**
+
+- **Functions defined outside the component but using state.** Without component-scoped state, Fast Refresh can't preserve them.
+- **Module-level side effects.** A `console.log('module loaded')` at the top of a file fires every time the module reloads — not always what you want.
+- **Singletons.** A `let count = 0` at module level resets on every Fast Refresh.
+
+**Senior touch:** Fast Refresh is one of those features you don't think about until it breaks. The senior signal in an interview isn't naming Fast Refresh — it's knowing what *forces a full reload*: changing the order of hooks, adding/removing a hook, or modifying module-level state. When state mysteriously disappears mid-edit, the answer is usually *"Fast Refresh forced a reload because I changed the hooks shape."* Knowing the boundary between "preserve" and "reload" helps you debug surprising behavior in the dev loop.

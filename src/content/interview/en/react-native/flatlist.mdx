@@ -1,0 +1,95 @@
+---
+q: "What is `FlatList`?"
+level: entry
+type: theory
+order: 6
+---
+
+`FlatList` is React Native's **virtualized list component**. It renders only the items currently visible (plus a small buffer), unmounting items as they scroll off-screen. For any list longer than ~20 items, FlatList is the right choice — not `ScrollView`.
+
+```jsx
+import { FlatList, Text, View } from 'react-native';
+
+function ContactsList({ contacts }) {
+  return (
+    <FlatList
+      data={contacts}
+      keyExtractor={(item) => item.id}
+      renderItem={({ item }) => (
+        <View>
+          <Text>{item.name}</Text>
+        </View>
+      )}
+    />
+  );
+}
+```
+
+**Three required-ish props:**
+
+| Prop | Purpose |
+|---|---|
+| `data` | Array of items to render |
+| `keyExtractor` | Returns a stable unique key for each item |
+| `renderItem` | Function returning JSX for each item |
+
+**FlatList vs ScrollView — when to use what:**
+
+| | ScrollView | FlatList |
+|---|---|---|
+| **Renders** | All children at once | Only visible items |
+| **Use for** | Static content, < 20 children | Any dynamic or long list |
+| **Memory** | Linear with item count | Bounded — only visible items |
+| **Performance** | Bad for long lists | Good — virtualized |
+
+Using ScrollView for 1,000 items mounts 1,000 native views simultaneously — phone runs out of memory, scrolling stutters, the app freezes. FlatList renders ~10–15 visible items at a time regardless of total length.
+
+**Performance props you should know:**
+
+```jsx
+<FlatList
+  data={items}
+  keyExtractor={(i) => i.id}
+  renderItem={...}
+
+  // Fixed item height — biggest perf win
+  getItemLayout={(_, index) => ({
+    length: 80,
+    offset: 80 * index,
+    index,
+  })}
+
+  initialNumToRender={10}       // render fewer items initially
+  windowSize={5}                // how many off-screen items to keep mounted
+  maxToRenderPerBatch={10}      // how aggressively to mount more as you scroll
+  removeClippedSubviews={true}  // remove off-screen items more aggressively
+/>
+```
+
+`getItemLayout` is the biggest single perf win — when items are a fixed height, FlatList can skip measuring them, which dramatically speeds up scroll-to-position and initial render.
+
+**Additional features:**
+
+- **`ListHeaderComponent`** / **`ListFooterComponent`** — render once at top/bottom.
+- **`ListEmptyComponent`** — render when `data` is empty.
+- **`ItemSeparatorComponent`** — render between items.
+- **`onEndReached`** + **`onEndReachedThreshold`** — infinite scroll trigger.
+- **`refreshControl`** — pull-to-refresh.
+
+**For very long lists — FlashList:**
+
+Shopify built **FlashList** as a drop-in FlatList replacement that performs dramatically better on large lists by recycling components instead of unmounting them:
+
+```jsx
+import { FlashList } from '@shopify/flash-list';
+
+<FlashList
+  data={items}
+  renderItem={({ item }) => <Row item={item} />}
+  estimatedItemSize={80}
+/>
+```
+
+For lists > 100 items, FlashList is faster and uses less memory than FlatList. Most production RN apps in 2026 use it for any non-trivial list.
+
+**Senior touch:** the senior heuristic for lists in RN — **< 20 items → ScrollView; 20–500 → FlatList with `getItemLayout`; > 500 → FlashList**. Mixing them up causes most of the performance complaints people have about React Native. *"Why is my RN list slow?"* is almost always answered by "because you used ScrollView for 200 items" or "because you didn't set `getItemLayout`."

@@ -4,8 +4,16 @@ import { getCollection, render } from 'astro:content';
 
 const all = await getCollection('interview');
 const levels = ['entry', 'junior', 'mid', 'senior', 'expert', 'architect'] as const;
-const pilot = all
-  .filter((e) => e.id.startsWith('en/react/'))
+
+// Filter for EN, allow ?topic= query to filter by topic
+const topic = (Astro.url.searchParams.get('topic') ?? 'react').toLowerCase();
+const enEntries = all.filter((e) => e.id.startsWith('en/'));
+const topics = Array.from(
+  new Set(enEntries.map((e) => e.id.split('/')[1]))
+).sort();
+
+const pilot = enEntries
+  .filter((e) => e.id.startsWith(`en/${topic}/`))
   .sort((a, b) => {
     const levelDiff = levels.indexOf(a.data.level) - levels.indexOf(b.data.level);
     if (levelDiff !== 0) return levelDiff;
@@ -14,6 +22,11 @@ const pilot = all
 
 const counts = levels.reduce(
   (acc, lvl) => ({ ...acc, [lvl]: pilot.filter((p) => p.data.level === lvl).length }),
+  {} as Record<string, number>,
+);
+
+const topicCounts = topics.reduce(
+  (acc, t) => ({ ...acc, [t]: enEntries.filter((e) => e.id.startsWith(`en/${t}/`)).length }),
   {} as Record<string, number>,
 );
 
@@ -41,7 +54,24 @@ const levelColors: Record<string, string> = {
     </div>
 
     <h1 class="font-display text-4xl mb-2">DevPrep — Preview</h1>
-    <p class="text-muted mb-3">{pilot.length} questions · React · English</p>
+    <p class="text-muted mb-3 capitalize">{pilot.length} questions · {topic.replace('-', ' ')} · English</p>
+
+    <div class="flex flex-wrap gap-2 mb-4 font-mono text-xs">
+      {topics.map((t) => (
+        <a
+          href={`/interview/preview?topic=${t}`}
+          class:list={[
+            'px-3 py-1 rounded-full border transition-colors capitalize',
+            t === topic
+              ? 'border-accent text-accent bg-accent/5'
+              : 'border-mist text-muted hover:text-ink dark:border-white/10 dark:hover:text-paper',
+          ]}
+        >
+          {t.replace('-', ' ')} · {topicCounts[t]}
+        </a>
+      ))}
+    </div>
+
     <div class="flex flex-wrap gap-2 mb-12 font-mono text-xs">
       {levels.map((lvl) => (
         <span class:list={['px-2 py-1 rounded-full', levelColors[lvl]]}>
