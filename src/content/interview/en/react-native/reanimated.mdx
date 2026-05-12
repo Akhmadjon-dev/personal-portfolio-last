@@ -1,0 +1,108 @@
+---
+q: "Reanimated 3 — shared values and worklets"
+level: mid
+type: theory
+order: 3
+---
+
+Reanimated 3 is the modern animation library for React Native. It runs animations on the **UI thread** by default — no `useNativeDriver` flag, no layout-property limitations. Smooth at 60fps even when JS is busy.
+
+```jsx
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSpring,
+} from 'react-native-reanimated';
+
+function Box() {
+  const opacity = useSharedValue(0);
+
+  useEffect(() => {
+    opacity.value = withTiming(1, { duration: 500 });
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
+  return <Animated.View style={[styles.box, animatedStyle]} />;
+}
+```
+
+**The three core concepts:**
+
+**1. Shared values.** A `useSharedValue(0)` is a value that lives on both the JS thread and the UI thread, kept in sync. Reading `value.value` works in both contexts.
+
+```jsx
+const x = useSharedValue(0);
+x.value = 100;                                  // setter from JS
+x.value = withTiming(200, { duration: 300 });   // animate to 200
+```
+
+Animation functions (`withTiming`, `withSpring`, `withDecay`, `withRepeat`) return a "shared value driver" that the UI thread runs.
+
+**2. Animated styles.** `useAnimatedStyle` returns a style object that **runs on the UI thread**. It reads shared values and produces styles, and Reanimated re-runs it whenever any shared value it reads changes.
+
+```jsx
+const style = useAnimatedStyle(() => ({
+  opacity: opacity.value,
+  transform: [{ translateX: x.value }],
+}));
+```
+
+**3. Worklets.** Functions marked with the `'worklet'` directive run on the UI thread. `useAnimatedStyle`'s callback is implicitly a worklet. You can define your own:
+
+```jsx
+const computeColor = (progress) => {
+  'worklet';
+  return progress > 0.5 ? '#22c55e' : '#ef4444';
+};
+
+const style = useAnimatedStyle(() => ({
+  backgroundColor: computeColor(progress.value),
+}));
+```
+
+Worklets can't reference JS-only objects (most third-party libs, DOM-like APIs) since they don't exist on the UI thread.
+
+**Driving animation from props:**
+
+```jsx
+function ProgressBar({ value }) {
+  const width = useSharedValue(0);
+
+  useEffect(() => {
+    width.value = withTiming(value, { duration: 300 });
+  }, [value]);
+
+  const style = useAnimatedStyle(() => ({
+    width: `${width.value}%`,
+  }));
+
+  return <Animated.View style={[styles.bar, style]} />;
+}
+```
+
+**Cross-thread callbacks (`runOnJS`):**
+
+```jsx
+import { runOnJS } from 'react-native-reanimated';
+
+const onComplete = () => console.log('done'); // JS-only
+
+const style = useAnimatedStyle(() => {
+  if (progress.value === 1) {
+    runOnJS(onComplete)();
+  }
+  return { opacity: progress.value };
+});
+```
+
+`runOnJS` schedules a function to run on the JS thread when called from a worklet — essential for triggering navigation, state updates, or analytics from inside an animation.
+
+**Integration with Gesture Handler:**
+
+Reanimated pairs with `react-native-gesture-handler` for gesture-driven animations (swipe-to-dismiss, drag-to-reorder). The gesture's position is a shared value; animations react to it directly on the UI thread.
+
+**Senior touch:** the senior framing — **Reanimated 3 + Gesture Handler is the production animation stack in 2026.** Together they enable smooth 60fps gestures and animations independent of JS thread load. The built-in `Animated` API still exists and is fine for simple cases, but Reanimated unlocks the categories of UI — interruptible swipes, drag-to-reorder, parallax scrolling — that *make an app feel native*.

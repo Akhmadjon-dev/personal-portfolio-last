@@ -1,0 +1,104 @@
+---
+q: "React Native Gesture Handler"
+level: mid
+type: theory
+order: 4
+---
+
+`react-native-gesture-handler` replaces RN's built-in touch system with native gesture recognizers that run on the UI thread. It's how you build swipe-to-dismiss, drag-to-reorder, pinch-to-zoom, and any interaction beyond a simple tap.
+
+```jsx
+import { GestureHandlerRootView, GestureDetector, Gesture }
+  from 'react-native-gesture-handler';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring }
+  from 'react-native-reanimated';
+
+// Wrap your app once at the root
+function App() {
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SwipeableCard />
+    </GestureHandlerRootView>
+  );
+}
+
+function SwipeableCard() {
+  const translateX = useSharedValue(0);
+
+  const pan = Gesture.Pan()
+    .onUpdate((event) => {
+      translateX.value = event.translationX;
+    })
+    .onEnd(() => {
+      translateX.value = withSpring(0);
+    });
+
+  const style = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX.value }],
+  }));
+
+  return (
+    <GestureDetector gesture={pan}>
+      <Animated.View style={[styles.card, style]} />
+    </GestureDetector>
+  );
+}
+```
+
+The built-in `<Pressable>` and `onPress` work for taps, but anything beyond a single press needs Gesture Handler.
+
+**Gesture types:**
+
+| Gesture | What it detects |
+|---|---|
+| `Gesture.Tap()` | Single tap |
+| `Gesture.LongPress()` | Long press |
+| `Gesture.Pan()` | Drag / swipe |
+| `Gesture.Pinch()` | Pinch-to-zoom |
+| `Gesture.Rotation()` | Two-finger rotate |
+| `Gesture.Fling()` | Fast directional swipe |
+| `Gesture.ForceTouch()` | iOS pressure-sensitive press |
+
+**Composing gestures:**
+
+```jsx
+const tap = Gesture.Tap();
+const longPress = Gesture.LongPress();
+const pan = Gesture.Pan();
+
+// Either recognized
+const tapOrLongPress = Gesture.Race(tap, longPress);
+
+// Both run simultaneously
+const panAndPinch = Gesture.Simultaneous(pan, pinch);
+
+// One excludes the other
+const exclusive = Gesture.Exclusive(tap, pan);
+```
+
+This is how you build complex interactions (pan with pinch-to-zoom, swipe-to-dismiss inside a scrollable list, etc.).
+
+**Why it's on the native side:**
+
+The built-in RN touch system goes through the JS thread — touches are reported to JS, JS computes whether to consume the event, native draws the result. On a busy JS thread, gestures lag.
+
+Gesture Handler runs gesture recognition on the **native UI thread**, with no JS round-trip. Tap, drag, pinch — all detected and reported instantly, even when JS is loaded. This is what makes gesture-driven animations feel native.
+
+**Pairing with Reanimated 3:**
+
+Gesture Handler's events arrive on the UI thread; Reanimated's shared values live on the UI thread. They're designed to work together — gesture updates flow directly into shared values without crossing thread boundaries:
+
+```jsx
+const pan = Gesture.Pan().onUpdate((e) => {
+  // Runs on the UI thread; translateX is a shared value
+  translateX.value = e.translationX;
+});
+```
+
+This is the **production animation stack** in 2026: Gesture Handler for input, Reanimated for visual updates, no JS thread involvement.
+
+**Old API vs new API:**
+
+The new declarative API (`Gesture.Pan()`, `<GestureDetector>`) is what you should use. The old API (`PanGestureHandler`, `useAnimatedGestureHandler`) still works but is being phased out. Documentation may still reference the old one.
+
+**Senior touch:** the senior framing — **Gesture Handler is mandatory for any non-trivial interaction.** Even apps that "don't have gestures" usually have swipeable rows, pull-to-refresh, drawer navigation — all of these use Gesture Handler under the hood. Knowing the composition primitives (`Race`, `Simultaneous`, `Exclusive`) is what separates building simple gestures from gesture-rich interfaces like a swipeable email list with pull-to-refresh inside it.

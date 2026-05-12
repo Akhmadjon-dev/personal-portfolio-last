@@ -1,0 +1,79 @@
+---
+q: "React Native's New Architecture — overview"
+level: mid
+type: theory
+order: 6
+---
+
+The **New Architecture** is a complete rewrite of React Native's runtime, launched stable in 2022 and the default since RN 0.74 (2024). It replaces the **Bridge** with **JSI**, swaps the renderer for **Fabric**, replaces native modules with **TurboModules**, and ships with **Hermes** as the JS engine.
+
+**The Bridge era (2015-2022) — and why it had to go:**
+
+Original RN had a "Bridge" — a JSON message bus between the JS thread and the native UI thread. Every cross-thread call (rendering a component, calling a native API, dispatching a touch) went through the bridge as serialized JSON.
+
+Problems:
+
+- **Asynchronous, batched, slow.** No synchronous calls between JS and native.
+- **Type-unsafe.** Everything serialized to/from JSON; no compile-time guarantees.
+- **One bottleneck for everything.** All RN apps ultimately stalled on bridge throughput.
+
+**The New Architecture — four pieces:**
+
+| Piece | What it replaces | What it enables |
+|---|---|---|
+| **JSI** (JavaScript Interface) | The Bridge | Synchronous, type-safe JS↔native calls |
+| **Fabric** | The old renderer | Cross-platform C++ renderer with concurrent React support |
+| **TurboModules** | Native Modules | Typed, lazy-loaded native modules with codegen |
+| **Hermes** | JavaScriptCore | Mobile-optimized JS engine |
+
+**JSI:**
+
+A C++ interface that lets JS interact with native code **synchronously**. Native objects can be exposed as "host objects" that JS treats as regular JS objects — but they're really backed by C++ implementations. This is the foundation everything else builds on.
+
+```js
+// Before (Bridge): async, serialized
+NativeModules.MyModule.doThing(arg, (result) => { /* ... */ });
+
+// After (JSI/TurboModules): synchronous, type-safe
+const result = MyModule.doThing(arg);
+```
+
+**Fabric:**
+
+The new renderer, written in C++ and shared between iOS and Android. Replaces the old "Shadow Tree" + "UI Manager" architecture with a single cross-platform implementation.
+
+- **Concurrent React support.** Fabric integrates with React 18's concurrent rendering.
+- **Synchronous layout** when needed.
+- **Type-safe view props** via codegen.
+
+**TurboModules:**
+
+Native modules but typed and lazy-loaded. You write a TypeScript spec; codegen produces the C++/Java/ObjC bindings. The module isn't loaded into memory until used:
+
+```ts
+// MyModuleSpec.ts
+export interface Spec extends TurboModule {
+  readonly getConstants: () => { count: number };
+  doThing(arg: string): Promise<string>;
+}
+```
+
+**Codegen** generates the platform-specific glue code at build time. No more hand-written bridge boilerplate; the types are the contract.
+
+**Migration status (2026):**
+
+- **New projects:** New Architecture is the default in `npx create-expo-app` and `npx react-native init`.
+- **Existing projects:** Most popular libraries support the New Architecture by 2026. Migrating an old project means upgrading libraries and enabling the architecture flag.
+- **Some niche libraries** still need updates. Check before migrating.
+
+**What changes in your code:**
+
+For most app code, **nothing**. The New Architecture is mostly invisible to JS-side application code — same React, same hooks, same components. The wins are under the hood: faster startup, smoother animations, better perf, less bridge overhead.
+
+The places it's visible:
+
+- Custom native modules need updating to TurboModule format.
+- Animation libraries see substantial perf gains.
+- The mental model of "every native call is async" goes away.
+
+**Senior touch:** the senior framing — **the New Architecture is the answer to "why is React Native still slow?" from 2018.** Bridge eliminated, type safety added, concurrent React supported, mobile-optimized engine shipped. By 2026, the New Architecture is *just the default*, but understanding what it replaced (Bridge-era pain points) is what lets you explain why RN today is fundamentally different from RN five years ago.

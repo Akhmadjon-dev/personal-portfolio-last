@@ -1,0 +1,116 @@
+---
+q: "Keyboard handling deep dive"
+level: mid
+type: theory
+order: 13
+---
+
+Keyboards on mobile are stateful, interruptive, and platform-different. RN gives you raw events and components; production apps build on top of them or use `react-native-keyboard-controller`.
+
+**The built-in primitives:**
+
+```jsx
+import { Keyboard } from 'react-native';
+
+useEffect(() => {
+  const show = Keyboard.addListener('keyboardDidShow', (e) => {
+    setKeyboardHeight(e.endCoordinates.height);
+  });
+  const hide = Keyboard.addListener('keyboardDidHide', () => {
+    setKeyboardHeight(0);
+  });
+  return () => {
+    show.remove();
+    hide.remove();
+  };
+}, []);
+
+// Dismiss programmatically
+Keyboard.dismiss();
+```
+
+**Four events you'll see:**
+
+| Event | When |
+|---|---|
+| `keyboardWillShow` (iOS only) | Animation starts |
+| `keyboardDidShow` | Animation complete, keyboard visible |
+| `keyboardWillHide` (iOS only) | Animation starts |
+| `keyboardDidHide` | Animation complete, keyboard hidden |
+
+Android only fires the `*Did*` variants. Cross-platform code should use `*Did*` or branch on `Platform.OS`.
+
+**Common patterns:**
+
+**1. Tap anywhere to dismiss.**
+
+```jsx
+<Pressable onPress={Keyboard.dismiss} style={{ flex: 1 }}>
+  <View>{/* form content */}</View>
+</Pressable>
+```
+
+Wrapping in `<Pressable>` (instead of `<TouchableWithoutFeedback>`) is the modern equivalent.
+
+**2. ScrollView with keyboard handling.**
+
+```jsx
+<ScrollView
+  keyboardShouldPersistTaps="handled"  // taps outside inputs dismiss; taps on buttons fire
+  keyboardDismissMode="interactive"    // iOS: drag-to-dismiss
+  contentContainerStyle={{ flexGrow: 1 }}
+>
+  {/* form fields */}
+</ScrollView>
+```
+
+`keyboardShouldPersistTaps="handled"` is the production default — without it, the first tap outside an input dismisses the keyboard, and the user has to tap again to interact.
+
+**3. Adjusting layout for keyboard height.**
+
+The built-in `KeyboardAvoidingView` works in simple cases but breaks with navigation headers, modal screens, and certain Android configs. The modern replacement:
+
+```jsx
+import { KeyboardAvoidingView, useKeyboardHandler }
+  from 'react-native-keyboard-controller';
+
+// Drop-in replacement, better cross-platform behavior
+<KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+  {/* content */}
+</KeyboardAvoidingView>
+
+// Or use the hook for fine-grained control
+useKeyboardHandler({
+  onStart: (e) => { 'worklet'; height.value = e.height; },
+  onEnd:   (e) => { 'worklet'; height.value = e.height; },
+});
+```
+
+`react-native-keyboard-controller` exposes keyboard animations as Reanimated shared values — UI-thread keyboard handling, synchronized with the actual keyboard movement, no JS lag.
+
+**Input chaining (next/done):**
+
+```jsx
+const passwordRef = useRef(null);
+
+<TextInput
+  returnKeyType="next"
+  onSubmitEditing={() => passwordRef.current?.focus()}
+  blurOnSubmit={false}  // stay focused while we transfer
+/>
+<TextInput
+  ref={passwordRef}
+  returnKeyType="done"
+  onSubmitEditing={handleSubmit}
+/>
+```
+
+The pattern: chain focus through inputs with refs + `onSubmitEditing`. `blurOnSubmit={false}` prevents the keyboard from briefly disappearing between inputs.
+
+**Edge cases that bite people:**
+
+- **Status bar on Android.** When the keyboard opens, Android's `windowSoftInputMode` matters. Set in `app.json` to `adjustResize` for proper layout.
+- **Modal screens + KeyboardAvoidingView.** The built-in KAV doesn't always know about modal presentation. `react-native-keyboard-controller` handles this correctly.
+- **Bottom sheets + keyboard.** Combining `@gorhom/bottom-sheet` with an input inside requires the bottom sheet's keyboard helpers, not standalone KAV.
+
+**Senior touch:** the senior framing — **keyboard handling is where most RN apps look "almost native but off."** The built-in tools work for simple cases and fail in subtle ways for complex ones (modals, headers, gestures). The senior reach is **`react-native-keyboard-controller`** — it solves the entire problem with smooth, UI-thread-synchronized animations. Knowing this library and using it from day one prevents a category of polish bugs that otherwise show up in QA.

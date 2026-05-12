@@ -1,0 +1,103 @@
+---
+q: "Common memory leaks in React Native"
+level: mid
+type: theory
+order: 7
+---
+
+Memory leaks in RN happen when references to mounted-time resources outlive the component that created them. The patterns are predictable and the fixes are mechanical.
+
+**The five common sources:**
+
+**1. Missing cleanup in `useEffect`.**
+
+```jsx
+// ❌ Leak — timer keeps firing after unmount
+useEffect(() => {
+  setInterval(() => updateThings(), 1000);
+}, []);
+
+// ✅ Return cleanup
+useEffect(() => {
+  const id = setInterval(() => updateThings(), 1000);
+  return () => clearInterval(id);
+}, []);
+```
+
+Every `setInterval`, `setTimeout`, `addEventListener`, subscription, observer needs a corresponding cleanup. Forget one and the resource (and its closure over component state) survives unmount.
+
+**2. Subscriptions to external stores without unsubscribe.**
+
+```jsx
+// ❌ Listener fires forever, holds component scope
+useEffect(() => {
+  NetInfo.addEventListener((state) => setOnline(state.isConnected));
+}, []);
+
+// ✅ Unsubscribe is returned by addEventListener
+useEffect(() => {
+  const unsubscribe = NetInfo.addEventListener((state) => setOnline(state.isConnected));
+  return unsubscribe;
+}, []);
+```
+
+**3. Async work that calls `setState` after unmount.**
+
+```jsx
+// ❌ Fetch resolves after unmount, calls setData on dead component
+useEffect(() => {
+  fetch('/api/users').then((r) => r.json()).then(setData);
+}, []);
+
+// ✅ Abort or guard
+useEffect(() => {
+  const controller = new AbortController();
+  fetch('/api/users', { signal: controller.signal })
+    .then((r) => r.json())
+    .then(setData)
+    .catch((err) => { if (err.name !== 'AbortError') throw err; });
+  return () => controller.abort();
+}, []);
+```
+
+Without abort, the promise resolves, the closure still holds `setData`, the component is gone — sometimes React warns, sometimes it doesn't.
+
+**4. Images held in memory forever.**
+
+The default `<Image>` caches everything. For image-heavy apps (feeds, galleries), this leaks memory over a session:
+
+```jsx
+// ✅ Use expo-image with explicit cache policy
+import { Image } from 'expo-image';
+
+<Image source={{ uri }} cachePolicy="memory-disk" />
+// or 'disk' / 'memory' / 'none'
+```
+
+For feeds with 1000s of images, `cachePolicy="disk"` keeps memory bounded.
+
+**5. Refs that outlive the component.**
+
+Refs to large objects (Maps, Sets, big arrays) keep the data alive as long as the ref exists. If the ref is captured by a closure stored externally (in a global store, a global event bus), the object lives forever.
+
+```jsx
+// ❌ Ref captured by a global event listener — never released
+const cache = useRef(new Map());
+useEffect(() => {
+  globalBus.on('something', () => cache.current.set('key', bigData));
+  // forgot to globalBus.off
+}, []);
+```
+
+**Finding leaks in RN:**
+
+| Tool | What it tells you |
+|---|---|
+| **Flipper Memory plugin** | Live heap usage over time |
+| **Xcode Instruments → Allocations** | iOS heap snapshots, retainers |
+| **Android Studio Profiler → Memory** | Android heap and allocations |
+| **Hermes heap snapshot** | Inspect JS heap directly |
+
+The "monotonically rising memory chart with no flat region" is the classic leak signature.
+
+**Senior touch:** the senior heuristic — **every resource you start has a cleanup.** Timer, listener, subscription, fetch, ref to a Map — they all need a teardown when the component unmounts. The ESLint `react-hooks/exhaustive-deps` rule plus discipline around cleanup catches 90% of leaks at code-review time. The remaining 10% you find with Flipper or platform-native profilers when memory usage keeps climbing across screens.

@@ -1,0 +1,101 @@
+---
+q: "Push notifications in React Native"
+level: mid
+type: theory
+order: 9
+---
+
+Push notifications in RN go through platform-specific systems — **APNs** (Apple Push Notification service) on iOS, **FCM** (Firebase Cloud Messaging) on Android. The recommended path in 2026 is **`expo-notifications`** (which abstracts both) plus **EAS** for delivering tokens to your server.
+
+```jsx
+import * as Notifications from 'expo-notifications';
+
+// 1. Request permission
+async function setupPush() {
+  const { status } = await Notifications.requestPermissionsAsync();
+  if (status !== 'granted') return;
+
+  // 2. Get push token
+  const token = (await Notifications.getExpoPushTokenAsync({
+    projectId: 'your-eas-project-id',
+  })).data;
+
+  // 3. Send token to your backend
+  await fetch('/api/register-device', {
+    method: 'POST',
+    body: JSON.stringify({ token }),
+  });
+}
+
+// 4. Handle notifications while app is foregrounded
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: true,
+  }),
+});
+
+// 5. React to user taps
+useEffect(() => {
+  const sub = Notifications.addNotificationResponseReceivedListener((response) => {
+    const data = response.notification.request.content.data;
+    navigation.navigate(data.screen);
+  });
+  return () => sub.remove();
+}, []);
+```
+
+**The five-step setup:**
+
+1. **Request permission** — on iOS, must be explicit; on Android, granted by default until Android 13.
+2. **Get token** — Expo issues a "push token" that's a wrapper around the underlying APNs/FCM token.
+3. **Send to backend** — your server stores tokens per user and sends pushes via Expo's relay (or directly through APNs/FCM if you outgrow Expo).
+4. **Configure handler** — what happens when a notification arrives while app is foregrounded.
+5. **Handle taps** — when user taps a notification, navigate to the right screen via the data payload.
+
+**Sending notifications from your backend:**
+
+```ts
+await fetch('https://exp.host/--/api/v2/push/send', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    to: pushToken,
+    title: 'New message',
+    body: 'You have a new message from Alice',
+    data: { screen: 'Chat', conversationId: '123' },
+  }),
+});
+```
+
+**Three production concerns:**
+
+**1. Notification categories / channels.** Android requires "notification channels" — categories like "Messages", "Promotions", "Background sync" — that users can enable/disable separately. iOS has "categories" for action buttons. Configure in `app.json` or `Notifications.setNotificationChannelAsync`.
+
+**2. Token refresh.** Push tokens can change (uninstall + reinstall, restore from backup). Set up a listener and re-register on change:
+
+```jsx
+const sub = Notifications.addPushTokenListener((token) => {
+  api.updateDeviceToken(token);
+});
+```
+
+**3. Silent / background notifications.** For "data-only" notifications that wake the app to sync without showing anything visible:
+
+```ts
+{ to: token, data: { type: 'sync' }, _displayInForeground: false }
+```
+
+These are subject to OS throttling — don't expect them to deliver in real time. iOS in particular delays "silent" pushes aggressively to save battery.
+
+**Alternative providers:**
+
+| Provider | When |
+|---|---|
+| **Expo Notifications** | Most apps — straightforward, free for moderate volume |
+| **OneSignal** | Marketing-style push (segmentation, A/B testing, analytics) |
+| **Firebase Cloud Messaging (direct)** | If you've outgrown Expo's relay or need fine control |
+| **APNs / FCM directly** | Maximum control, most complexity |
+
+**Senior touch:** the senior framing — **push notifications are deceptively complex.** The "send a notification" part is easy; the production concerns are token management (refresh, multi-device, server-side dedup), permission UX (don't ask on launch), notification channels (Android requirement), tap routing (data → screen), and silent pushes (battery-throttled). Knowing the failure modes is what separates *"I sent a push successfully once"* from *"we have a reliable push infrastructure."*

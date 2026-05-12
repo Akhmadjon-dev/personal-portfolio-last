@@ -1,0 +1,67 @@
+---
+q: "When to use FlashList over FlatList"
+level: mid
+type: theory
+order: 2
+---
+
+**FlashList** (Shopify) is a drop-in replacement for FlatList that's dramatically faster on large lists. It recycles components instead of unmounting them — the same strategy iOS's `UICollectionView` and Android's `RecyclerView` use natively.
+
+```jsx
+import { FlashList } from '@shopify/flash-list';
+
+<FlashList
+  data={items}
+  renderItem={({ item }) => <Row item={item} />}
+  estimatedItemSize={80}
+  keyExtractor={(item) => item.id}
+/>
+```
+
+**The key prop: `estimatedItemSize`.** FlashList needs a rough estimate of item height to plan recycling. Off by 2-3× is fine; off by 100× will cause performance issues. The console warns if it thinks your estimate is wrong.
+
+**Why FlashList is faster:**
+
+FlatList unmounts items as they scroll off-screen, then mounts new ones as new items scroll in. Every mount/unmount is expensive — React reconciliation, native view creation, layout, paint.
+
+FlashList **recycles**: when an item scrolls off the top, its native view stays mounted but gets repositioned at the bottom with new data. No mount, no unmount, just update — like a virtualized DOM but on the native UI tree.
+
+**Rough benchmark:**
+
+| List size | FlatList | FlashList |
+|---|---|---|
+| 100 items | Fine | Fine |
+| 500 items | Stutters on fast scroll | Smooth |
+| 5,000 items | Significant lag | Smooth |
+| 50,000 items | Unusable | Still smooth |
+
+**Differences from FlatList:**
+
+| | FlatList | FlashList |
+|---|---|---|
+| Required prop | `keyExtractor` | `estimatedItemSize` |
+| Performance | Good (virtualized) | Great (recycled) |
+| Variable heights | Native support | Works but warn on bad estimate |
+| API surface | Larger | Smaller, drop-in compatible |
+| Bundle size | Built-in | +~30KB |
+
+**Limitations:**
+
+- **Items must be stateless or use props for state.** Because items are recycled, internal state isn't preserved when the item reappears with different data — design rows to be controlled by props.
+- **Animations across recycling are tricky.** A row being recycled "transports" to a new position; animations started on old data may apply incorrectly to the new data.
+- **`getItemType` for heterogeneous lists.** If you have multiple distinct row layouts (header, separator, content, ad), tell FlashList so it can recycle them separately:
+
+```jsx
+<FlashList
+  data={items}
+  getItemType={(item) => item.type}     // 'header' | 'content' | 'ad'
+  renderItem={({ item }) => /* ... */}
+  estimatedItemSize={80}
+/>
+```
+
+**FlashList 2.x and beyond:**
+
+Shopify rewrote FlashList in 2024 (v2) on top of the New Architecture and Fabric — better performance and easier integration. New projects should start with FlashList 2; older projects with v1 should consider migrating.
+
+**Senior touch:** in 2026, **FlashList is the default for any production RN list with > 50 items.** FlatList is fine for short lists and prototypes. The cost of switching is minimal (drop-in API) and the perf gain is substantial. The senior signal is reaching for FlashList early and configuring `estimatedItemSize` + `getItemType` correctly, not waiting for the list to feel slow before swapping.

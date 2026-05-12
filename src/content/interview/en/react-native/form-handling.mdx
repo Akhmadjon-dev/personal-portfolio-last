@@ -1,0 +1,112 @@
+---
+q: "Form handling patterns in React Native"
+level: mid
+type: theory
+order: 8
+---
+
+For anything beyond a 2-field form, **`react-hook-form` is the production default** in RN. It's uncontrolled under the hood (registers refs, reads on submit) but feels controlled (you get values, errors, validation in a React API).
+
+```jsx
+import { useForm, Controller } from 'react-hook-form';
+import { TextInput, Pressable, Text } from 'react-native';
+
+function LoginForm() {
+  const { control, handleSubmit, formState: { errors } } = useForm({
+    defaultValues: { email: '', password: '' },
+  });
+
+  const onSubmit = (data) => api.login(data);
+
+  return (
+    <>
+      <Controller
+        control={control}
+        name="email"
+        rules={{ required: 'Email required', pattern: /\S+@\S+/ }}
+        render={({ field: { onChange, value } }) => (
+          <TextInput value={value} onChangeText={onChange} placeholder="Email" />
+        )}
+      />
+      {errors.email && <Text>{errors.email.message}</Text>}
+
+      <Controller
+        control={control}
+        name="password"
+        rules={{ required: true, minLength: 8 }}
+        render={({ field: { onChange, value } }) => (
+          <TextInput value={value} onChangeText={onChange} secureTextEntry />
+        )}
+      />
+
+      <Pressable onPress={handleSubmit(onSubmit)}>
+        <Text>Login</Text>
+      </Pressable>
+    </>
+  );
+}
+```
+
+**Why `<Controller>` instead of `register`:**
+
+On the web, `react-hook-form` uses `register` to attach refs directly to inputs. In RN, native inputs don't take refs the same way, so you wrap them with `<Controller>`. The Controller gives you a `field` object with `onChange` and `value` — feed those into the RN `<TextInput>`.
+
+**Schema validation with Zod:**
+
+```jsx
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+const schema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+});
+
+const { control, handleSubmit } = useForm({
+  defaultValues: { email: '', password: '' },
+  resolver: zodResolver(schema),
+});
+```
+
+Zod validates the form data; errors flow into `formState.errors`. Same schema can be reused for API validation and TypeScript types.
+
+**Three RN-specific patterns:**
+
+**1. Keyboard handling.** Wrap the form in `KeyboardAvoidingView` or use `react-native-keyboard-controller`. Set `returnKeyType="next"` on early inputs to chain to the next, `returnKeyType="done"` on the last.
+
+**2. Submitting on keyboard return:**
+
+```jsx
+<TextInput
+  returnKeyType="next"
+  onSubmitEditing={() => passwordRef.current?.focus()}
+/>
+<TextInput
+  ref={passwordRef}
+  returnKeyType="done"
+  onSubmitEditing={handleSubmit(onSubmit)}
+/>
+```
+
+**3. Disable submit while loading:**
+
+```jsx
+const { handleSubmit, formState: { isSubmitting } } = useForm();
+
+<Pressable disabled={isSubmitting} onPress={handleSubmit(onSubmit)}>
+  <Text>{isSubmitting ? 'Submitting...' : 'Login'}</Text>
+</Pressable>
+```
+
+`isSubmitting` is `true` while `onSubmit` is awaiting.
+
+**Alternatives:**
+
+| Library | When |
+|---|---|
+| `react-hook-form` | Default for most forms |
+| Formik | Older but still common in legacy codebases |
+| `tanstack-form` | Newer, framework-agnostic, growing adoption |
+| Plain `useState` | 1-2 field forms — overkill to add a library |
+
+**Senior touch:** the senior framing — **plain `useState` for one or two fields; `react-hook-form` for anything beyond.** The threshold to add the library is low because it solves real problems (validation, submission state, error rendering, focus management) that get reinvented poorly otherwise. Adding it for a 4-field signup is the right call, not premature optimization.
