@@ -1,0 +1,93 @@
+---
+q: "Implement a virtualized list"
+level: senior
+type: code
+order: 6
+---
+
+Virtualization renders only the items currently visible in the viewport (plus a small buffer above and below), instead of mounting all of them. For 10,000+ items, this is the difference between a usable app and a frozen tab.
+
+**A minimal implementation:**
+
+```tsx
+type Item = { id: string; content: React.ReactNode };
+
+function VirtualList({
+  items,
+  itemHeight,
+  windowHeight,
+  overscan = 5,
+}: {
+  items: Item[];
+  itemHeight: number;
+  windowHeight: number;
+  overscan?: number;
+}) {
+  const [scrollTop, setScrollTop] = useState(0);
+
+  const totalHeight = items.length * itemHeight;
+  const startIndex = Math.max(0, Math.floor(scrollTop / itemHeight) - overscan);
+  const visibleCount = Math.ceil(windowHeight / itemHeight) + overscan * 2;
+  const endIndex = Math.min(items.length, startIndex + visibleCount);
+
+  const visibleItems = items.slice(startIndex, endIndex);
+
+  return (
+    <div
+      onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}
+      style={{ height: windowHeight, overflow: 'auto', position: 'relative' }}
+    >
+      {/* Spacer for total height — keeps scrollbar accurate */}
+      <div style={{ height: totalHeight, position: 'relative' }}>
+        {visibleItems.map((item, i) => (
+          <div
+            key={item.id}
+            style={{
+              position: 'absolute',
+              top: (startIndex + i) * itemHeight,
+              height: itemHeight,
+              width: '100%',
+            }}
+          >
+            {item.content}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+```
+
+**What the implementation gets right:**
+
+- **Fixed item height** — required for the math: `index = scrollTop / itemHeight`.
+- **Spacer div with `totalHeight`** — keeps the scrollbar position accurate. Without it, scrolling to "item 9000" wouldn't be possible because the inner div has no real height.
+- **Absolute positioning** of visible items at their computed `top` — they appear at the correct scroll position.
+- **Overscan** — render a few extra items above/below the visible window so fast scrolling doesn't reveal blank space.
+
+**Limitations of this minimal version:**
+
+- **Fixed item height only.** Variable-height items need measurement and recalculation.
+- **No horizontal virtualization.** Long rows aren't virtualized horizontally.
+- **No grid support.** A 2D grid needs separate row and column virtualization.
+- **No scroll-to-index.** Manually scrolling to a specific item requires extra logic.
+- **No accessibility considerations** — screen readers can't access non-rendered items.
+
+**What you'd actually use in production:**
+
+| Library | Best for |
+|---|---|
+| **react-window** | Simple lists, fixed or variable height — minimal bundle |
+| **@tanstack/virtual** | Headless virtualization — works with any DOM/CSS, framework-agnostic |
+| **react-virtuoso** | Full-featured: chat lists, grouped lists, scrolling to index |
+
+These handle all the edge cases (variable height, dynamic measurement, scroll restoration, accessibility) that the minimal version doesn't.
+
+**When virtualization is worth it:**
+
+- **~100 items:** Don't virtualize. Plain `.map` is faster and simpler.
+- **~1,000 items:** Probably don't virtualize unless rows are expensive. `React.memo` on the row is often enough.
+- **~10,000 items:** Virtualize. The browser can't paint 10K nodes at 60fps regardless of React.
+- **~100,000+ items:** Virtualize *and* combine with cursor-based pagination — the client probably shouldn't hold all of them at once.
+
+**Senior touch:** the senior signal here is **not writing virtualization from scratch in production**. The minimal version above is a good interview answer; it shows you understand the mechanics. In real code, reach for `@tanstack/virtual` or `react-window` — they handle variable-height items, dynamic measurement, scroll-to-index, screen-reader support, and a dozen other edge cases that take weeks to get right. "I can write this, but I wouldn't ship it" is the right framing.

@@ -1,0 +1,97 @@
+---
+q: "Build an infinite scroll hook"
+level: senior
+type: code
+order: 13
+---
+
+Infinite scroll loads more content as the user scrolls toward the bottom. The modern implementation uses `IntersectionObserver` to detect when a sentinel element enters the viewport — cheaper and more accurate than scroll-event handlers.
+
+```tsx
+function useInfiniteScroll(callback: () => void, hasMore = true) {
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const callbackRef = useRef(callback);
+  callbackRef.current = callback;
+
+  const lastElementRef = useCallback(
+    (node: HTMLElement | null) => {
+      if (observerRef.current) observerRef.current.disconnect();
+      if (!node || !hasMore) return;
+
+      observerRef.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          callbackRef.current();
+        }
+      });
+      observerRef.current.observe(node);
+    },
+    [hasMore],
+  );
+
+  return lastElementRef;
+}
+
+// Usage
+function Feed() {
+  const [items, setItems] = useState<Item[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+
+  const loadMore = async () => {
+    const { items: newItems, hasMore: more } = await fetchPage(page + 1);
+    setItems((prev) => [...prev, ...newItems]);
+    setPage((p) => p + 1);
+    setHasMore(more);
+  };
+
+  const lastItemRef = useInfiniteScroll(loadMore, hasMore);
+
+  return (
+    <ul>
+      {items.map((item, i) => (
+        <li
+          key={item.id}
+          ref={i === items.length - 1 ? lastItemRef : null}
+        >
+          {item.title}
+        </li>
+      ))}
+    </ul>
+  );
+}
+```
+
+**How it works:**
+
+- The hook attaches an `IntersectionObserver` to the last element via a callback ref.
+- When that element enters the viewport, the callback fires — triggering the next page load.
+- Each time the list updates (new items added), the previous observer disconnects and a new one attaches to the new last element.
+- `callbackRef` keeps the latest callback fresh without recreating the observer on every render.
+
+**Three things production needs that this doesn't have:**
+
+- **Loading state** — show a spinner while fetching, prevent duplicate fetches if scroll fires while a fetch is already in-flight.
+- **Error handling** — what if the fetch fails? Retry? Show an error?
+- **Virtualization for huge lists** — infinite scroll + 10,000 rendered items will eventually choke. Combine with virtualization for unbounded feeds.
+
+**Why IntersectionObserver beats scroll events:**
+
+- **Performance.** Scroll events fire constantly (16ms+); IO fires only when intersection changes.
+- **Accuracy.** *"Did the element enter the viewport?"* is a hard question to answer reliably from scroll-position math — IO handles edge cases (zoom, transforms, RTL).
+- **Native browser optimization.** Browsers can batch and optimize IO callbacks; scroll math runs in user code.
+
+**In TanStack Query:**
+
+Real apps usually use `useInfiniteQuery` instead — it handles loading, errors, caching, and pagination state:
+
+```tsx
+const { data, fetchNextPage, hasNextPage } = useInfiniteQuery({
+  queryKey: ['feed'],
+  queryFn: ({ pageParam = 1 }) => fetchPage(pageParam),
+  getNextPageParam: (last) => last.nextCursor,
+});
+```
+
+The IntersectionObserver hook just calls `fetchNextPage` when the last item appears.
+
+**Senior touch:** the senior signal is **not implementing infinite scroll alone**. The mechanic (IO triggering load) is easy. Production infinite scroll needs loading states, error handling, scroll restoration, and ideally virtualization. The right framing in an interview: "I'd use TanStack Query's `useInfiniteQuery` for the data layer, this hook (or `react-intersection-observer`) for the trigger, and `@tanstack/virtual` if the list grows past ~1,000 items. Rolling all of it from scratch is usually a sign somebody hasn't shipped infinite scroll before."

@@ -1,0 +1,66 @@
+---
+q: "What is `useLayoutEffect`?"
+level: senior
+type: theory
+order: 7
+---
+
+`useLayoutEffect` has the same API as `useEffect` but fires **synchronously after DOM mutations and before the browser paints**. It's the right hook when you need to measure or mutate the DOM and have those changes visible in the *same* paint as the parent render.
+
+```jsx
+function Tooltip({ children, target }) {
+  const tooltipRef = useRef(null);
+  const [position, setPosition] = useState({ top: 0, left: 0 });
+
+  useLayoutEffect(() => {
+    // Measure target after DOM mutation, before paint
+    const rect = target.getBoundingClientRect();
+    setPosition({ top: rect.top - 30, left: rect.left });
+  }, [target]);
+
+  return (
+    <div ref={tooltipRef} style={{ position: 'absolute', ...position }}>
+      {children}
+    </div>
+  );
+}
+```
+
+If you used `useEffect` instead, the tooltip would render at `(0, 0)` for one frame — the user would see a flash before the position correction. `useLayoutEffect` measures and sets position in the same frame, so the tooltip appears in the right place from the very first paint.
+
+**Effect timing — the full picture:**
+
+| | When it fires | Blocks paint? |
+|---|---|---|
+| Render | During reconciliation | — |
+| Commit (DOM mutations) | Synchronously | — |
+| `useLayoutEffect` | Synchronously after commit | **Yes** |
+| Paint | After all `useLayoutEffect` callbacks | — |
+| `useEffect` | Asynchronously after paint | No |
+
+The key distinction: `useLayoutEffect` runs *before* the browser paints, so any state updates inside it cause an extra render-commit cycle *before* the user sees anything. `useEffect` runs *after* paint, so its state updates trigger a follow-up render.
+
+**When `useLayoutEffect` is the right choice:**
+
+- **Measuring DOM** dimensions to compute layout (tooltips, popovers, autocomplete dropdowns).
+- **Synchronizing scroll position** when a layout change would shift it visibly.
+- **Reading layout to set initial state** that depends on rendered dimensions.
+
+**When `useEffect` is the right choice (the default):**
+
+- Data fetching, subscriptions, event listeners — anything async or non-visual.
+- Side effects that don't need to block paint.
+- 99% of cases.
+
+**The SSR caveat:**
+
+`useLayoutEffect` doesn't run on the server (no DOM to measure), and React warns in dev when it appears in server-rendered components. The workaround in libraries is `useIsomorphicLayoutEffect`:
+
+```jsx
+const useIsomorphicLayoutEffect =
+  typeof window !== 'undefined' ? useLayoutEffect : useEffect;
+```
+
+Uses `useLayoutEffect` in the browser, `useEffect` on the server — silences the warning. Common in `usehooks-ts`, Radix UI, and similar libraries.
+
+**Senior touch:** the default rule is **prefer `useEffect`**. Reach for `useLayoutEffect` only when you can demonstrate a visible flicker that needs to happen pre-paint. Blanket-using `useLayoutEffect` causes hard-to-diagnose perf problems — it blocks paint, so a slow effect freezes the UI. The senior signal: knowing both hooks exist, and that the choice is about *visible timing*, not performance.

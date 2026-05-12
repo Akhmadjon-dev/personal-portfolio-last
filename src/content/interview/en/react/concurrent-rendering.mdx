@@ -1,0 +1,72 @@
+---
+q: "How does concurrent rendering work?"
+level: senior
+type: theory
+order: 4
+---
+
+Concurrent rendering is React 18+'s ability to **prepare multiple UI versions simultaneously** and pick which one to commit based on priority. It's what lets React stay responsive even during expensive renders.
+
+**The old model — blocking:**
+
+In pre-Fiber React, every render ran to completion before anything else could happen. A 200ms filter operation blocked the main thread for 200ms — keystrokes queued up, animations froze.
+
+**The concurrent model — interruptible + prioritizable:**
+
+With Fiber, React can:
+1. Start rendering a new tree.
+2. **Yield to the browser** between fibers if higher-priority work appears (typing, clicks, animations).
+3. **Discard** an in-progress render if a newer, more urgent update arrives.
+4. **Resume** where it left off when the urgent work is done.
+5. **Commit** the chosen tree when ready.
+
+The result: the UI stays responsive even when there's a heavy render in the background.
+
+**Two hooks make concurrent behavior explicit:**
+
+```jsx
+// useTransition — mark an update as low-priority
+const [isPending, startTransition] = useTransition();
+
+function onSearchChange(value) {
+  setSearch(value);                            // urgent: input updates immediately
+  startTransition(() => {
+    setFilteredResults(filter(allData, value)); // low priority: can be interrupted
+  });
+}
+```
+
+`startTransition` tells React: *"this update is not urgent — keep the input responsive even if this filtering takes a while."* React can throw away an in-progress filter render if the user keeps typing.
+
+```jsx
+// useDeferredValue — defer a derived value
+const deferredSearch = useDeferredValue(search);
+const filteredResults = useMemo(
+  () => filter(allData, deferredSearch),
+  [deferredSearch],
+);
+```
+
+The input updates `search` immediately; `deferredSearch` lags behind, only catching up when React has spare cycles. `filteredResults` derives from the deferred value, so the expensive filter doesn't block typing.
+
+**The priority lanes (React 18+):**
+
+Updates are assigned to a priority lane (bitmask):
+
+| Lane | Triggered by |
+|---|---|
+| **SyncLane** | Discrete events: clicks, key presses, focus |
+| **InputContinuousLane** | Continuous events: scroll, drag, hover |
+| **DefaultLane** | Standard `setState` calls |
+| **TransitionLane** | Updates inside `startTransition` |
+| **IdleLane** | Lowest priority, e.g., prerendering |
+
+Higher lanes preempt lower lanes. Multiple lanes can be in-flight, with React choosing which to commit.
+
+**What concurrent rendering doesn't do automatically:**
+
+- It doesn't make slow code faster. It just keeps the UI responsive *while* slow code runs.
+- It doesn't memoize anything for you. You still need stable references for performance.
+- It's opt-in for non-urgent work. By default, all `setState` calls are urgent.
+
+**Senior touch:** the "aha" of concurrent rendering is realizing it doesn't make the filter faster — it makes the *input feel faster* by deprioritizing the filter. Same work, but typed feedback wins over filtered results. That mental shift — from "make every render fast" to "let urgent work preempt non-urgent work" — is what concurrent rendering enables and what `useTransition` makes explicit.

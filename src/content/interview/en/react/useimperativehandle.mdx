@@ -1,0 +1,65 @@
+---
+q: "What is `useImperativeHandle`?"
+level: senior
+type: theory
+order: 8
+---
+
+`useImperativeHandle` customizes the value that a `forwardRef` component exposes to its parent. Instead of exposing the raw DOM node, you expose a controlled API — a set of methods the parent can call.
+
+```jsx
+const TextInput = forwardRef(function TextInput(props, ref) {
+  const innerRef = useRef(null);
+
+  useImperativeHandle(ref, () => ({
+    focus: () => innerRef.current?.focus(),
+    clear: () => { innerRef.current.value = ''; },
+    select: () => innerRef.current?.select(),
+  }), []);
+
+  return <input ref={innerRef} {...props} />;
+});
+
+// Parent
+const myRef = useRef(null);
+<TextInput ref={myRef} />
+
+myRef.current.focus();   // ✅ available
+myRef.current.clear();   // ✅ available
+myRef.current.value;     // ❌ undefined — not exposed
+myRef.current.style;     // ❌ undefined — not exposed
+```
+
+The parent gets the API you choose. Internal DOM details stay encapsulated.
+
+**Three arguments:**
+
+```jsx
+useImperativeHandle(
+  ref,                    // 1. the forwarded ref
+  () => ({ /* API */ }),  // 2. factory function returning the exposed object
+  [/* deps */]            // 3. dependencies — re-creates the API when they change
+);
+```
+
+The factory function pattern matters: it lets you close over current state and refs without recreating the object on every render (similar to `useMemo`'s memoization).
+
+**When to use it:**
+
+- **Component library components** that need a controlled imperative API: focus inputs, scroll containers, video controls.
+- **Animation triggers** — exposing `play()`, `pause()`, `reset()` instead of raw DOM access.
+- **Encapsulation** — preventing parents from doing whatever they want with the DOM node, which would couple them to your internal markup.
+
+**When NOT to use it:**
+
+- **Most of the time.** React is declarative; reaching for imperative APIs should be rare.
+- **When state would work better.** If the parent wants to "open the modal," that's better as a `isOpen` prop than `ref.current.open()`.
+- **When you just need DOM access for measuring.** Use a plain `forwardRef` + ref, not `useImperativeHandle`.
+
+**Why expose an API instead of the DOM node?**
+
+Encapsulation. If your `TextInput` is a styled wrapper around a native input, exposing the input directly means parents can do `ref.current.style.color = 'red'` and break your styling. Exposing a curated API (`focus()`, `clear()`) keeps the surface small and the contract clear.
+
+It's the same principle as private fields in OO: the implementation can change as long as the public methods stay the same.
+
+**Senior touch:** `useImperativeHandle` is React's escape hatch for imperative APIs, and the senior heuristic is **use it sparingly**. Most "I need to imperatively control this child" patterns are better re-expressed as state lifted to the parent (`isOpen`, `selectedTab`). Reach for it only when there's genuinely no declarative equivalent — usually focus, scroll, or third-party library integration. Reaching for it because *imperative feels natural* is almost always the wrong instinct in React.

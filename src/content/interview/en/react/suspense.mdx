@@ -1,0 +1,76 @@
+---
+q: "What is `Suspense`?"
+level: senior
+type: theory
+order: 11
+---
+
+`<Suspense>` lets components "wait" for something — data, code, an image — and show a fallback in the meantime. When the awaited thing is ready, React seamlessly swaps the fallback for the real content.
+
+```jsx
+<Suspense fallback={<Spinner />}>
+  <UserProfile userId="123" />
+</Suspense>
+```
+
+If `UserProfile` (or anything inside it) suspends — that is, throws a promise — React catches the suspension, renders the `Spinner` fallback, and waits. When the promise resolves, React re-renders and commits the real content.
+
+**Three things that can suspend a component:**
+
+1. **`React.lazy`** — lazily-loaded components suspend while the chunk downloads:
+
+```jsx
+const HeavyChart = React.lazy(() => import('./HeavyChart'));
+
+<Suspense fallback={<ChartSkeleton />}>
+  <HeavyChart />
+</Suspense>
+```
+
+2. **Suspense-compatible data fetching** — TanStack Query's `useSuspenseQuery`, Relay, or the React 19 `use()` hook:
+
+```jsx
+function UserProfile({ userId }) {
+  const user = use(fetchUser(userId)); // suspends until promise resolves
+  return <h1>{user.name}</h1>;
+}
+```
+
+3. **Server Components and streaming SSR** — Suspense boundaries on the server stream content as it becomes ready.
+
+**Why Suspense matters:**
+
+- **Declarative loading states.** No `if (loading) return <Spinner />` boilerplate in every component. The boundary handles it.
+- **Co-locates fallback with the slow content.** The fallback lives at the boundary; the component just describes what it needs.
+- **Granular boundaries.** Wrap independent sections separately so one slow piece doesn't block the rest:
+
+```jsx
+<>
+  <Suspense fallback={<HeaderSkeleton />}>
+    <Header />
+  </Suspense>
+  <Suspense fallback={<MainSkeleton />}>
+    <Main />
+  </Suspense>
+</>
+```
+
+`Header` and `Main` load in parallel, each showing its own fallback until ready.
+
+**Combined with `useTransition`:**
+
+```jsx
+const [isPending, startTransition] = useTransition();
+function onTabChange(newTab) {
+  startTransition(() => setActiveTab(newTab));
+}
+```
+
+Without the transition, switching tabs immediately suspends → flash of fallback. With it, the *old* content stays visible until the new content is ready — no jarring flicker. `isPending` lets you show a subtle loading indicator instead.
+
+**What Suspense cannot do (yet):**
+
+- **Catch errors.** Errors during suspension need an Error Boundary above the Suspense boundary.
+- **Wait for events.** It's for *fetching* something; you can't suspend on a button click.
+
+**Senior touch:** Suspense is the architectural unit for **declarative async UI** in modern React. The mental shift: instead of every component managing `loading`/`error`/`data` state itself, components declare what they *need* (via `use()`, lazy loading, or a Suspense-aware library) and Suspense boundaries handle the rest. Combined with Server Components and streaming SSR, it's how Next.js App Router achieves progressive loading — boundary by boundary, the page fills in.

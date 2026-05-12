@@ -1,0 +1,94 @@
+---
+q: "What are React Server Components?"
+level: senior
+type: theory
+order: 3
+---
+
+**Server Components (RSCs)** render exclusively on the server. They produce a serialized output sent to the client — no JavaScript shipped, no client-side runtime cost. They became a stable React 19 feature and are the foundation of Next.js App Router.
+
+```jsx
+// app/users/page.tsx — a Server Component
+async function UsersPage() {
+  const users = await db.users.findMany(); // direct DB access
+  return (
+    <ul>
+      {users.map((u) => <li key={u.id}>{u.name}</li>)}
+    </ul>
+  );
+}
+```
+
+The component is `async` because the server can `await` directly. The JS to render this list never ships to the client — only the HTML output.
+
+**What Server Components can do:**
+
+- Be `async` and use `await` directly in render
+- Fetch with `fetch`, query a database, read the filesystem
+- Access environment variables and secrets safely
+- Import server-only libraries (Node `fs`, postgres clients, ORMs)
+
+**What Server Components cannot do:**
+
+- Use `useState`, `useEffect`, or any hook — they don't have state or lifecycle
+- Handle events (`onClick`, `onChange`) — events are client-side
+- Use browser APIs (`window`, `document`, `localStorage`)
+- Be rendered in the browser at all
+
+**Client Components — the explicit opt-in:**
+
+Anything that needs interactivity is marked with `'use client'` at the top of the file:
+
+```jsx
+// app/users/UserCard.tsx
+'use client';
+import { useState } from 'react';
+
+export function UserCard({ user }) {
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <div onClick={() => setExpanded((x) => !x)}>
+      {user.name}
+      {expanded && <UserDetails user={user} />}
+    </div>
+  );
+}
+```
+
+`'use client'` marks a **boundary** — everything imported from this file (and transitively) is client-rendered.
+
+**The model — server-first, client-as-needed:**
+
+| | Server Component | Client Component |
+|---|---|---|
+| Where it runs | Server only | Server (SSR) + browser |
+| Bundle impact | Zero (no JS shipped) | Adds to client bundle |
+| Can fetch directly | Yes — `async`, `await` | No — needs `useEffect` or a fetcher |
+| Can use hooks | No | Yes |
+| Can handle events | No | Yes |
+| Access secrets | Yes | No |
+
+**The advanced pattern — Server Components inside Client Components:**
+
+Client components can render Server Components, but only when **passed as children**:
+
+```jsx
+// In a server context (default)
+<ClientWrapper>
+  <ServerOnlyContent />
+</ClientWrapper>
+
+// ClientWrapper is a Client Component, but receives ServerOnlyContent
+// already-rendered as children, so it doesn't need to render it client-side.
+```
+
+This pattern keeps server-rendered content inside interactive client wrappers — common for modals, tabs, accordions that wrap server-fetched content.
+
+**Why this matters:**
+
+- **Smaller bundles.** Code that runs only on the server never reaches the browser.
+- **Faster initial loads.** HTML arrives pre-rendered with data; no loading-spinner waterfall.
+- **Better DX for data.** No `useEffect`/`useState`/`loading` boilerplate for initial data — just `await`.
+- **Secrets stay server-side.** Database credentials, API keys, internal URLs never leak to the client.
+
+**Senior touch:** Server Components are the biggest architectural shift in React since hooks. The mental model isn't "SSR vs CSR" — it's *"what runs where, and how do we move data between them."* The senior signal in an interview is being able to articulate *why* the `'use client'` boundary exists (component must be serializable across the network), and recognizing that RSCs solve the "fetching waterfall" problem of `useEffect`-based data loading — direct `await` in render is dramatically simpler than the SWR/TanStack Query pattern for initial page data.
