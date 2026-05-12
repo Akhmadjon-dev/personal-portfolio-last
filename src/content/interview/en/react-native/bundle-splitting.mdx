@@ -1,0 +1,85 @@
+---
+q: "Bundle splitting and RAM bundles"
+level: senior
+type: theory
+order: 9
+---
+
+By default, React Native ships **a single JavaScript bundle** containing your entire app's JS. For large apps, this bundle grows to multi-megabyte sizes — slow to download, slow to parse, slow to start.
+
+**Three techniques to reduce bundle impact:**
+
+**1. Code splitting with `React.lazy`:**
+
+```jsx
+const HeavyScreen = React.lazy(() => import('./HeavyScreen'));
+
+<Suspense fallback={<Spinner />}>
+  <HeavyScreen />
+</Suspense>
+```
+
+The bundler creates a separate chunk for `HeavyScreen` that loads on demand. Cold-start ships only the core bundle; heavy features load when needed.
+
+In RN, this works with Metro (the default bundler) since version 0.74. Older versions required RAM bundles or third-party tools.
+
+**2. RAM bundles (Random-Access Modules):**
+
+A RAM bundle is a special bundle format where modules are loaded **on demand** instead of eagerly. The initial bundle is just a manifest; modules are fetched as `require` calls hit them.
+
+```js
+// metro.config.js
+module.exports = {
+  serializer: {
+    createModuleIdFactory: () => (path) => { /* ... */ },
+  },
+  transformer: {
+    inlineRequires: true,  // critical for RAM bundles
+  },
+};
+```
+
+Enable RAM bundles via Metro's bundle config and the `--bundle-output` flag. Combined with `inlineRequires`, modules don't execute until first reference — saves startup time.
+
+**3. Hermes precompilation:**
+
+Hermes compiles JS to bytecode at build time. The bundled bytecode is **already parsed and ready to run** — skip the parse cost on cold start.
+
+The combination of **Hermes + inlineRequires + lazy `require`** gives you the best of all worlds for large apps.
+
+**Measuring bundle size:**
+
+```bash
+npx react-native bundle \
+  --platform ios \
+  --dev false \
+  --entry-file index.js \
+  --bundle-output bundle.js \
+  --sourcemap-output bundle.js.map
+
+# Inspect what's in the bundle
+npx react-native-bundle-visualizer
+```
+
+The visualizer produces a treemap of dependencies. Common bloat sources: moment.js (use date-fns instead), large icon sets, untreeshaken lodash, dev-only deps shipped to production.
+
+**Tree-shaking — what works and what doesn't:**
+
+| Library style | Tree-shakable? |
+|---|---|
+| ES modules with named exports (`date-fns`) | Yes |
+| Default export of a giant object (legacy `lodash`) | No |
+| `import { x } from 'lodash'` | Partially |
+| `import x from 'lodash/x'` | Yes |
+| CommonJS modules | Usually no |
+
+The rule: import only what you need from libraries; prefer ES module style; avoid libraries with a single giant default export.
+
+**Real-world bundle reduction wins:**
+
+- Replace `moment.js` (~70KB) with `date-fns` (~14KB tree-shaken).
+- Replace `lodash` with `lodash-es` and named imports — drops dead code.
+- Use SVG icons over icon fonts — only ship the icons you actually use.
+- Remove dev-only deps from production bundle via Metro config.
+
+**Senior touch:** the senior framing — **most RN apps over 10MB of bundle have low-hanging fruit.** The most impactful single change is usually replacing `moment.js` or de-bloating `lodash`. Code splitting and RAM bundles help, but they're nuanced — they pay off in apps with genuinely large surface areas where many features won't be used by most sessions. For most apps, **measure the bundle, find the biggest deps, replace or scope them** — that gets you 80% of the win.

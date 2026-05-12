@@ -1,0 +1,99 @@
+---
+q: "Designing offline-first React Native apps"
+level: senior
+type: theory
+order: 10
+---
+
+An offline-first app continues working without network — queues actions, reads cached data, syncs when reconnected. This requires intentional architecture, not just adding caching to an online app.
+
+**Four building blocks:**
+
+**1. Local storage as source of truth.**
+
+Don't treat the network as authoritative. Read from a local DB (SQLite, MMKV, WatermelonDB) and *also* sync to the server. The UI never blocks on a network request.
+
+```jsx
+const messages = useQuery(['messages'], async () => {
+  const local = await db.messages.toArray();
+  if (NetInfo.isConnected) {
+    fetch('/api/messages').then(/* update local */);
+  }
+  return local;
+});
+```
+
+**2. Mutation queue.**
+
+When the user creates, updates, or deletes something, write it locally **first**, queue the network call for when online:
+
+```jsx
+async function sendMessage(text) {
+  const localId = uuid();
+  await db.messages.add({ id: localId, text, status: 'pending' });
+
+  if (NetInfo.isConnected) {
+    await trySendNow(localId);
+  } else {
+    await pendingQueue.add({ type: 'send_message', localId });
+  }
+}
+
+// When connectivity returns
+NetInfo.addEventListener((state) => {
+  if (state.isConnected) processQueue();
+});
+```
+
+**3. Conflict resolution.**
+
+Two devices, both offline, both edit the same record. When they reconnect, you have two versions. Strategies:
+
+| Strategy | When |
+|---|---|
+| **Last-write-wins** | Simple. Loss is acceptable for low-stakes data (preferences). |
+| **CRDTs** | Yjs, Automerge. Multi-user collaborative editing. |
+| **Operational transforms** | Google Docs-style line editing. Complex but proven. |
+| **Manual merge UI** | Show user "you have a conflict, pick a version." |
+| **Server-side resolution** | Server enforces a canonical view, clients catch up. |
+
+The right choice depends on the data and the user expectation. Don't pick CRDTs for a todo app; don't pick last-write-wins for collaborative documents.
+
+**4. Sync state UI.**
+
+Users need to know what's happening:
+
+```jsx
+function MessageRow({ message }) {
+  return (
+    <View>
+      <Text>{message.text}</Text>
+      {message.status === 'pending' && <Spinner size="small" />}
+      {message.status === 'failed' && <ErrorIcon onPress={retry} />}
+      {message.status === 'synced' && <CheckIcon />}
+    </View>
+  );
+}
+```
+
+Hide the sync layer entirely and users get confused when their actions seem to disappear after a network failure.
+
+**Tools for offline-first:**
+
+| Tool | What it provides |
+|---|---|
+| **WatermelonDB** | Reactive local database, sync engine, large-scale support |
+| **PowerSync** | Server-aware sync, conflict resolution, multi-device |
+| **TanStack Query (with persister)** | Cache server queries to disk, hydrate on launch |
+| **Zustand `persist` middleware** | Persist client state across launches |
+| **MMKV / AsyncStorage** | Raw key-value storage |
+| **SQLite + custom sync** | Maximum control, most code |
+
+**Common pitfalls:**
+
+- **Treating offline as an error state.** It's not — it's a normal mode that should work without surfacing technical detail.
+- **Optimistic updates without rollback.** When the network call eventually fails, the UI shows success but the data isn't saved. Always handle the rollback case.
+- **Ignoring race conditions.** Two pending mutations to the same record may collide. Plan for it.
+- **Buffer overflow.** Pending queue grows unboundedly if a user is offline for days — paginate or cap.
+
+**Senior touch:** the senior framing — **offline-first is an architectural decision, not a feature.** You can't bolt it onto an online-first app cheaply. It has to be designed into the data flow: local DB as source of truth, mutations queued, conflicts handled, sync state visible. The payoff is an app that **feels instant** (no network latency in the critical path) and **just works** on the subway, in the elevator, on a flight. The cost is meaningful architecture work upfront. Worth it for apps where users expect to use them without a connection; over-engineering for apps that don't.

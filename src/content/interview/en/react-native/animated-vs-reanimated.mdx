@@ -1,0 +1,101 @@
+---
+q: "`Animated` vs Reanimated — when to choose each"
+level: senior
+type: theory
+order: 6
+---
+
+The built-in `Animated` API and the community `react-native-reanimated` library both animate UI in React Native. They have different design philosophies, performance characteristics, and use cases. In 2026, **Reanimated 3 is the production default** — but knowing both matters.
+
+**`Animated` (built-in):**
+
+- Ships with React Native.
+- Animates by sending values from JS thread to native through the bridge (or native driver, when `useNativeDriver: true`).
+- Limited to animatable properties when using the native driver — `opacity`, `transform`, `backgroundColor`.
+- Simple declarative API: `Animated.timing(value, { toValue, duration }).start()`.
+
+```jsx
+import { Animated } from 'react-native';
+
+const opacity = useRef(new Animated.Value(0)).current;
+useEffect(() => {
+  Animated.timing(opacity, {
+    toValue: 1,
+    duration: 500,
+    useNativeDriver: true,
+  }).start();
+}, []);
+
+return <Animated.View style={{ opacity }} />;
+```
+
+**Reanimated 3:**
+
+- Community library; the most popular animation library in RN.
+- Runs animations on the UI thread by default via JSI worklets — no `useNativeDriver` flag needed.
+- Supports **all animatable properties**, including layout (width, height).
+- Gesture-driven animations via integration with `react-native-gesture-handler`.
+- Workflow uses **shared values** (cross-thread reactive primitives) and **worklets** (JS functions that run on the UI thread).
+
+```jsx
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from 'react-native-reanimated';
+
+const opacity = useSharedValue(0);
+useEffect(() => {
+  opacity.value = withTiming(1, { duration: 500 });
+}, []);
+
+const style = useAnimatedStyle(() => ({ opacity: opacity.value }));
+return <Animated.View style={style} />;
+```
+
+**Comparison:**
+
+| | `Animated` | Reanimated 3 |
+|---|---|---|
+| Built-in | Yes | No (npm install) |
+| Bridge required | Yes (without native driver) | No — JSI from day one |
+| Native driver | Opt-in | Default |
+| Layout animations (width, height) | No (with native driver) | Yes |
+| Gesture-driven | Manual, awkward | First-class via Gesture Handler |
+| Bundle size | 0 KB extra | +~80 KB |
+| Performance | Good with native driver | Excellent — UI thread by default |
+| Learning curve | Lower | Higher (worklets, shared values) |
+
+**When to use `Animated`:**
+
+- **Quick fade/scale animations** in components.
+- **Apps with minimal animation requirements** where pulling in another library feels heavy.
+- **Code shared with the web** (RN for Web) where `Animated` has better compatibility.
+
+**When to use Reanimated 3:**
+
+- **Gesture-driven UI** — swipeable rows, drag-to-reorder, pinch-to-zoom.
+- **Layout animations** — animated height changes, expanding sections.
+- **Performance-critical animations** — 60fps regardless of JS thread load.
+- **Anything more complex than a fade.**
+
+**The worklet learning curve:**
+
+The biggest cost of Reanimated is the mental model. Functions tagged `'worklet'` run on the UI thread; they can't close over arbitrary JS values without `runOnUI`/`runOnJS` bridges. Once you internalize it, it's powerful — but the initial confusion is real.
+
+```jsx
+// Worklet — runs on UI thread
+const log = (msg) => {
+  'worklet';
+  console.log(msg); // throws in Hermes — no console on UI thread (unless polyfilled)
+};
+
+// JS function called from worklet
+const jsLog = (msg) => console.log(msg);
+const fromWorklet = () => {
+  'worklet';
+  runOnJS(jsLog)('from UI thread'); // bridge back to JS thread
+};
+```
+
+**Senior touch:** the senior framing — **Reanimated 3 is the production default in 2026**; `Animated` is the *escape hatch* for simple cases or RN for Web compat. The pattern: start with Reanimated for any non-trivial animation, fall back to `Animated` only when its simplicity is worth the perf tradeoff. Once you've learned worklets, you don't want to give them up — they unlock gesture-driven UI that feels truly native.

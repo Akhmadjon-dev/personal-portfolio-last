@@ -1,0 +1,104 @@
+---
+q: "Codegen — generating native bindings"
+level: senior
+type: theory
+order: 4
+---
+
+**Codegen** is the build-time tool that converts JavaScript/TypeScript specs into native platform code (Java, Kotlin, Objective-C, C++). It eliminates the hand-written glue between JS and native that the old architecture required.
+
+**Two things codegen produces:**
+
+1. **TurboModule bindings** — for native modules exposed to JS.
+2. **Fabric component bindings** — for native views exposed to JS.
+
+**A TurboModule example:**
+
+```ts
+// specs/NativeMyModule.ts
+import type { TurboModule } from 'react-native';
+import { TurboModuleRegistry } from 'react-native';
+
+export interface Spec extends TurboModule {
+  doThing(arg: string): Promise<string>;
+  getConstants(): { version: string };
+}
+
+export default TurboModuleRegistry.getEnforcing<Spec>('MyModule');
+```
+
+Codegen reads this spec at build time and produces:
+
+- **iOS:** `MyModuleSpec.h` (Objective-C++ protocol) — defines the methods native code must implement.
+- **Android:** `MyModuleSpec.java` (Kotlin/Java interface) — same purpose.
+- **C++:** Glue code that registers the module with JSI.
+
+You implement the native side (Swift / Kotlin) conforming to the generated protocols. The bridge code is no longer your problem.
+
+**A Fabric component example:**
+
+```ts
+// specs/MyVideoPlayerNativeComponent.ts
+import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNativeComponent';
+
+export interface NativeProps extends ViewProps {
+  uri: string;
+  paused: boolean;
+  onLoadComplete: (event: { nativeEvent: { duration: number } }) => void;
+}
+
+export default codegenNativeComponent<NativeProps>('MyVideoPlayer');
+```
+
+Codegen produces:
+
+- **iOS:** A `RCTViewComponentDescriptor` and `MyVideoPlayerComponentView` base class.
+- **Android:** Equivalent classes for ViewManagers.
+- **C++:** Fabric registration code.
+
+You implement the actual `MyVideoPlayerComponentView` subclass that owns the native video player; the React-side wiring is generated.
+
+**Why codegen exists:**
+
+Pre-codegen, native module authors had to:
+
+- Hand-write iOS bindings (with `RCT_EXPORT_METHOD` macros).
+- Hand-write Android bindings (with `@ReactMethod` annotations).
+- Keep JS types in sync manually.
+- Accept that any mismatch was a runtime crash.
+
+Codegen flips this: **the TypeScript spec is the source of truth.** Native bindings are generated; type mismatches surface at compile time.
+
+**When codegen runs:**
+
+```bash
+# Runs as part of the build process
+cd ios && pod install   # iOS codegen
+./gradlew build         # Android codegen
+
+# Or explicitly via Expo
+npx expo prebuild
+```
+
+You usually don't run codegen manually — it happens during build. Failures show up as compile errors in the generated code.
+
+**Common gotchas:**
+
+- **Spec naming convention.** Files must be named `Native*.ts` (for modules) or `*NativeComponent.ts` (for components) to be picked up by codegen.
+- **Spec location.** Must be under a path codegen scans (configurable via `package.json`).
+- **TypeScript types are limited.** Codegen supports a subset of TypeScript — primitive types, simple objects, arrays, function callbacks. Complex generic types or unions may need to be flattened.
+- **Promise vs sync.** Return types in the spec determine whether codegen produces async or sync method signatures.
+
+**Library author workflow:**
+
+If you're publishing an RN native library:
+
+1. Write a TypeScript spec describing the API.
+2. Implement the native code conforming to the generated protocols.
+3. Configure `codegenConfig` in `package.json`.
+4. Test on both platforms.
+5. Publish.
+
+Consumers install your library and codegen runs during their app's build, regenerating the bindings against their app's RN version. **No prebuilt native binaries** — codegen produces fresh bindings for each consumer's environment.
+
+**Senior touch:** the senior framing — **codegen is the unsung hero of the New Architecture.** Without it, TurboModules and Fabric would be just as painful to write as legacy native modules. With it, the TypeScript spec is the contract, the native bindings are generated, and the bug surface drops dramatically. Most RN developers will never write codegen directly, but understanding *that it exists* and *what it produces* explains why writing modern native modules is dramatically less painful than it used to be.
