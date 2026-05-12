@@ -1,0 +1,86 @@
+---
+q: "AsyncStorage vs MMKV — local persistence in React Native"
+level: junior
+type: theory
+order: 5
+---
+
+Three main options for local key-value storage in React Native, with different tradeoffs:
+
+| | AsyncStorage | MMKV | SecureStore |
+|---|---|---|---|
+| **Speed** | Slow (async, serialized) | Fast (sync, native) | Slow |
+| **API** | Async only | Sync + async | Async only |
+| **Encryption** | No | Optional | Yes (Keychain / Keystore) |
+| **Storage** | JSON files on disk | mmap-backed, native | iOS Keychain / Android Keystore |
+| **Best for** | Default, simple cases | Performance-critical, frequent reads | Tokens, passwords, sensitive data |
+
+**AsyncStorage — the default:**
+
+```jsx
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+await AsyncStorage.setItem('user', JSON.stringify(user));
+const stored = await AsyncStorage.getItem('user');
+const user = stored ? JSON.parse(stored) : null;
+
+await AsyncStorage.removeItem('user');
+await AsyncStorage.clear();
+```
+
+Async API, strings only (you serialize objects yourself). Built into Expo. Good default for non-performance-critical use.
+
+**MMKV — the performance option:**
+
+```jsx
+import { MMKV } from 'react-native-mmkv';
+
+const storage = new MMKV();
+
+storage.set('user', JSON.stringify(user));
+const stored = storage.getString('user');
+storage.set('count', 42);                    // typed setters
+const count = storage.getNumber('count');
+storage.set('active', true);
+const active = storage.getBoolean('active');
+
+storage.delete('user');
+storage.clearAll();
+```
+
+**Sync** (no `await`), backed by memory-mapped files. Roughly 30× faster than AsyncStorage. Typed getters/setters. Optional encryption:
+
+```jsx
+const secureStorage = new MMKV({
+  id: 'secure',
+  encryptionKey: 'your-secret-key',
+});
+```
+
+In 2026, MMKV is the default for most production RN apps — AsyncStorage is *"fine for most cases"* but MMKV is *"no reason not to."*
+
+**SecureStore — for sensitive data:**
+
+```jsx
+import * as SecureStore from 'expo-secure-store';
+
+await SecureStore.setItemAsync('authToken', token);
+const token = await SecureStore.getItemAsync('authToken');
+await SecureStore.deleteItemAsync('authToken');
+```
+
+Backed by iOS Keychain and Android Keystore — encrypted at rest, protected by the device's secure enclave. **Use for auth tokens, passwords, and anything sensitive.**
+
+**Don't use AsyncStorage / MMKV for auth tokens.** They're plaintext-readable to anyone with filesystem access (a jailbroken device, a backup extraction). SecureStore is encrypted by the OS.
+
+**Choosing between them:**
+
+| Storing... | Use |
+|---|---|
+| User preferences, app settings | MMKV (or AsyncStorage if Expo Go and no dev build) |
+| Cached API responses | MMKV (fast) or TanStack Query's persister |
+| Auth tokens, OAuth secrets | **SecureStore** |
+| Form draft data | MMKV or AsyncStorage |
+| Large media files | File system (`expo-file-system`) — not key-value storage |
+
+**Senior touch:** the senior heuristic — **MMKV for everything that isn't sensitive; SecureStore for tokens; AsyncStorage only when you can't add native deps (Expo Go without a dev build).** The single biggest mistake is storing auth tokens in AsyncStorage — it's plaintext, readable, and a security issue waiting to happen. Naming the three-tier strategy (MMKV for general, SecureStore for sensitive, file system for blobs) signals senior thinking about storage.

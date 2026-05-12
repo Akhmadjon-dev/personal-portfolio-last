@@ -1,0 +1,91 @@
+---
+q: "Passing params between screens"
+level: junior
+type: theory
+order: 3
+---
+
+The basic mechanism — pass an object as the second argument to `navigate`:
+
+```jsx
+// Sending
+navigation.navigate('Details', { id: 42, title: 'Hello' });
+
+// Receiving
+function DetailsScreen({ route }) {
+  const { id, title } = route.params;
+  return <Text>{title} — ID {id}</Text>;
+}
+```
+
+Or with the hook:
+
+```jsx
+import { useRoute } from '@react-navigation/native';
+
+function DetailsScreen() {
+  const route = useRoute();
+  const { id } = route.params ?? {};
+}
+```
+
+**Three rules:**
+
+1. **Params must be serializable.** No functions, no class instances, no `Map`s, no `Set`s. React Navigation needs to serialize them for deep linking, state persistence, and navigation state inspection.
+2. **Params are immutable from the receiver's view.** Mutating `route.params.id = 5` does nothing meaningful — params come from the navigation state.
+3. **Keep params small.** They become part of the navigation state. Bloating them slows down state operations.
+
+**TypeScript typing for params:**
+
+```ts
+type RootStackParamList = {
+  Home: undefined;
+  Details: { id: number; title: string };
+  Edit: { id: number; mode?: 'create' | 'update' };
+};
+
+type DetailsScreenProps = NativeStackScreenProps<RootStackParamList, 'Details'>;
+
+function DetailsScreen({ route }: DetailsScreenProps) {
+  const { id, title } = route.params; // fully typed
+}
+
+// With hooks
+const route = useRoute<RouteProp<RootStackParamList, 'Details'>>();
+```
+
+The hook version requires manual generic typing; the props version inherits from the navigator's type.
+
+**Anti-pattern: passing complex objects:**
+
+```jsx
+// ❌ Don't do this
+navigation.navigate('UserDetail', { user: fullUserObject });
+
+// ✅ Pass an ID; let the screen fetch
+navigation.navigate('UserDetail', { userId: user.id });
+```
+
+Passing the whole user object means stale data when the user changes, bloated navigation state, and the entire object getting serialized. Passing just the ID and re-fetching is the production pattern — and it pairs well with TanStack Query's deduplication and caching.
+
+**Updating params after navigation:**
+
+```jsx
+navigation.setParams({ id: newId });
+```
+
+Useful for two-pane flows where you want to update which item is shown without pushing a new screen.
+
+**Initial params for nested navigators:**
+
+```jsx
+<Tab.Screen
+  name="Profile"
+  component={ProfileScreen}
+  initialParams={{ section: 'about' }}
+/>
+```
+
+`initialParams` apply if the screen isn't already in the navigation state — useful for deep-linking defaults.
+
+**Senior touch:** the senior framing — **navigation params should be like URL params: small, serializable, identifiers.** If you find yourself passing complex data through navigation, the right answer is usually to put that data in a store (TanStack Query, Zustand) and pass only the ID through navigation. This keeps navigation state lightweight, deep linking working, and data freshness handled by the store.

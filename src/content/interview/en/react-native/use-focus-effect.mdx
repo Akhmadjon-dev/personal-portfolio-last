@@ -1,0 +1,72 @@
+---
+q: "What is `useFocusEffect`?"
+level: junior
+type: theory
+order: 4
+---
+
+`useFocusEffect` is `useEffect` for screens — it runs **when the screen is focused** (becomes visible/active) and cleans up **when it loses focus**. Specific to React Navigation; you can't get this behavior from `useEffect` alone.
+
+```jsx
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
+
+function Screen() {
+  useFocusEffect(
+    useCallback(() => {
+      console.log('Screen focused');
+      const subscription = api.subscribe();
+      return () => {
+        console.log('Screen lost focus');
+        subscription.unsubscribe();
+      };
+    }, [])
+  );
+}
+```
+
+**Why `useCallback` is required:**
+
+`useFocusEffect` accepts a function, and would re-run the effect every time the function reference changed — which would be every render without `useCallback`. Wrapping in `useCallback` stabilizes the function reference; deps inside `useCallback` control when the effect re-runs.
+
+**`useFocusEffect` vs `useEffect`:**
+
+| | `useEffect` | `useFocusEffect` |
+|---|---|---|
+| Triggered on | Mount + deps change | Screen focus |
+| Cleanup | Unmount + deps change | Screen blur |
+| Works for | Any component | Screens within React Navigation |
+
+The key difference: `useEffect` runs once on mount and doesn't re-run when the user navigates away and comes back. `useFocusEffect` re-runs every time the screen becomes active.
+
+**When to reach for `useFocusEffect`:**
+
+- **Refetching data when the user returns to a screen.** They navigated to edit, came back — you want fresh data, not the cached prop.
+- **Restarting subscriptions** (WebSocket, location updates) only while the screen is visible — pause them when the user is elsewhere.
+- **Tracking screen views in analytics.** Fire an analytics event each time the screen becomes active.
+
+**`useIsFocused` — the boolean version:**
+
+If you need to *read* whether the screen is focused (rather than react to it), use `useIsFocused`:
+
+```jsx
+import { useIsFocused } from '@react-navigation/native';
+
+function Camera() {
+  const isFocused = useIsFocused();
+  return isFocused ? <CameraView /> : null;
+}
+```
+
+This unmounts the camera when the user navigates away — important for releasing the camera resource on iOS.
+
+**`useFocusEffect` doesn't replace `useEffect`:**
+
+Most effects in screens should still use `useEffect`. Reach for `useFocusEffect` specifically when:
+
+- The behavior should pause when the screen isn't visible.
+- You need to refetch on return.
+
+Mounted-but-not-focused screens (like tabs sitting in the background) still have running effects with regular `useEffect` — that's usually what you want.
+
+**Senior touch:** `useFocusEffect` is one of those RN-specific hooks that solves a problem you don't have on the web — tabs and stacks keeping screens *mounted* but *not visible*. On the web, navigating to a new route unmounts the old one; in RN, tab screens stay mounted forever once visited. That's the entire reason this hook exists. The senior signal: knowing when "lifecycle" means component lifecycle versus screen focus.

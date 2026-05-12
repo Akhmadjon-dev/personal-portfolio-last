@@ -1,0 +1,102 @@
+---
+q: "StatusBar handling in React Native"
+level: junior
+type: theory
+order: 12
+---
+
+The status bar (top of the screen, showing time/battery/signal) needs explicit configuration in RN — light/dark text, color, translucent, hidden states.
+
+**Built-in `<StatusBar>`:**
+
+```jsx
+import { StatusBar } from 'react-native';
+
+function App() {
+  return (
+    <>
+      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+      <MainContent />
+    </>
+  );
+}
+```
+
+**Key props:**
+
+| Prop | Purpose |
+|---|---|
+| `barStyle` | `'default'`, `'light-content'`, `'dark-content'` — text/icon color |
+| `backgroundColor` (Android) | Background color of the status bar (iOS doesn't support this) |
+| `hidden` | Hide the status bar entirely |
+| `translucent` (Android) | Whether the app draws under the status bar |
+| `animated` | Animate prop changes |
+
+**Per-screen overrides:**
+
+You can mount `<StatusBar>` inside a screen to override the global setting while that screen is focused:
+
+```jsx
+function DarkThemedScreen() {
+  return (
+    <>
+      <StatusBar barStyle="light-content" backgroundColor="#000" />
+      <View style={{ backgroundColor: '#000', flex: 1 }}>...</View>
+    </>
+  );
+}
+```
+
+The most recently-mounted `<StatusBar>` wins. Inside React Navigation screens, this works per-screen automatically.
+
+**The Expo version — `expo-status-bar`:**
+
+```jsx
+import { StatusBar } from 'expo-status-bar';
+
+<StatusBar style="dark" backgroundColor="#fff" />
+```
+
+Slightly different API (`style="dark"` vs `barStyle="dark-content"`), but cross-platform-correct out of the box. **The Expo version is the recommended one for Expo projects.**
+
+**`useFocusEffect` for per-screen status bar:**
+
+The cleanest pattern in a navigation app is to set the status bar imperatively when the screen focuses:
+
+```jsx
+import { useFocusEffect } from '@react-navigation/native';
+import { StatusBar } from 'react-native';
+import { useCallback } from 'react';
+
+function DarkScreen() {
+  useFocusEffect(
+    useCallback(() => {
+      StatusBar.setBarStyle('light-content');
+      return () => StatusBar.setBarStyle('dark-content');
+    }, [])
+  );
+}
+```
+
+This guarantees the status bar style follows the focused screen, even if the previous screen left it in a different state.
+
+**Android-specific gotchas:**
+
+- **Translucent mode** lets content draw behind the status bar — useful for edge-to-edge designs but requires handling the status bar height manually (via safe-area insets).
+- **`backgroundColor` on iOS is ignored** — the iOS status bar is always either over content (translucent) or controlled by the navigation bar.
+- **System dark mode** can override your styles — listen with `useColorScheme()` and adapt.
+
+**Common patterns:**
+
+```jsx
+// White background, dark text — content screens
+<StatusBar barStyle="dark-content" backgroundColor="#fff" />
+
+// Dark hero / video — light text
+<StatusBar barStyle="light-content" />
+
+// Edge-to-edge media (Android)
+<StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+```
+
+**Senior touch:** the status bar is one of those things that's invisible when correct and embarrassing when wrong. The two common failures: white text on a white background (status bar invisible), and the status bar flickering between screens because each screen sets a different style. The fix is **per-screen `useFocusEffect` to set the bar style on focus** — guarantees consistency regardless of navigation order. Use `expo-status-bar` if you're in Expo; it handles iOS/Android quirks for you.
