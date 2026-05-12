@@ -1,0 +1,29 @@
+---
+q: "What is React?"
+level: entry
+type: theory
+order: 1
+---
+
+React is an open-source JavaScript library for building user interfaces, originally created by Facebook and now maintained by Meta and the open-source community. It's intentionally a **library, not a framework** — it focuses on the view layer, and you choose your own routing, data fetching, and state management.
+
+The four ideas that make React distinct:
+
+- **Component-based architecture.** UIs are composed from small, reusable functions (or, historically, classes) that return JSX. Each component owns its own state and props.
+- **Declarative rendering.** You describe what the UI should look like for a given state, and React figures out how to update the DOM. You never manually call `appendChild` or `setAttribute`.
+- **Virtual DOM.** An in-memory tree representation of the UI. On state changes, React diffs the new tree against the previous one and applies the minimum set of DOM mutations. This is what makes updates fast even in large apps.
+- **Unidirectional data flow.** Data flows from parent to child via props. State changes are explicit and easy to trace, unlike two-way binding which can hide where a value actually changed.
+
+```jsx
+function Welcome({ name }) {
+  return <h1>Hello, {name}</h1>;
+}
+
+<Welcome name="Ahmadjon" />
+```
+
+That snippet shows the whole model: a function takes props, returns JSX, and React figures out the rest.
+
+**Where React fits in the ecosystem.** React itself is intentionally minimal. The supporting libraries — React Router for routing, TanStack Query for data, Zustand or Redux for client state, Next.js for full-app conventions — fill in the framework-level concerns. That flexibility is React's strength and also why "doing React well" requires picking and learning a stack around it.
+
+**Rule of thumb:** when someone says "React app," they usually mean React plus four or five other libraries. Asking *which ones* in an interview tells you what the team's stack actually looks like.

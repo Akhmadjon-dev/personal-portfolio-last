@@ -1,0 +1,55 @@
+---
+q: "`useMemo` vs `useCallback` — when do you use each, and when do you skip them?"
+level: senior
+type: theory
+order: 1
+---
+
+Both are memoization primitives that cache something across renders until their dependencies change. They look similar because they *are* similar — `useCallback(fn, deps)` is essentially `useMemo(() => fn, deps)`.
+
+**The difference is what they memoize:**
+
+| Hook | What it caches | Typical use |
+|---|---|---|
+| `useMemo(() => fn(), deps)` | The **return value** of the function | Expensive computation or derived data |
+| `useCallback(fn, deps)` | The **function reference itself** | Stable identity for `React.memo` children or `useEffect` deps |
+
+**When to reach for them:**
+
+1. **Expensive computations** that genuinely slow down renders — large sorts, filtering or aggregating thousands of items, deep derived structures.
+2. **Reference stability** needed because the value is passed to a `React.memo` child, used as a `useEffect` dependency, or read by another memoized hook that compares by identity.
+
+```jsx
+// ✅ Expensive derivation — caching is worth the bookkeeping
+const sortedTransactions = useMemo(
+  () => transactions.slice().sort(byDateDesc),
+  [transactions]
+);
+
+// ✅ Stable callback passed to a memoized child
+const handleSelect = useCallback(
+  (id: string) => setSelectedId(id),
+  []
+);
+
+return <ExpensiveList items={sortedTransactions} onSelect={handleSelect} />;
+```
+
+**When NOT to reach for them — the more important half:**
+
+- **Cheap computations.** `useMemo(() => a + b, [a, b])` is *slower* than `a + b`. Memoization has overhead — bookkeeping the deps array, calling the comparator. For trivial work, the memoization itself costs more than re-computing.
+- **No memoized consumer.** A `useCallback` whose function is passed to a non-memoized child buys nothing. The child re-renders anyway.
+- **"Just in case."** Premature memoization is a real anti-pattern. It litters the code, gives a false sense of optimization, and makes the deps array a maintenance hazard (forget a dep and you've got a stale closure).
+
+```jsx
+// ❌ Pointless — child isn't memoized; cost > benefit
+const greeting = useMemo(() => `Hello, ${name}`, [name]);
+
+// ❌ Also pointless — no consumer cares about reference identity
+const onClick = useCallback(() => setOpen(true), []);
+return <button onClick={onClick}>Open</button>;
+```
+
+**The React Compiler changes the picture.** In React 19 / Next 16, the React Compiler (formerly "React Forget") is a build-time transform that automatically inserts memoization where it would actually help. It analyzes your component, figures out which values and functions are worth caching, and does it for you — no manual hooks, no deps arrays to maintain. It's stable but opt-in right now. The trend going forward is **fewer manual `useMemo` / `useCallback` calls** and letting the compiler decide.
+
+**Senior touch:** the default position should be **don't memoize**. Add memoization when a profiler tells you to — actual measurements, not gut feeling. The cost of premature memoization is real and often invisible: you're paying for the bookkeeping on every render even when the optimization saves nothing. And once the React Compiler is in your stack, removing the manual memoization is a real refactor task, not a one-line delete.

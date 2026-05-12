@@ -1,0 +1,36 @@
+---
+q: "What are the limitations of React?"
+level: junior
+type: theory
+order: 10
+---
+
+React's design tradeoffs are real, and naming them honestly is a senior signal. Five worth knowing:
+
+**1. It's a library, not a framework.**
+
+React handles the view layer. Routing, data fetching, state management, forms, build tooling — you pick separately. The flexibility is a strength when you know what you're doing, and a real cost when you don't. Two React projects can look completely different at the architecture level.
+
+**2. SEO requires extra work.**
+
+Client-rendered React shows search engines an empty `<div id="root">`. Crawlers that don't run JS see nothing. The fix is SSR or SSG (Next.js, Remix, Astro), which adds infrastructure complexity. Vue and Svelte have the same problem; frameworks like Nuxt and SvelteKit are the equivalent solutions.
+
+**3. JSX has a learning curve.**
+
+The syntax mixes HTML and JS in a way that confuses newcomers. `className` instead of `class`, expression braces, fragment shorthand — small things, but they add up when you're starting out. Vue templates and Svelte's syntax are arguably gentler entry points for non-React developers.
+
+**4. Fast-moving ecosystem.**
+
+Best practices shifted significantly between 2017 (class components, Redux for everything) and 2026 (functional components, hooks, Server Components, the React Compiler). Older tutorials and Stack Overflow answers are often outdated. The ecosystem is opinionated too — TanStack Query replaced Redux for server state, Zustand replaced it for client state. You have to keep up.
+
+**5. Performance footguns.**
+
+React is fast by default but easy to make slow. Unnecessary re-renders, context churn, prop identity changes, and stale closures are common in production code. Tools like the React Compiler help, but the language doesn't *enforce* good patterns the way Solid's fine-grained reactivity does.
+
+**Smaller pain points worth mentioning:**
+
+- **No built-in DI** — components reach for context or singletons, which can get messy in large apps.
+- **TypeScript integration is good but not deep** — generic components and `forwardRef` typings still occasionally fight you.
+- **Server Components are powerful but complex** — the mental model around `'use client'` boundaries trips up most developers in their first month with App Router.
+
+**Senior touch:** every framework has tradeoffs. The honest answer in an interview isn't "React has no limitations" or "React is bad" — it's *acknowledging the costs you accept* in exchange for the benefits (ecosystem, hiring, stability). The way you talk about limitations tells the interviewer more than the list itself. A junior says "React has bugs"; a senior says "React's flexibility costs decision fatigue, and SEO needs SSR — both fixable, but real."

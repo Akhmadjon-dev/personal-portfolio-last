@@ -1,0 +1,71 @@
+---
+q: "What is Batching in React?"
+level: mid
+type: theory
+order: 6
+---
+
+Batching is React grouping multiple state updates into a **single re-render**. Without batching, every `setState` call would trigger its own render — wasteful and bad for performance.
+
+```jsx
+function handleClick() {
+  setCount((c) => c + 1);
+  setName('Alice');
+  setActive(true);
+  // → Only ONE re-render, with all three updates applied
+}
+```
+
+React 18 introduced **automatic batching** — batching now applies *everywhere*, not just in React event handlers.
+
+**Before React 18 — batched only in React handlers:**
+
+```jsx
+// React 17 — batched, one render
+function onClickInReact() {
+  setA(1);
+  setB(2);
+}
+
+// React 17 — NOT batched, two renders
+setTimeout(() => {
+  setA(1);
+  setB(2);
+}, 1000);
+
+// React 17 — NOT batched
+fetch('/api').then(() => {
+  setA(1);
+  setB(2);
+});
+```
+
+In React 17, `setTimeout`, promises, native event handlers, and other async contexts were *not* batched — each `setState` triggered its own render. This caused tearing, double-renders, and weird intermediate states.
+
+**React 18+ — batched everywhere:**
+
+All of the above now batch into a single re-render automatically. No code changes; just upgrade to React 18 with `createRoot`.
+
+**Opt-out with `flushSync`:**
+
+If you genuinely need a state change committed synchronously *now* (rare — usually for DOM measurements that depend on the new state), use `flushSync`:
+
+```jsx
+import { flushSync } from 'react-dom';
+
+flushSync(() => {
+  setCount((c) => c + 1);
+});
+// DOM is now updated synchronously; you can read offsetHeight etc.
+setName('Alice'); // batched as normal with subsequent updates
+```
+
+Use sparingly — `flushSync` defeats batching and breaks concurrent rendering for that update.
+
+**Why batching matters:**
+
+- **Performance.** One render is cheaper than many.
+- **Consistency.** Without batching, the UI can flash through intermediate states.
+- **Concurrent rendering.** React 18's concurrent features rely on batching to coordinate work — disabling batching breaks them.
+
+**Senior touch:** the move from "React 17: batched in handlers only" to "React 18: batched everywhere" was one of the most impactful behavior changes in React's history. Most apps got faster and more consistent without any code changes — and a few apps that *relied on* the async non-batching broke silently. Knowing this is critical when debugging "why doesn't my UI flash through a loading state anymore after the React 18 upgrade" — answer: because batching collapsed the intermediate state. The fix is usually to introduce an explicit `await` or `setTimeout` to give React a chance to commit between updates.

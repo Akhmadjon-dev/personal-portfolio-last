@@ -1,0 +1,73 @@
+---
+q: "What are forward refs?"
+level: mid
+type: theory
+order: 14
+---
+
+`forwardRef` lets a component **expose a ref to its parent**. Normally, refs don't pass through function components — if you pass `<Input ref={myRef} />`, the ref attaches to nothing. `forwardRef` opts a component into ref forwarding.
+
+```jsx
+const Input = forwardRef(function Input(props, ref) {
+  return <input ref={ref} {...props} />;
+});
+
+// Parent
+const myRef = useRef(null);
+<Input ref={myRef} placeholder="Type..." />
+
+// myRef.current is now the <input> DOM node
+myRef.current.focus();
+```
+
+**Why it's needed:**
+
+In a function component, `ref` isn't a regular prop — React intercepts it. Without `forwardRef`, passing a ref to a function component does nothing, and you'll see a console warning. `forwardRef` wraps the component so the ref is passed as a second argument that you can forward to a DOM element or store internally.
+
+**Common use cases:**
+
+- **Form libraries** need to attach refs to inputs for focus, validation, and submission.
+- **Animation libraries** (Framer Motion, GSAP) need a DOM node to animate.
+- **Component libraries** expose refs so consumers can call `focus()` or `scrollIntoView()` on their primitives.
+
+**Combining with `useImperativeHandle` for a controlled API:**
+
+Sometimes you don't want to expose the raw DOM node — you want to expose a custom interface:
+
+```jsx
+const TextInput = forwardRef(function TextInput(props, ref) {
+  const innerRef = useRef(null);
+
+  useImperativeHandle(ref, () => ({
+    focus: () => innerRef.current?.focus(),
+    clear: () => { innerRef.current.value = ''; },
+    select: () => innerRef.current?.select(),
+  }));
+
+  return <input ref={innerRef} {...props} />;
+});
+
+// Parent
+const myRef = useRef(null);
+<TextInput ref={myRef} />
+myRef.current.focus();   // ✅ available
+myRef.current.clear();   // ✅ available
+myRef.current.value;     // ❌ undefined — not exposed
+```
+
+This gives the parent a controlled API instead of raw DOM access.
+
+**React 19 update — no more `forwardRef` needed for new code:**
+
+In React 19, `ref` is just a regular prop on function components. The boilerplate goes away:
+
+```jsx
+// React 19 — no forwardRef wrapper
+function Input({ ref, ...props }) {
+  return <input ref={ref} {...props} />;
+}
+```
+
+Existing `forwardRef` code still works — backwards compatible. New code is just cleaner.
+
+**Senior touch:** `forwardRef` is one of those patterns that exists because of an implementation detail — refs being a "special" prop. React 19 fixed the implementation detail and the wrapper became unnecessary. The senior framing in an interview: "Before React 19, you needed `forwardRef` to forward refs through a function component. React 19 made `ref` a regular prop, so new code doesn't need the wrapper. Existing code keeps working." Knowing the transition shows you track the platform actively.

@@ -1,0 +1,51 @@
+---
+q: "What is the React Compiler (React Forget)?"
+level: expert
+type: theory
+order: 1
+---
+
+The React Compiler — originally codenamed "React Forget" — is a build-time compiler that automatically memoizes components, values, and function references. It eliminates most of the need for hand-written `React.memo`, `useMemo`, and `useCallback`. It became stable in 2025 and ships with React 19, supported in Next.js 16.
+
+**What it does.** During the build step, the compiler analyzes each component and figures out which values and functions are worth caching to avoid unnecessary re-renders. It then transforms the code to insert memoization automatically. From the developer's perspective, you write the simplest possible component — no `useMemo`, no `useCallback`, no `React.memo` — and the compiler handles the optimization.
+
+```jsx
+// What you write
+function Dashboard({ transactions, onSelect }) {
+  const sorted = transactions.slice().sort(byDateDesc);
+  const handleClick = (id) => onSelect(id);
+  return <List items={sorted} onClick={handleClick} />;
+}
+
+// What the compiler effectively produces (conceptually)
+function Dashboard({ transactions, onSelect }) {
+  const sorted = useMemoCompiled(
+    () => transactions.slice().sort(byDateDesc),
+    [transactions]
+  );
+  const handleClick = useCallbackCompiled(
+    (id) => onSelect(id),
+    [onSelect]
+  );
+  return <List items={sorted} onClick={handleClick} />;
+}
+```
+
+The compiler uses a static analysis pass that's stricter than what the React-Hooks ESLint plugin enforces. It understands React's rules deeply — purity of render functions, no mutation during render, proper hook usage — and refuses to memoize code it can't prove is safe. Code that violates the Rules of React simply doesn't get optimized; it still runs correctly, just without the auto-memoization.
+
+**Why it matters:**
+
+- **Less code.** No `useMemo`/`useCallback` boilerplate, no deps arrays to maintain, no stale-closure bugs from forgotten deps.
+- **More consistent performance.** The compiler memoizes correctly and uniformly. Humans memoize selectively and inconsistently.
+- **Renders into a different mental model.** With the compiler, the goal of `useMemo` shifts from "avoid expensive recomputation" to "I have a specific reason to manually control identity" — which is rare. Day-to-day, you write the obvious code.
+
+**Limitations and tradeoffs:**
+
+- **Build-time cost.** The compiler runs over your codebase on every build. For large apps, this adds seconds to builds.
+- **Strict code rules.** Components must follow the Rules of React (no mutation during render, etc.) for the compiler to optimize them. Older codebases with side effects in render won't benefit until cleaned up.
+- **Opt-in per file.** You can enable the compiler globally or annotate specific files/components — useful for incremental adoption.
+- **Not a free lunch for poorly-architected components.** If your component re-renders because props change every time (new object literal in the parent), no amount of internal memoization helps. The compiler can't fix bad data flow.
+
+**Senior touch:** the compiler doesn't change *what* React does — it changes *what you write*. The mental model is "trust the compiler, write the simplest code, profile if something is slow." The compiler is also a forcing function for stricter React code: side effects in render, mutation of props, and similar anti-patterns become *visible* because the compiler refuses to optimize them. Many teams adopting the compiler describe it as a free pass over their codebase that surfaces latent bugs.
+
+The interview-ready summary: React Compiler is automatic memoization at build time, stable in React 19, drastically reduces the need for manual `useMemo` / `useCallback` / `React.memo`, and pushes the React ecosystem toward simpler component code.

@@ -1,0 +1,105 @@
+---
+q: "What's the typical pattern for rendering a list from an array?"
+level: mid
+type: theory
+order: 20
+---
+
+`.map()` over the array and return JSX for each item, with a stable `key` prop on each top-level element.
+
+```jsx
+function List({ items }) {
+  return (
+    <ul>
+      {items.map((item) => (
+        <li key={item.id}>{item.title}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+The structure: a container element wrapping the mapped items, each item with a key.
+
+**Key rules (the most common review feedback):**
+
+- **Use stable IDs**, not array indices. Indices cause bugs when items reorder, insert, or filter.
+- **Keys go on the outermost element returned from the map**, not on inner elements.
+- **Keys must be unique among siblings**, not globally.
+
+**Empty state matters:**
+
+```jsx
+{items.length === 0 ? (
+  <p>No items yet</p>
+) : (
+  <ul>
+    {items.map((item) => (
+      <li key={item.id}>{item.title}</li>
+    ))}
+  </ul>
+)}
+```
+
+A bare empty `<ul>` is a worse UX than an explicit empty message — users wonder if the list failed to load.
+
+**Three common variations:**
+
+```jsx
+// Filter + map together
+{items.filter(i => i.active).map(i => <Row key={i.id} item={i} />)}
+
+// Index alongside item (sometimes legitimately needed for display)
+{items.map((item, index) => (
+  <Row key={item.id} item={item} index={index} />
+))}
+
+// Sort, then map — don't mutate the original array
+{[...items].sort(byPriority).map(item => <Row key={item.id} item={item} />)}
+```
+
+**When to extract a Row component:**
+
+If the item rendering is more than ~3 lines, pull it into a separate component:
+
+```jsx
+function List({ items }) {
+  return (
+    <ul>
+      {items.map((item) => <Row key={item.id} item={item} />)}
+    </ul>
+  );
+}
+
+function Row({ item }) {
+  // complex rendering logic here
+  return <li>...</li>;
+}
+```
+
+This also lets you wrap `Row` in `React.memo` so it doesn't re-render when other rows change.
+
+**Fragments when an item is multiple sibling elements:**
+
+```jsx
+{items.map((item) => (
+  <Fragment key={item.id}>
+    <dt>{item.term}</dt>
+    <dd>{item.definition}</dd>
+  </Fragment>
+))}
+```
+
+Note the long `<Fragment>` syntax — the short `<>` can't accept a key.
+
+**Performance — when lists get large:**
+
+| Size | Approach |
+|---|---|
+| ~100 items | Plain `.map()` is fine |
+| ~1,000 items | Plain `.map()` still works; `React.memo` on Row helps with re-renders |
+| ~10,000+ items | Reach for virtualization (`react-window`, `@tanstack/virtual`) |
+
+Rendering 10K DOM nodes is slow regardless of React.
+
+**Senior touch:** the senior signal here is **all the things people forget** — stable keys, empty states, extraction when the item gets complex, virtualization when the list gets huge. A junior writes a `.map()`. A senior writes a `.map()` that also handles "what if `items` is empty," "what if there are 100,000 items," and "what if the Row component is expensive." Those edge cases are what differentiate code that ships and code that handles real-world data.

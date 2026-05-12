@@ -1,0 +1,45 @@
+---
+q: "What is the Context API?"
+level: entry
+type: theory
+order: 9
+---
+
+Context lets you pass data through the component tree without prop-drilling through every intermediate component. It's React's built-in solution for sharing values like the current theme, the logged-in user, or the active locale — values that many components read but few components own.
+
+```jsx
+const ThemeContext = createContext('light');
+
+function App() {
+  const [theme, setTheme] = useState('dark');
+  return (
+    <ThemeContext.Provider value={theme}>
+      <Layout />
+    </ThemeContext.Provider>
+  );
+}
+
+// Anywhere inside <Layout />:
+function Button() {
+  const theme = useContext(ThemeContext);
+  return <button className={`btn-${theme}`}>Click</button>;
+}
+```
+
+`Button` reads `theme` directly via `useContext`. `Layout` and any intermediate components don't need to know about `theme` or pass it through.
+
+**When to reach for context:**
+
+- Truly shared values used at many depths — auth user, theme, locale, feature flags.
+- Configuration that rarely changes after mount.
+- The "ambient state" of the app — things that describe the *environment* a component is rendered in.
+
+**When NOT to reach for context:**
+
+- **Frequently-changing values.** Every component that consumes the context re-renders on every value change. For high-frequency updates (form values, mouse position), use local state or a state library that supports selectors.
+- **As a state management library at scale.** Context doesn't support partial subscriptions. Zustand, Jotai, and Redux let components subscribe to *slices* of state, only re-rendering when their slice changes. Context re-renders every consumer.
+- **For prop-drilling 1–2 levels.** Just pass the prop. Context adds indirection that hurts more than it helps for shallow trees.
+
+**Common mistake:** putting a large object in context value, then mutating part of it. Every consumer re-renders even if their slice didn't change. Split into multiple smaller contexts instead, or use a state library that supports selectors.
+
+**Senior touch:** the rule I follow is "context is for *position*, not *state*." Theme, locale, auth — these tell components *where they are* in the app's environment. Counters, lists, forms — these are state, and they belong in components or in a proper store. Mixing the two is where context-heavy apps go wrong: they end up re-rendering everything on every interaction.

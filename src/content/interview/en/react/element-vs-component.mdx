@@ -1,0 +1,58 @@
+---
+q: "What is the difference between Element and Component?"
+level: junior
+type: theory
+order: 20
+---
+
+A **component** is a function (or class) that returns JSX. An **element** is the plain JavaScript object that JSX returns — a description of what to render.
+
+```jsx
+// Component — a function
+function Greeting({ name }) {
+  return <h1>Hello, {name}</h1>;
+}
+
+// Element — what calling that function produces
+const el = <Greeting name="Alice" />;
+// el is a plain object:
+// {
+//   type: Greeting,
+//   props: { name: 'Alice' },
+//   key: null,
+//   ref: null,
+// }
+```
+
+`<Greeting name="Alice" />` is sugar for `React.createElement(Greeting, { name: 'Alice' })`. The result is just an object describing "render a Greeting with these props" — not yet rendered, not yet in the DOM.
+
+**The cycle:**
+
+1. You write a **component** (function or class).
+2. You instantiate it as an **element** in JSX (`<Greeting name="..." />`).
+3. React calls the component's render function with the element's props.
+4. The component returns more elements, which describe child UI.
+5. React processes all elements through reconciliation and commits the result to the DOM.
+
+**Why the distinction matters:**
+
+- **Elements are cheap and immutable.** They're plain JS objects. You can create thousands per render without worry.
+- **Components are the recipe; elements are the rendered output of using the recipe.** A component is reusable; an element is a specific application of it with specific props.
+- **The Virtual DOM is a tree of elements.** Reconciliation works on element trees. When you read "React diffs the virtual DOM," it's diffing element trees produced by your components.
+
+**Practical implication — element identity:**
+
+```jsx
+// Same component, different element objects each call
+const a = <Greeting name="Alice" />;
+const b = <Greeting name="Alice" />;
+a === b; // false — two separate element objects
+
+// Same element reused
+const shared = <Greeting name="Alice" />;
+// shared === shared; ← React treats this as the same element across renders
+```
+
+This matters for `React.memo` and reference-equality optimizations — re-creating identical-looking elements on every render still creates new objects each time.
+
+**Senior touch:** the element-vs-component distinction is one of those concepts people ignore until they hit something weird — like "why does my component remount every render?" The usual answer: the parent is creating a new component function inline and using it as a component type, which creates a *new component identity* every render, so every element with that type is treated as a different element. Knowing the layered model — *function → component → element → DOM node* — is what lets you debug those issues precisely.

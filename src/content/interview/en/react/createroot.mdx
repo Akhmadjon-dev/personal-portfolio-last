@@ -1,0 +1,46 @@
+---
+q: "What is `ReactDOM.render()` / `createRoot()`?"
+level: entry
+type: theory
+order: 15
+---
+
+`createRoot` is the entry point that mounts a React application to a DOM node. It replaced `ReactDOM.render` in React 18 to enable concurrent features.
+
+```jsx
+import { createRoot } from 'react-dom/client';
+import App from './App';
+
+const root = createRoot(document.getElementById('root'));
+root.render(<App />);
+```
+
+Once the root is created, the React tree lives inside `#root`. Any time you re-render via state changes, it happens in this root.
+
+**What changed in React 18:**
+
+| | React 17 (`ReactDOM.render`) | React 18 (`createRoot`) |
+|---|---|---|
+| API | `ReactDOM.render(<App />, el)` | `createRoot(el).render(<App />)` |
+| Concurrent features | Not available | Available (`useTransition`, `Suspense for data`, etc.) |
+| Automatic batching | Only in event handlers | Everywhere (timeouts, promises, native handlers) |
+| `StrictMode` double-render | Skipped some effects | Full mount/unmount/remount simulation |
+
+If you upgrade to React 18 but keep `ReactDOM.render`, you get a deprecation warning and **none of the concurrent features.** The two-line switch unlocks them.
+
+**For SSR / hydration:**
+
+```jsx
+import { hydrateRoot } from 'react-dom/client';
+hydrateRoot(document.getElementById('root'), <App />);
+```
+
+`hydrateRoot` attaches event handlers to server-rendered HTML instead of throwing it away and re-rendering. Used by Next.js, Remix, and other SSR frameworks under the hood.
+
+**Where you'll actually see this:**
+
+- **Plain Vite + React project:** `main.tsx` calls `createRoot`. You see it.
+- **Next.js / Remix / Astro:** the framework calls it for you — you never write it.
+- **React Native:** no `createRoot`; React Native has its own host renderer.
+
+**Senior touch:** `createRoot` is one of those API renames that *seems* cosmetic but actually represents a major architectural shift. The reason it's a new function is that the old `render` was a **blocking** entry point — once you started rendering, it had to finish. `createRoot` is **concurrent** by design: rendering can be interrupted, paused, and deprioritized. Same code surface, totally different scheduling model underneath. Explaining the *why* of the rename is what separates "I read the React 18 changelog" from "I understand what changed."

@@ -1,0 +1,59 @@
+---
+q: "Why does React use `className` instead of `class`?"
+level: mid
+type: theory
+order: 11
+---
+
+Because `class` is a **reserved keyword** in JavaScript. JSX is JavaScript — it compiles to `React.createElement(tag, props, ...children)` — so the props object can't use `class` as a property key without parsing complications.
+
+```jsx
+// JSX
+<div className="card">...</div>
+
+// Compiles to:
+React.createElement('div', { className: 'card' }, ...);
+```
+
+If you tried `class` as a prop name, the JSX transform would generate JS with `class` as a property key. Modern JS technically allows this — but React's design goal is to **mirror the DOM property API**, not the HTML attribute API. The DOM property is `element.className`, not `element.class`. So `className` aligns with vanilla JS:
+
+```js
+const el = document.createElement('div');
+el.className = 'card';  // DOM API uses className
+```
+
+**Other "renamed" HTML attributes in JSX:**
+
+| HTML | JSX | Reason |
+|---|---|---|
+| `class` | `className` | `class` is a reserved keyword |
+| `for` | `htmlFor` | `for` is a reserved keyword |
+| `tabindex` | `tabIndex` | camelCase consistency |
+| `readonly` | `readOnly` | camelCase consistency |
+| `maxlength` | `maxLength` | camelCase consistency |
+| `colspan` / `rowspan` | `colSpan` / `rowSpan` | camelCase consistency |
+| `aria-*`, `data-*` | unchanged | exception — these stay kebab-case |
+
+The pattern: most attributes become camelCase. `aria-*` and `data-*` are explicit exceptions because they're free-form and convention dictates kebab-case.
+
+**Useful libraries for managing class strings:**
+
+Real-world `className` strings get complex fast — multiple classes, conditional classes, theme variants. Three libraries solve this:
+
+```jsx
+// clsx — the most popular
+import clsx from 'clsx';
+<button className={clsx('btn', isPrimary && 'btn-primary', isLarge && 'btn-lg')} />
+
+// classnames — older sibling, similar API
+<button className={classNames('btn', { 'btn-primary': isPrimary })} />
+
+// tailwind-merge — for Tailwind, resolves class conflicts
+import { twMerge } from 'tailwind-merge';
+twMerge('px-2 py-1 bg-red-500', 'p-4 bg-blue-500');
+// → 'p-4 bg-blue-500'  (px-2/py-1 overridden by p-4)
+```
+
+`clsx` + `tailwind-merge` (often combined as a `cn` utility) is the standard pattern in modern React + Tailwind projects.
+
+**Senior touch:** the `className` vs `class` question is sometimes used as a basic knowledge check. The senior signal isn't naming the reserved-keyword reason — it's knowing that JSX is JS, the prop name maps to the DOM property (not the HTML attribute), and being able to list the other renames (`htmlFor`, `tabIndex`) and explain why `aria-*` and `data-*` are exceptions. Naming the system, not just the rule.

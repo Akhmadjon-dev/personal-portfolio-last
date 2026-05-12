@@ -1,0 +1,70 @@
+---
+q: "How to access DOM elements in React?"
+level: junior
+type: theory
+order: 19
+---
+
+The idiomatic way is `useRef`. Create a ref, attach it to a JSX element via the `ref` prop, and React assigns the DOM node to `ref.current` after mount.
+
+```jsx
+function Input() {
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  return <input ref={inputRef} />;
+}
+```
+
+**Three common use cases:**
+
+| Use case | Example |
+|---|---|
+| **Focus / blur / scroll** | `inputRef.current.focus()`, `el.scrollIntoView()` |
+| **Measure dimensions** | `el.getBoundingClientRect()`, `el.offsetHeight` |
+| **Integrate with non-React libs** | D3, Chart.js, Mapbox — they need a real DOM node to mount into |
+
+**Rules to internalize:**
+
+- **Don't read `ref.current` during render.** It's `null` on the first render (before commit). Use refs in effects or event handlers, not in the render body.
+- **Refs don't trigger re-renders.** Mutating `.current` is silent. If the UI depends on the value, use state instead.
+- **Pass refs through with `forwardRef`** for composability:
+
+```jsx
+const Input = forwardRef(function Input(props, ref) {
+  return <input ref={ref} {...props} />;
+});
+
+// Parent
+const myInputRef = useRef(null);
+<Input ref={myInputRef} placeholder="Type..." />
+```
+
+**Callback refs — when you need code to run as the node mounts/unmounts:**
+
+```jsx
+const setupNode = (node) => {
+  if (node !== null) {
+    // node was just attached
+    setupObserver(node);
+  } else {
+    // previous node detached
+    cleanup();
+  }
+};
+
+<div ref={setupNode} />
+```
+
+Callback refs fire on mount and unmount, giving you a chance to react to the DOM node's lifecycle. Common with `IntersectionObserver`, `ResizeObserver`, and similar APIs.
+
+**What to avoid:**
+
+- `document.getElementById('something')` — bypasses React, brittle to renames, fails during SSR. Refs are the React-shaped way.
+- Mutating the DOM directly with `el.innerHTML = ...` — React owns the DOM under its tree; mutations will be overwritten on the next render.
+- Reaching into a child's DOM via `querySelector` — couples the parent to the child's internal structure. Use `forwardRef` and let the child expose its ref.
+
+**Senior touch:** refs are the **escape hatch** out of React's declarative model. They're appropriate for things React's model can't express — focus management, measuring, third-party library integration. They're inappropriate when you're reaching for them to "work around" React's rendering — that's almost always a sign the state model is wrong, not that React is being awkward.

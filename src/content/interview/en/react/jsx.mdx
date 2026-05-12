@@ -1,0 +1,46 @@
+---
+q: "What is JSX?"
+level: entry
+type: theory
+order: 2
+---
+
+JSX (JavaScript XML) is a syntax extension that lets you write HTML-like markup inside JavaScript. It's the syntax you use to describe React UIs. Browsers don't understand JSX directly — it's transpiled to JS function calls by Babel or SWC before running.
+
+```jsx
+const greeting = <h1>Hello, world!</h1>;
+
+// compiles to:
+const greeting = React.createElement('h1', null, 'Hello, world!');
+```
+
+**Why JSX exists, and what it gives you:**
+
+- **Visual clarity.** UI structure reads top-to-bottom like HTML, but with the full power of JavaScript — expressions in `{...}`, conditionals, loops via `.map()`, function calls.
+- **Compile-time safety.** Mistyped tags or unclosed elements are syntax errors at build time, not silent runtime bugs.
+- **Tooling.** IDE syntax highlighting, autocomplete on props, type-checking with TypeScript — all of it works because JSX is structurally analyzable code, not opaque string templates.
+
+**Key rules:**
+
+- Tags must close: `<br />`, not `<br>`.
+- Attribute names are camelCase: `className` (not `class`), `htmlFor` (not `for`), `onClick`, `tabIndex`.
+- JS expressions go in `{...}`: `<div className={isActive ? 'on' : 'off'}>{user.name}</div>`.
+- Returning multiple sibling elements requires a wrapper — a single parent element or a Fragment (`<>...</>`).
+
+```jsx
+// Conditionals and loops inside JSX
+function List({ items, isAdmin }) {
+  return (
+    <ul>
+      {items.map((item) => (
+        <li key={item.id}>
+          {item.name}
+          {isAdmin && <button>Delete</button>}
+        </li>
+      ))}
+    </ul>
+  );
+}
+```
+
+**Senior touch:** JSX is not unique to React — Preact, Solid, Vue (with the JSX preset), and others use it too. It's just syntactic sugar over a function call, which is why these libraries can support it almost for free. The "magic" is the compile step, not the runtime. Knowing this changes how you think about JSX: it's not a template language, it's just JavaScript with a clean tag syntax.

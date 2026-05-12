@@ -1,0 +1,40 @@
+---
+q: "What is `state` in React?"
+level: entry
+type: theory
+order: 4
+---
+
+State is data that belongs to a component and can change over time. When state changes, React re-renders the component to reflect the new value. This is the core of React's reactivity model — UI is a function of state.
+
+In functional components, you create state with `useState`:
+
+```jsx
+function Counter() {
+  const [count, setCount] = useState(0);
+  return (
+    <button onClick={() => setCount(count + 1)}>
+      Count: {count}
+    </button>
+  );
+}
+```
+
+`useState(0)` returns a tuple: the current value and a setter function. Calling the setter schedules a re-render with the new value.
+
+**Three rules worth internalizing:**
+
+- **State is local by default.** Each instance of `Counter` has its own `count`. Mounting `<Counter />` twice on a page gives you two independent counters that don't talk to each other.
+- **State updates are async.** `setCount(count + 1)` doesn't immediately change `count` — it schedules an update. Reading `count` right after the setter returns the *old* value until the next render.
+- **Use the functional form for sequential updates.** `setCount(c => c + 1)` reads the latest queued value. The naive form, `setCount(count + 1); setCount(count + 1);`, increments by 1, not 2, because both reads see the same stale `count`.
+
+**State vs props:**
+
+| Props | State |
+|---|---|
+| Passed from parent | Owned by the component |
+| Read-only | Mutable via setter |
+| Parent re-renders → new props | Setter call → re-render |
+| Decided by the parent | Decided by the component itself |
+
+**Senior touch:** state belongs to the component that *needs to react to it*. If two siblings need to share a value, **lift the state up** to their common parent and pass it down as props. If many distant components need it, that's when Context, Zustand, or a query library become the right answer — but not before. Lifting prematurely is fine; reaching for a global state library prematurely is where apps get over-engineered.

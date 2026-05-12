@@ -1,0 +1,33 @@
+---
+q: "What are React DevTools?"
+level: entry
+type: theory
+order: 14
+---
+
+React DevTools is a browser extension (Chrome, Firefox, Edge, plus a standalone Electron app) that lets you inspect a running React application from inside DevTools. It surfaces information the regular Elements panel can't — component names, props, hooks, state, and render performance.
+
+**Three panels you'll use:**
+
+| Panel | What it shows |
+|---|---|
+| **Components** | The component tree (not the DOM tree). Click any component to see its props, state, hooks, and source location. |
+| **Profiler** | Records renders and shows you which components rendered, why, and how long they took. Critical for performance debugging. |
+| **Settings** | Theme, highlight toggles, filter rules for component names. |
+
+**Useful capabilities:**
+
+- **Inspect hook values.** Each `useState`, `useReducer`, `useContext` is listed with its current value. Click to edit and trigger a re-render with the new value — great for testing edge cases without modifying code.
+- **Highlight re-renders.** Settings → "Highlight updates when components render" makes every re-render flash on screen. Reveals unnecessary renders fast.
+- **Jump to source.** From a component, click the source-file icon to open the file at the component's definition in your IDE (works with source maps).
+- **Find component from DOM element.** Right-click any element on the page → "Inspect" — then switch to the Components tab to find the React component that rendered it.
+
+**Profiler workflow for performance debugging:**
+
+1. Open Profiler tab, click record.
+2. Reproduce the slow interaction.
+3. Stop recording.
+4. Look at the flame graph. Wide bars = expensive renders. Yellow/red bars = renders that exceeded the 60fps budget.
+5. Click a bar to see *why* it rendered (props change, state change, hooks change, parent re-render).
+
+**Senior touch:** the single biggest "aha" most React developers get from DevTools is enabling "highlight updates" and discovering that half their components re-render on every keystroke. That's almost always the first performance lesson — and it's invisible without DevTools. The Profiler with "Why did this render?" annotations is the second. Together they replace a lot of guessing with measurement.

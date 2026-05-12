@@ -1,0 +1,56 @@
+---
+q: "What is the difference between `ShadowDOM` and `VirtualDOM`?"
+level: mid
+type: theory
+order: 10
+---
+
+They sound similar but solve completely different problems.
+
+**Virtual DOM (React, Vue, Preact)** is a JavaScript representation of the UI used for efficient diffing. React keeps an in-memory tree, compares new vs old trees on state changes, and applies minimum DOM mutations. It's a **performance technique**.
+
+**Shadow DOM (Web Components)** is a browser feature for **encapsulation** — it lets you attach a separate, isolated DOM tree to an element. Styles inside don't leak out; styles outside don't leak in. It's an **isolation technique**.
+
+| | Virtual DOM | Shadow DOM |
+|---|---|---|
+| **What it is** | JS in-memory tree | Real DOM tree, scoped |
+| **Purpose** | Efficient diffing | Style + DOM encapsulation |
+| **Lives in** | JS runtime (React, Vue) | Browser (Web Components spec) |
+| **Solves** | Slow DOM updates | Style / DOM leakage |
+| **You see it as** | A diffing optimization | A `#shadow-root` node in DevTools |
+
+**Shadow DOM example:**
+
+```js
+const host = document.querySelector('#widget');
+const shadow = host.attachShadow({ mode: 'open' });
+shadow.innerHTML = `
+  <style>p { color: red }</style>
+  <p>Inside shadow root — red, regardless of global CSS</p>
+`;
+```
+
+The `<p>` inside the shadow root is invisible to outside CSS selectors. `body p { color: blue }` won't reach it. That's encapsulation.
+
+**Virtual DOM example (React, conceptually):**
+
+```jsx
+// You return JSX
+<div><p>Hello</p></div>
+
+// React creates a virtual representation
+{ type: 'div', children: [{ type: 'p', children: 'Hello' }] }
+
+// On state change, React diffs against the previous tree
+// and applies minimal updates to the real DOM
+```
+
+**They can coexist.** A React app can render *into* a Web Component, and that Web Component can use Shadow DOM for style isolation. They operate at different layers — Virtual DOM is about diffing strategy; Shadow DOM is about where the real DOM nodes live.
+
+**Where you'll actually encounter Shadow DOM:**
+
+- **Web Components / Custom Elements** — `<my-widget>` with internal markup
+- **Browser native elements** — `<video>`, `<input type="range">` use Shadow DOM internally for their controls
+- **Micro-frontend isolation** — sometimes used to prevent CSS bleed between independently-developed apps embedded on the same page
+
+**Senior touch:** "What's the difference?" questions are sometimes a trap — the interviewer wants to see if you'll just list properties or if you'll **clarify what's really being asked**. The right framing: "These solve different problems. Virtual DOM is React's diffing strategy. Shadow DOM is a browser feature for encapsulation. They're not alternatives to each other; they can coexist. The terminology overlap is unfortunate but the concepts are unrelated." Naming the false-equivalence pitfall is the senior signal here.

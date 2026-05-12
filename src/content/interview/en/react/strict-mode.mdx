@@ -1,0 +1,52 @@
+---
+q: "What is `StrictMode`?"
+level: mid
+type: theory
+order: 9
+---
+
+`<React.StrictMode>` is a development-only wrapper that surfaces bugs by **intentionally running certain code twice**. It does nothing in production.
+
+```jsx
+import { StrictMode } from 'react';
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <App />
+  </StrictMode>
+);
+```
+
+**Three things it does in development:**
+
+1. **Double-invokes render functions, hooks, and constructors.** Catches code with side effects in render — render must be a pure function, and double-running surfaces violations.
+2. **Double-fires effects.** On mount, every `useEffect` runs mount → cleanup → mount again. Catches effects with missing cleanup (subscriptions, timers, observers).
+3. **Warns about deprecated APIs** like legacy context, `componentWillMount`, string refs, `findDOMNode`.
+
+**The mount-twice gotcha:**
+
+```jsx
+useEffect(() => {
+  const conn = connectToServer();
+  return () => conn.disconnect();
+}, []);
+
+// Dev console (with StrictMode):
+//   connectToServer called
+//   disconnect called
+//   connectToServer called
+```
+
+If you see your `console.log` print twice in dev, it's not a bug — it's StrictMode verifying your cleanup works correctly. **Make the effect idempotent** rather than disabling StrictMode.
+
+**Why React added this in 18:**
+
+The mount → unmount → mount cycle is what would happen in *real* production scenarios that React 18 enabled — fast page transitions in Next.js, Suspense unmounting and remounting subtrees, hot module reloading. By simulating it in development, StrictMode catches effects that leak (timers not cleared, subscriptions not unsubscribed, observers not disconnected) **before they ship**.
+
+**What StrictMode is NOT:**
+
+- It's **not a runtime feature.** It does nothing in production builds.
+- It **doesn't change behavior** — your app works the same way. It just *checks* your app for fragile patterns.
+- It's **not opt-out per-component** easily — once you wrap your root in `<StrictMode>`, everything inside follows the rules. You can technically wrap subtrees, but that's unusual.
+
+**Senior touch:** the canonical mistake is seeing the double-render in dev and "fixing" it by disabling StrictMode. That's solving the symptom, not the cause. The right response is to **fix the effect** so it tolerates the double-mount — proper cleanup, idempotent setup. Effects that pass StrictMode also pass real production scenarios like Suspense and hot reloading. Disabling StrictMode hides bugs that will silently leak in production once concurrent features are exercised.

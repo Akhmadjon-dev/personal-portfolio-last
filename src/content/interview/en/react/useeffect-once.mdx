@@ -1,0 +1,68 @@
+---
+q: "How to call `useEffect` only once?"
+level: junior
+type: code
+order: 11
+---
+
+Pass an empty dependency array as the second argument. With no deps to watch, React runs the effect exactly once after the component mounts, and the cleanup function runs once when it unmounts.
+
+```jsx
+useEffect(() => {
+  // Runs once after mount
+  const conn = connectToServer();
+
+  return () => {
+    // Runs once on unmount
+    conn.disconnect();
+  };
+}, []);
+```
+
+**Common uses for the empty-deps pattern:**
+
+- Subscribing to a global event (window resize, WebSocket, EventSource)
+- Setting up a timer with `setInterval`
+- One-time analytics events on mount
+- Initializing third-party libraries that need a DOM node
+
+**The "runs twice in dev" gotcha:**
+
+In React 18+ with `<StrictMode>`, every effect runs **twice on mount** in development. Mount → cleanup → mount again. This is intentional — it surfaces effects that don't clean up correctly and would silently leak in production.
+
+```jsx
+useEffect(() => {
+  console.log('mount');
+  return () => console.log('cleanup');
+}, []);
+
+// Dev console output (with StrictMode):
+//   mount
+//   cleanup
+//   mount
+
+// Production output:
+//   mount
+```
+
+If you see "mount" twice in dev, it's not a bug — it's React verifying your cleanup works. The fix is to **make the effect properly idempotent**, not to disable StrictMode.
+
+**Why "empty deps" isn't always the right answer:**
+
+If your effect uses *any* value from the component scope (props, state, callbacks), an empty deps array creates a **stale closure** — the effect captures the value from mount and never sees updates.
+
+```jsx
+function Chat({ roomId }) {
+  useEffect(() => {
+    const conn = connectTo(roomId);
+    return () => conn.disconnect();
+  }, []); // ❌ roomId frozen at mount; later changes ignored
+}
+
+// Correct:
+}, [roomId]); // ✅ re-runs when roomId changes
+```
+
+The ESLint rule `react-hooks/exhaustive-deps` catches this — never disable it without a clear, documented reason.
+
+**Senior touch:** "run once" is rarely what you actually want. Most effects depend on *something* — a prop, a callback, a config value. The right deps array re-runs the effect when that something changes, which is usually the correct behavior. Reaching for `[]` is sometimes a sign that the effect shouldn't be an effect at all — derived values belong in render or `useMemo`, not in a one-shot effect. The mental check: *"would I be surprised if this re-ran when X changed?"* If yes, X belongs in the deps array.

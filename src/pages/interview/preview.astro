@@ -1,0 +1,172 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection, render } from 'astro:content';
+
+const all = await getCollection('interview');
+const levels = ['entry', 'junior', 'mid', 'senior', 'expert', 'architect'] as const;
+const pilot = all
+  .filter((e) => e.id.startsWith('en/react/'))
+  .sort((a, b) => {
+    const levelDiff = levels.indexOf(a.data.level) - levels.indexOf(b.data.level);
+    if (levelDiff !== 0) return levelDiff;
+    return (a.data.order ?? 0) - (b.data.order ?? 0);
+  });
+
+const counts = levels.reduce(
+  (acc, lvl) => ({ ...acc, [lvl]: pilot.filter((p) => p.data.level === lvl).length }),
+  {} as Record<string, number>,
+);
+
+const levelColors: Record<string, string> = {
+  entry: 'bg-emerald-100 text-emerald-900 dark:bg-emerald-900/30 dark:text-emerald-200',
+  junior: 'bg-sky-100 text-sky-900 dark:bg-sky-900/30 dark:text-sky-200',
+  mid: 'bg-amber-100 text-amber-900 dark:bg-amber-900/30 dark:text-amber-200',
+  senior: 'bg-orange-100 text-orange-900 dark:bg-orange-900/30 dark:text-orange-200',
+  expert: 'bg-rose-100 text-rose-900 dark:bg-rose-900/30 dark:text-rose-200',
+  architect: 'bg-purple-100 text-purple-900 dark:bg-purple-900/30 dark:text-purple-200',
+};
+---
+
+<Layout title="DevPrep Pilot Preview" locale="en">
+  <section class="max-w-3xl mx-auto px-6 py-12">
+    <div class="mb-10 p-5 rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-900/10 dark:border-amber-800">
+      <p class="font-mono text-xs uppercase tracking-widest text-amber-700 dark:text-amber-300 mb-2">
+        Pilot preview
+      </p>
+      <p class="text-sm text-amber-900 dark:text-amber-100">
+        5 React questions in the new senior-grade structure. Compare this against{' '}
+        <a href="/interview" class="underline font-semibold">/interview</a> (existing light content).
+        Once you approve the tone/depth, the rest of the 330 questions get the same treatment.
+      </p>
+    </div>
+
+    <h1 class="font-display text-4xl mb-2">DevPrep — Preview</h1>
+    <p class="text-muted mb-3">{pilot.length} questions · React · English</p>
+    <div class="flex flex-wrap gap-2 mb-12 font-mono text-xs">
+      {levels.map((lvl) => (
+        <span class:list={['px-2 py-1 rounded-full', levelColors[lvl]]}>
+          {lvl} · {counts[lvl]}
+        </span>
+      ))}
+    </div>
+
+    <div class="space-y-16">
+      {
+        await Promise.all(
+          pilot.map(async (entry) => {
+            const { Content } = await render(entry);
+            return (
+              <article class="border-t border-mist dark:border-white/10 pt-10">
+                <div class="flex items-center gap-3 mb-4">
+                  <span
+                    class:list={[
+                      'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-mono uppercase tracking-wider',
+                      levelColors[entry.data.level],
+                    ]}
+                  >
+                    {entry.data.level}
+                  </span>
+                  <span class="text-xs font-mono text-muted">{entry.data.type}</span>
+                  <span class="text-xs font-mono text-muted">{entry.id}</span>
+                </div>
+                <h2 class="font-display text-2xl md:text-3xl mb-6 leading-tight">
+                  {entry.data.q}
+                </h2>
+                <div class="prose">
+                  <Content />
+                </div>
+              </article>
+            );
+          })
+        )
+      }
+    </div>
+  </section>
+
+  <style is:global>
+    .prose {
+      color: inherit;
+      line-height: 1.7;
+    }
+    .prose p {
+      margin: 0 0 1em 0;
+    }
+    .prose ul,
+    .prose ol {
+      margin: 0 0 1em 1.25em;
+    }
+    .prose ul {
+      list-style: disc;
+    }
+    .prose ol {
+      list-style: decimal;
+    }
+    .prose li {
+      margin: 0.25em 0;
+    }
+    .prose li > p {
+      margin: 0;
+    }
+    .prose strong {
+      font-weight: 600;
+    }
+    .prose code {
+      font-family: var(--font-mono);
+      font-size: 0.875em;
+      padding: 0.15em 0.4em;
+      background: rgba(0, 0, 0, 0.06);
+      border-radius: 4px;
+    }
+    :global(.dark) .prose code {
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .prose pre {
+      background: #0f0f10;
+      color: #f2f1ec;
+      padding: 1em 1.25em;
+      border-radius: 10px;
+      overflow-x: auto;
+      margin: 1em 0;
+      font-size: 0.875em;
+      line-height: 1.55;
+    }
+    .prose pre code {
+      background: transparent;
+      padding: 0;
+      color: inherit;
+    }
+    .prose table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1em 0;
+      font-size: 0.95em;
+    }
+    .prose th,
+    .prose td {
+      border: 1px solid var(--color-mist);
+      padding: 0.5em 0.75em;
+      text-align: left;
+      vertical-align: top;
+    }
+    :global(.dark) .prose th,
+    :global(.dark) .prose td {
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+    .prose th {
+      background: var(--color-paper-dim);
+      font-weight: 600;
+    }
+    :global(.dark) .prose th {
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .prose h2,
+    .prose h3 {
+      font-family: var(--font-display);
+      margin: 1.5em 0 0.5em;
+    }
+    .prose a {
+      color: var(--color-accent);
+      text-decoration: underline;
+    }
+  </style>
+</Layout>

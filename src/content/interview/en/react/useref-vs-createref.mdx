@@ -1,0 +1,62 @@
+---
+q: "`useRef` vs `createRef`?"
+level: mid
+type: theory
+order: 3
+---
+
+Both create refs, but they have different lifetimes — and the difference is what makes one right for functional components and the other right for class components.
+
+**`useRef`** is a hook. The ref object it returns **persists across renders**. Each `useRef` call in a component returns the same object every render.
+
+```jsx
+function Counter() {
+  const intervalRef = useRef(null);
+
+  useEffect(() => {
+    intervalRef.current = setInterval(() => {/* ... */}, 1000);
+    return () => clearInterval(intervalRef.current);
+  }, []);
+}
+```
+
+`intervalRef` survives across re-renders. Mutating `intervalRef.current` doesn't trigger a re-render, and you can read it in subsequent renders, effects, and event handlers.
+
+**`createRef`** is a function (not a hook) that creates a *new* ref object every time it's called. In a functional component, that means a **new ref every render** — defeating the purpose:
+
+```jsx
+function Broken() {
+  const ref = createRef(); // ❌ new ref object every render
+  useEffect(() => {
+    // ref.current was set on this render's element,
+    // but next render creates a new ref entirely
+  });
+}
+```
+
+`createRef` only makes sense in **class components**, where it's called once in the constructor (or as a class field) and lives for the lifetime of the instance:
+
+```jsx
+class Welcome extends React.Component {
+  inputRef = createRef(); // created once per class instance
+  componentDidMount() {
+    this.inputRef.current.focus();
+  }
+  render() {
+    return <input ref={this.inputRef} />;
+  }
+}
+```
+
+**Side-by-side:**
+
+| | `useRef` | `createRef` |
+|---|---|---|
+| Where used | Functional components | Class components |
+| Created | Once on mount, persists | Every time it's called |
+| Stable across renders | Yes | No (in functional components) |
+| Returns | Same object every render | New object every call |
+
+**Rule:** in functional components, always use `useRef`. In class components, use `createRef` as a class field — never call it inside `render`.
+
+**Senior touch:** the `useRef`/`createRef` distinction is one of those cases where understanding the *lifetime* of a hook explains everything. `useRef` is part of the hook state slot — same component, same hook position, same ref. `createRef` is a function call with no awareness of React's render cycle. Most people memorize "use `useRef` in functional components" without understanding why — knowing that it's about render-persistence vs call-time creation is the senior signal.

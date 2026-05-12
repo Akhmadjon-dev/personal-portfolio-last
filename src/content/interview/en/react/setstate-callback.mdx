@@ -1,0 +1,49 @@
+---
+q: "What is the purpose of callback in `setState`?"
+level: junior
+type: theory
+order: 14
+---
+
+In **class components**, `this.setState` accepts an optional second-argument callback that runs after state has been applied and the component has re-rendered:
+
+```jsx
+this.setState({ count: 5 }, () => {
+  console.log('Committed. this.state.count is now', this.state.count);
+});
+```
+
+The callback was the way to react to state being "actually committed" — useful for triggering an animation, sending an analytics event, or measuring a DOM dimension that depends on the new state.
+
+**In hooks, there's no callback argument.** `setState` (the setter returned from `useState`) doesn't take a second argument. Instead, you use `useEffect`:
+
+```jsx
+const [count, setCount] = useState(0);
+
+useEffect(() => {
+  console.log('Count is now', count);
+  // Runs after every render where count changed
+}, [count]);
+```
+
+The mental shift: in classes, you described the side effect at the *moment of update*. In hooks, you describe it as a **reactive subscription** to the value. Both reach the same outcome, but the hook version is declarative — it runs whenever `count` changes, regardless of *where* the change came from.
+
+**Why the hook version is an improvement:**
+
+- **Locality.** All effects that depend on `count` live in one `useEffect`, not scattered across every callsite that updates `count`.
+- **Source-agnostic.** Whether `count` was changed by a click, an event subscription, or a parent re-rendering with new props, the effect fires the same way.
+- **Cleanup support.** `useEffect` can return a cleanup function for subscriptions; `setState` callbacks couldn't.
+
+**The common confusion:** people sometimes ask "how do I get the new state inside the setter?" The answer in hooks is: you don't, in the same render. You use `useEffect` to observe the change, or you use the functional setter form:
+
+```jsx
+setCount((c) => {
+  const next = c + 1;
+  console.log('About to commit', next);
+  return next;
+});
+```
+
+This runs *during* the update, not after — but it can compute or log the new value as part of the update.
+
+**Senior touch:** the setState-callback question is sometimes really asking "do you understand hooks replaced this pattern?" The right framing in an interview: "In classes, callback. In hooks, `useEffect` keyed on the state. The hooks version is more flexible because it reacts to *any* path that changes the value — not just the explicit setter call that triggered it." Naming both eras and explaining *why* the hooks version is better shows you understand the migration, not just the surface API.

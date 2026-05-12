@@ -1,0 +1,70 @@
+---
+q: "Why not update state directly?"
+level: mid
+type: theory
+order: 15
+---
+
+Because React determines whether to re-render by comparing the **reference** of the new state to the previous one (via `Object.is`). Directly mutating state changes the value but keeps the reference identical — React sees no change and skips the render.
+
+```jsx
+const [user, setUser] = useState({ name: 'Alice', age: 30 });
+
+// ❌ Direct mutation — no re-render
+user.age = 31;
+console.log(user.age); // 31 in memory, but UI still shows 30
+
+// ✅ Setter with new object — re-render triggered
+setUser({ ...user, age: 31 });
+```
+
+Direct mutation breaks React's mental model: **state is immutable; updates produce a new value**.
+
+**Why React makes this choice:**
+
+- **Reference equality is fast.** Comparing one pointer beats deep-comparing object trees.
+- **Predictable re-renders.** New reference = render; same reference = skip. No ambiguity.
+- **Enables `React.memo` and other reference-based optimizations.** If you mutated state, every memoized child would still see the same reference, skip the comparison, and render stale data.
+- **Time-travel debugging.** Tools like Redux DevTools rely on each state being a distinct snapshot.
+
+**The same rule applies to arrays:**
+
+```jsx
+const [items, setItems] = useState(['a', 'b']);
+
+// ❌ Mutation — no re-render
+items.push('c');
+
+// ✅ New array
+setItems([...items, 'c']);
+setItems((prev) => [...prev, 'c']); // even better — survives batching
+```
+
+**Helpful patterns for nested updates:**
+
+```jsx
+const [user, setUser] = useState({
+  name: 'Alice',
+  address: { city: 'Boston' }
+});
+
+// Updating nested fields gets verbose
+setUser((prev) => ({
+  ...prev,
+  address: { ...prev.address, city: 'Seattle' }
+}));
+```
+
+For deeply nested state, reach for **Immer** — it lets you write "mutation-style" code that produces an immutable result:
+
+```jsx
+import { produce } from 'immer';
+
+setUser(produce(user, (draft) => {
+  draft.address.city = 'Seattle';
+}));
+```
+
+Internally, Immer creates a new object tree; from your code's perspective, you just mutated the draft. Best of both worlds.
+
+**Senior touch:** "don't mutate state" is one of those rules people memorize without understanding *why*. The why is **reference equality** — React uses it everywhere, from re-render triggers to `React.memo` comparisons to `useEffect` deps. Mutating state silently breaks all of them, often in ways that don't show up immediately. The senior signal is naming the underlying invariant — *reference identity drives React's reactivity* — rather than just repeating the rule.

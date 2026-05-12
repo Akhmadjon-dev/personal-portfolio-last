@@ -1,0 +1,50 @@
+---
+q: "What happens when you call `setState`?"
+level: junior
+type: theory
+order: 6
+---
+
+`setState` doesn't immediately update state — it **schedules** an update. Several things happen in order:
+
+1. **Update enqueued.** Calling `setState(newValue)` (or `setCount(c => c + 1)`) pushes the update into React's queue for that component. State is *not* updated synchronously.
+
+2. **Batching.** Multiple `setState` calls in the same event handler are merged into a single re-render. Since React 18, this batching extends to async contexts too — promises, timeouts, native event handlers.
+
+3. **Re-render scheduled.** When the current work unit finishes, React picks up the queued updates.
+
+4. **Component function runs again.** All hooks execute in order with the new state. `useEffect` callbacks are queued but don't run yet.
+
+5. **Reconciliation.** React diffs the new virtual tree against the previous one using the Fiber reconciler. It computes the minimum set of DOM mutations.
+
+6. **Commit.** React applies those DOM mutations.
+
+7. **Effects fire.** `useLayoutEffect` runs synchronously after DOM mutation but **before paint**; `useEffect` runs after paint, asynchronously.
+
+```jsx
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  function handleClick() {
+    setCount(count + 1);
+    console.log(count); // → still the OLD value (stale)
+    setCount(count + 1); // → also uses the OLD count, total increment = 1
+  }
+
+  return <button onClick={handleClick}>{count}</button>;
+}
+```
+
+The `count` variable inside `handleClick` is captured at render time. It doesn't change just because you called the setter — it changes when the *next render* runs.
+
+**Functional updates fix the staleness:**
+
+```jsx
+setCount((c) => c + 1);
+setCount((c) => c + 1);
+// Each update sees the latest queued value → increments by 2
+```
+
+**The bail-out optimization:** if `setState` is called with a value `Object.is`-equal to the current state, React skips the re-render entirely. Setting `count` to its current value is a no-op.
+
+**Senior touch:** the asynchrony of `setState` is the source of the most common React bug — reading state after setting it and expecting the new value. The mental model that fixes it is: **"state changes belong to *future renders*, not the current one."** Effects, derived values, and the next render are how you observe new state — never by reading the variable in the same handler that set it.

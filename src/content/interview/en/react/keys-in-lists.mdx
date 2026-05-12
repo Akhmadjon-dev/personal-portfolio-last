@@ -1,0 +1,47 @@
+---
+q: "What is a `key` in lists?"
+level: junior
+type: theory
+order: 7
+---
+
+A key is a stable identity React uses to track items across renders. When you render an array of elements, React diffs the new array against the previous one **by key** — items with matching keys are kept (and their internal state preserved); items with new keys are mounted fresh; items whose keys disappear are unmounted.
+
+```jsx
+{items.map((item) => (
+  <Row key={item.id} item={item} />
+))}
+```
+
+Without keys, React falls back to position-based matching, which causes bugs whenever items reorder, insert, filter, or delete — the *wrong* component gets the *wrong* state.
+
+**The classic anti-pattern: using array index as key.**
+
+```jsx
+{items.map((item, i) => (
+  <Row key={i} item={item} />
+))}
+```
+
+This is fine *only* if the list is **never reordered, inserted into, or filtered**. The moment items shuffle, the bug appears.
+
+Why? Imagine each `Row` has an `<input>` the user is editing. The user types in the second row. Then the list reorders. With index keys:
+
+- The row at index 0 stays at index 0 → same key → React keeps the same component → it keeps its internal state, but now displays *different item data*.
+- The input's text follows the **position**, not the **item**. The user's typing migrates to the wrong row.
+
+With stable IDs as keys, React moves the component along with the data. The user's input stays attached to the right item.
+
+**Key rules:**
+
+- Must be **unique among siblings** in the same array — not globally unique.
+- Must be **stable across renders** — don't generate `Math.random()` each render; that mounts a fresh component every time and destroys all state.
+- Must be **predictable** — derive from the data, not from position.
+
+**Use index as key only when:**
+
+- The list is never reordered, inserted into, or filtered.
+- The items have no internal state or DOM input the user interacts with.
+- You genuinely have nothing more stable to use.
+
+**Senior touch:** keys are React's primary tool for **preserving component state across reconciliation**. Changing a key on the same element is also a powerful way to **force a reset** — `<Form key={editingId} />` mounts a completely new form whenever `editingId` changes, throwing away all internal state. That's the same mechanism, used in reverse. Knowing both directions of the key mechanism is the senior signal here.

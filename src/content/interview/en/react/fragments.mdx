@@ -1,0 +1,54 @@
+---
+q: "What are Fragments?"
+level: junior
+type: theory
+order: 4
+---
+
+Fragments let a component return multiple elements without adding an extra wrapper to the DOM. JSX requires a single root element from each component, but sometimes you don't actually want a wrapping `<div>` cluttering the structure.
+
+```jsx
+// ❌ Without fragments — extra div ends up in the DOM
+function Header() {
+  return (
+    <div>
+      <h1>Title</h1>
+      <p>Subtitle</p>
+    </div>
+  );
+}
+
+// ✅ With fragments — no extra DOM node
+function Header() {
+  return (
+    <>
+      <h1>Title</h1>
+      <p>Subtitle</p>
+    </>
+  );
+}
+```
+
+**Two syntaxes:**
+
+- **Short syntax** `<>...</>` — most common, no imports needed.
+- **Long syntax** `<React.Fragment>...</React.Fragment>` or `<Fragment>...</Fragment>` — needed when you want to pass a `key`:
+
+```jsx
+{items.map((item) => (
+  <Fragment key={item.id}>
+    <dt>{item.term}</dt>
+    <dd>{item.definition}</dd>
+  </Fragment>
+))}
+```
+
+The short syntax cannot accept a `key`. When mapping pairs of elements (like `<dt>`/`<dd>` here), the long syntax with a key is the only way.
+
+**Why fragments matter:**
+
+- **Cleaner DOM.** No `<div>`-soup wrapping every component, which makes CSS selectors and DevTools easier to navigate.
+- **CSS Grid / Flex layouts work.** Wrapping two inputs in a `<div>` breaks `grid-template-columns: auto auto` — the grid sees one child, not two. Fragments preserve sibling structure.
+- **Tables.** Returning two `<tr>` elements from a component requires a fragment — a `<div>` between `<tbody>` and `<tr>` is invalid HTML and breaks tables visually.
+
+**Senior touch:** the practical signal that you should consider fragments is when you find yourself adding wrapper divs *just to satisfy JSX's single-root rule*. Every unnecessary wrapper is a chance for CSS to misbehave and accessibility tools to misinterpret structure. Fragments cost nothing at runtime — they exist solely to express "I'm returning multiple siblings" without a DOM penalty.

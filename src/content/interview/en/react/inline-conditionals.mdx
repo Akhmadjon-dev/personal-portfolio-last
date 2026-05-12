@@ -1,0 +1,73 @@
+---
+q: "What are inline conditional expressions?"
+level: junior
+type: theory
+order: 18
+---
+
+Inline conditionals are how you render different UI based on a value, directly inside JSX. React doesn't have an `if` statement in JSX — instead, you use JavaScript expressions that JSX understands.
+
+**Three common patterns:**
+
+```jsx
+// Short-circuit — render if truthy, nothing otherwise
+{isLoggedIn && <Dashboard />}
+
+// Ternary — render A or B
+{isAdmin ? <AdminPanel /> : <UserPanel />}
+
+// Nullish coalescing — fallback for null/undefined only
+{user?.name ?? <em>Anonymous</em>}
+```
+
+**Pattern 1 — Short-circuit `&&`.** Renders the right side if the left is truthy.
+
+```jsx
+{notifications.length > 0 && (
+  <Badge count={notifications.length} />
+)}
+```
+
+The classic gotcha: `&&` falls through if the left value is `0` or `''` — React renders numbers and strings as text, so `{count && <Badge />}` renders the literal `0` when `count === 0`. Use a boolean check or a ternary:
+
+```jsx
+{count > 0 && <Badge count={count} />}
+{count ? <Badge count={count} /> : null}
+```
+
+**Pattern 2 — Ternary `? :`** for two branches.
+
+```jsx
+{loading ? <Spinner /> : <Content data={data} />}
+```
+
+Don't nest ternaries deeply — `a ? b : c ? d : e ? f : g` becomes unreadable fast. Extract a function or use early returns:
+
+```jsx
+function StatusIcon({ status }) {
+  if (status === 'loading') return <Spinner />;
+  if (status === 'error')   return <Error />;
+  if (status === 'success') return <Check />;
+  return null;
+}
+```
+
+**Pattern 3 — Nullish coalescing `??`** for fallbacks. Renders the right side only if the left is `null` or `undefined` (unlike `||`, which also fires on `0` and `''`).
+
+```jsx
+<h1>{user?.name ?? 'Anonymous'}</h1>
+```
+
+**Less common — IIFE for inline complex logic:**
+
+```jsx
+{(() => {
+  if (status === 'loading') return <Spinner />;
+  if (status === 'error')   return <Error message={errorMsg} />;
+  return <Content data={data} />;
+})()}
+```
+
+But at that point, extract a separate component or helper function — the IIFE pattern signals you've outgrown inline conditionals.
+
+**Senior touch:** the choice of conditional is more about readability than capability. `&&` is fine for "render this thing if a flag is true." Ternary is for two branches. For three or more branches, **extract a function or use early returns** — chained ternaries are a code review smell. The senior signal here is recognizing when the inline form has stopped being clearer than a small helper component, and acting on it.

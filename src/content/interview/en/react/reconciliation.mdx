@@ -1,0 +1,57 @@
+---
+q: "What is Reconciliation?"
+level: junior
+type: theory
+order: 9
+---
+
+Reconciliation is the algorithm React uses to figure out what changed between the previous virtual tree and the new one — and what minimum set of DOM mutations applies the change. It's how React keeps the DOM in sync with your state efficiently.
+
+A naive tree diff is O(n³) — way too slow for real UIs. React's reconciliation works in O(n) by making three assumptions:
+
+**Heuristic 1 — Different types replace the whole subtree.**
+
+```jsx
+// Before
+<div><Counter /></div>
+
+// After
+<span><Counter /></span>
+```
+
+React doesn't try to keep the `Counter` — `div` vs `span` is a structural change, so React unmounts the old subtree and mounts the new one. Any internal state of `Counter` is lost.
+
+**Heuristic 2 — Same type, same position → keep the component, update props.**
+
+```jsx
+// Before
+<Counter initial={0} />
+
+// After
+<Counter initial={5} />
+```
+
+Same component type, same position. React keeps the existing instance, updates props, and re-renders. Internal state (the current count) is preserved across the update.
+
+**Heuristic 3 — Lists are diffed by `key`.**
+
+React walks the new list and matches by key: keys present in both → keep + update; new keys → mount; missing keys → unmount. This is why keys matter — without them, React falls back to position-based matching and causes the kinds of bugs we discussed in the keys question.
+
+**What reconciliation produces:**
+
+The output is a *list of effects* — DOM mutations to apply, refs to attach, lifecycle methods to call. React commits all of them atomically in the commit phase, then runs `useEffect` after paint.
+
+```
+Render phase:  build new tree → diff → produce effect list  [interruptible in Fiber]
+Commit phase:  apply effects                                 [synchronous, atomic]
+```
+
+**Reconciliation vs Rendering vs Committing:**
+
+- **Rendering** = your component function running and returning JSX.
+- **Reconciliation** = React comparing the JSX result to the previous tree and computing changes.
+- **Committing** = React applying those changes to the actual DOM.
+
+People sometimes conflate "re-render" with "DOM update." A re-render is just the function running again — whether it actually changes the DOM depends on whether reconciliation found any differences.
+
+**Senior touch:** the Fiber rewrite (React 16+) didn't change *what* reconciliation does — it changed *how* it's scheduled. Pre-Fiber reconciliation was a single recursive pass that ran to completion, blocking the main thread on big trees. Fiber turned it into interruptible units of work. Conceptually the algorithm is the same diffing logic; mechanically, it's now schedulable, prioritizable, and pause-resumable. That's the unlock for concurrent rendering, Suspense, and `useTransition`.

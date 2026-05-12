@@ -1,0 +1,51 @@
+---
+q: "How do you write an inline style in React?"
+level: entry
+type: theory
+order: 8
+---
+
+In React, the `style` attribute takes a JavaScript object — not a CSS string like in HTML. Property names use **camelCase** (`backgroundColor`, not `background-color`), and numeric values get `px` appended automatically for length properties.
+
+```jsx
+<div style={{
+  backgroundColor: '#f47858',
+  padding: 20,           // becomes '20px'
+  fontSize: '1.5rem',
+  border: '2px solid #1a1a1a',
+  borderRadius: 8
+}}>
+  Hello
+</div>
+```
+
+The **double braces** are two things stacked: the outer `{}` is the JSX expression syntax, the inner `{}` is the JS object literal.
+
+**Two patterns worth knowing:**
+
+```jsx
+// Conditional inline styles
+<div style={{ color: isActive ? '#22c55e' : '#6b7280' }} />
+
+// Spread for composition
+const baseStyle = { padding: 12, borderRadius: 6 };
+const dangerStyle = { ...baseStyle, color: 'white', background: 'crimson' };
+<button style={dangerStyle}>Delete</button>
+```
+
+**When NOT to use inline styles:**
+
+- **Pseudo-classes** like `:hover`, `:focus`, `:active` — not supported in the `style` prop, you need real CSS.
+- **Media queries** — not supported, use CSS or a CSS-in-JS library.
+- **Performance-sensitive paths** — every render creates a new style object, defeating reference-equality memoization on child components.
+
+**What teams actually use in production:**
+
+| Approach | When |
+|---|---|
+| **Tailwind CSS** | Most modern projects — utility classes, fast iteration, zero runtime cost |
+| **CSS Modules** | Component-scoped styles, no runtime, simple |
+| **CSS-in-JS** (styled-components, Emotion) | Dynamic theming, prop-driven styles |
+| **Inline `style` prop** | One-offs and genuinely dynamic numeric values |
+
+**Senior touch:** inline styles aren't bad — they're just narrow. Reach for them when the value is genuinely dynamic per render (a computed transform from scroll position, a height calculated from an array length). For everything else, a CSS solution wins on performance, hover/media support, and maintainability. The senior heuristic: if the same `style` object would work for every render, it shouldn't be inline.

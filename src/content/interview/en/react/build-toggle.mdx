@@ -1,0 +1,88 @@
+---
+q: "Build a toggle component"
+level: junior
+type: code
+order: 12
+---
+
+The minimal version:
+
+```jsx
+function Toggle({ defaultOn = false, onChange }) {
+  const [on, setOn] = useState(defaultOn);
+
+  const toggle = () => {
+    setOn((prev) => {
+      const next = !prev;
+      onChange?.(next);
+      return next;
+    });
+  };
+
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={on}
+      onClick={toggle}
+      className={`toggle ${on ? 'toggle--on' : 'toggle--off'}`}
+    >
+      {on ? 'ON' : 'OFF'}
+    </button>
+  );
+}
+```
+
+**What the senior-grade version gets right:**
+
+- **`role="switch"` and `aria-checked`** — assistive tech announces it as a toggle, not a generic button. Screen-reader-friendly out of the box.
+- **`type="button"`** — explicit, so it never accidentally submits a parent form.
+- **Functional setter `setOn((prev) => !prev)`** — robust against batched updates and double-clicks.
+- **Optional `onChange` callback fires with the new value** — useful for parents tracking toggle state.
+
+**Controlled variant** — when the parent owns the state:
+
+```jsx
+function Toggle({ checked, onChange }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={() => onChange(!checked)}
+      className={`toggle ${checked ? 'toggle--on' : 'toggle--off'}`}
+    >
+      {checked ? 'ON' : 'OFF'}
+    </button>
+  );
+}
+
+// Parent
+<Toggle checked={isActive} onChange={setIsActive} />
+```
+
+**Hybrid pattern (the production-grade version)** — accept either, like native `<input>`:
+
+```jsx
+function Toggle({ checked, defaultChecked = false, onChange }) {
+  const isControlled = checked !== undefined;
+  const [internal, setInternal] = useState(defaultChecked);
+  const value = isControlled ? checked : internal;
+
+  const handleClick = () => {
+    const next = !value;
+    if (!isControlled) setInternal(next);
+    onChange?.(next);
+  };
+
+  return (
+    <button type="button" role="switch" aria-checked={value} onClick={handleClick}>
+      {value ? 'ON' : 'OFF'}
+    </button>
+  );
+}
+```
+
+This matches how native `<input>` works — controlled if you pass `checked`, uncontrolled if you only pass `defaultChecked`. The pattern is standard in headless component libraries like Radix UI and Headless UI.
+
+**Senior touch:** the question "build a toggle" is rarely about toggle logic — it's about whether you reach for the right primitives. Native `<button role="switch">` with `aria-checked` instead of a clickable `<div>`, controlled/uncontrolled handling, callback patterns. The actual toggle state is trivial; the **accessibility and API design** are what separate a junior and senior implementation. If the interviewer asks for a toggle and you start with `<div onClick>`, you've already lost the question.

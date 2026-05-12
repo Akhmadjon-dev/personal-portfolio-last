@@ -1,0 +1,98 @@
+---
+q: "Create a search filter component"
+level: mid
+type: code
+order: 19
+---
+
+The minimal version:
+
+```jsx
+function SearchableList({ items }) {
+  const [query, setQuery] = useState('');
+
+  const filtered = items.filter((item) =>
+    item.name.toLowerCase().includes(query.toLowerCase())
+  );
+
+  return (
+    <>
+      <input
+        type="search"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Search..."
+      />
+      <ul>
+        {filtered.map((item) => (
+          <li key={item.id}>{item.name}</li>
+        ))}
+      </ul>
+    </>
+  );
+}
+```
+
+**Production refinements:**
+
+```jsx
+function SearchableList({ items }) {
+  const [query, setQuery] = useState('');
+  const debouncedQuery = useDebounce(query, 200);
+
+  const filtered = useMemo(() => {
+    const q = debouncedQuery.trim().toLowerCase();
+    if (!q) return items;
+    return items.filter((item) =>
+      item.name.toLowerCase().includes(q)
+    );
+  }, [items, debouncedQuery]);
+
+  return (
+    <>
+      <label htmlFor="search">Search items</label>
+      <input
+        id="search"
+        type="search"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Search..."
+        aria-controls="results"
+      />
+      <ul id="results" aria-live="polite">
+        {filtered.length === 0 ? (
+          <li>No matches</li>
+        ) : (
+          filtered.map((item) => (
+            <li key={item.id}>{item.name}</li>
+          ))
+        )}
+      </ul>
+    </>
+  );
+}
+```
+
+**What the senior-grade version gets right:**
+
+- **Debouncing.** Filtering thousands of items on every keystroke is wasteful. `useDebounce` waits ~200ms after the user stops typing before filtering.
+- **`useMemo` for the filtered list.** With a large `items` array, re-filtering on every render (even unrelated re-renders) is wasted work.
+- **Case-insensitive, trimmed query.** `'   Apple   '` matches `'apple'`.
+- **`type="search"`** — gives users a built-in clear button in modern browsers.
+- **`aria-live="polite"`** — screen readers announce result count changes.
+- **`aria-controls`** linking input to results — assistive tech understands the relationship.
+- **Empty-state UI.** "No matches" beats a blank list.
+
+**When to use a library instead:**
+
+For more than basic substring matching, reach for **Fuse.js** (fuzzy matching with typo tolerance), **MiniSearch** (lightweight full-text search), or **TanStack Table** (for tabular data with filtering). Real-world search wants ranking, multiple fields, weighted matches, and fuzzy logic — rebuilding that is a project.
+
+**The 10,000-items problem:**
+
+If `items` is genuinely huge, filtering in JS is too slow regardless of debouncing. Solutions:
+
+- **Virtualization** (`react-window`, `@tanstack/virtual`) — render only visible rows.
+- **Server-side search** — send the query to an API, get back matches.
+- **Web Worker** — move the filtering off the main thread.
+
+**Senior touch:** "create a search filter" is rarely about the filter logic — it's about whether you reach for the right concerns: debouncing, memoization, accessibility, empty states. The first version (no debounce, no aria, no empty state) "works" but is junior. The second version is what ships. And the senior signal beyond that is knowing when to escalate to virtualization or server-side search — recognizing that JS filtering doesn't scale forever.
