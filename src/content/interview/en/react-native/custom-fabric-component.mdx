@@ -1,0 +1,147 @@
+---
+q: "Building a custom Fabric component"
+level: expert
+type: code
+order: 2
+---
+
+A Fabric component is a native view exposed to React Native as a JSX-renderable component. Unlike a TurboModule (which is a function-style API), a Fabric component is a **view** with props, layout, and a rendered native subview.
+
+**The three pieces of a Fabric component:**
+
+1. **TypeScript spec** — describes the props and events.
+2. **Native implementation** — the actual UIView/Android view subclass.
+3. **Codegen + autolinking** — generates the glue, registers the component.
+
+**Step 1 — The spec:**
+
+```ts
+// MyVideoPlayerNativeComponent.ts
+import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNativeComponent';
+import type { ViewProps } from 'react-native';
+import type {
+  DirectEventHandler,
+  Double,
+} from 'react-native/Libraries/Types/CodegenTypes';
+
+export interface NativeProps extends ViewProps {
+  uri: string;
+  paused?: boolean;
+  volume?: Double;
+  onLoadComplete?: DirectEventHandler<{ duration: Double }>;
+  onProgress?: DirectEventHandler<{ currentTime: Double }>;
+}
+
+export default codegenNativeComponent<NativeProps>('MyVideoPlayer');
+```
+
+Important: the file name must end in `NativeComponent.ts` for codegen to pick it up.
+
+**Step 2 — iOS implementation (Objective-C++):**
+
+```objc
+// MyVideoPlayerComponentView.mm
+#import <React/RCTViewComponentView.h>
+#import <react/renderer/components/myvideoplayer/MyVideoPlayerComponentDescriptor.h>
+#import <AVKit/AVKit.h>
+
+@implementation MyVideoPlayerComponentView {
+  AVPlayer *_player;
+  AVPlayerLayer *_playerLayer;
+}
+
+- (instancetype)init {
+  if (self = [super init]) {
+    _player = [[AVPlayer alloc] init];
+    _playerLayer = [AVPlayerLayer playerLayerWithPlayer:_player];
+    [self.layer addSublayer:_playerLayer];
+  }
+  return self;
+}
+
+- (void)updateProps:(Props::Shared const &)props
+       oldProps:(Props::Shared const &)oldProps {
+  const auto &newProps = *std::static_pointer_cast<MyVideoPlayerProps const>(props);
+  const auto &oldRNProps = *std::static_pointer_cast<MyVideoPlayerProps const>(oldProps);
+
+  if (newProps.uri != oldRNProps.uri) {
+    auto url = [NSURL URLWithString:@(newProps.uri.c_str())];
+    [_player replaceCurrentItemWithPlayerItem:[AVPlayerItem playerItemWithURL:url]];
+  }
+
+  if (newProps.paused != oldRNProps.paused) {
+    if (newProps.paused) [_player pause]; else [_player play];
+  }
+
+  [super updateProps:props oldProps:oldProps];
+}
+
+@end
+```
+
+**Step 3 — Android implementation (Kotlin):**
+
+```kotlin
+// MyVideoPlayerView.kt
+class MyVideoPlayerView(context: ThemedReactContext) : VideoView(context) {
+  fun setVideoUri(uri: String) {
+    setVideoURI(Uri.parse(uri))
+  }
+
+  fun setPaused(paused: Boolean) {
+    if (paused) pause() else start()
+  }
+}
+
+// MyVideoPlayerViewManager.kt
+class MyVideoPlayerViewManager : SimpleViewManager<MyVideoPlayerView>(),
+    MyVideoPlayerManagerInterface<MyVideoPlayerView> {
+  override fun getName() = "MyVideoPlayer"
+
+  override fun createViewInstance(context: ThemedReactContext) =
+    MyVideoPlayerView(context)
+
+  @ReactProp(name = "uri")
+  override fun setUri(view: MyVideoPlayerView, uri: String?) {
+    uri?.let { view.setVideoUri(it) }
+  }
+}
+```
+
+**Step 4 — Emit events back to JS:**
+
+```objc
+// iOS — inside MyVideoPlayerComponentView
+auto eventEmitter = std::static_pointer_cast<MyVideoPlayerEventEmitter const>(_eventEmitter);
+eventEmitter->onLoadComplete(MyVideoPlayerEventEmitter::OnLoadComplete{.duration = duration});
+```
+
+```kotlin
+// Android — dispatch via UIManager
+val event = OnLoadCompleteEvent(surfaceId, view.id, duration)
+UIManagerHelper.getEventDispatcherForReactTag(reactContext, viewId)
+  ?.dispatchEvent(event)
+```
+
+The JS-side `onLoadComplete` callback fires with `{ duration }`.
+
+**Step 5 — Use it from JS:**
+
+```jsx
+import MyVideoPlayer from './MyVideoPlayerNativeComponent';
+
+<MyVideoPlayer
+  uri="https://example.com/video.mp4"
+  paused={false}
+  onLoadComplete={(e) => console.log('Duration:', e.nativeEvent.duration)}
+/>
+```
+
+**Things that go wrong:**
+
+- **Codegen failures** — usually a TS type the spec doesn't support. Stick to primitives, simple arrays, simple objects.
+- **Forgetting to update via `updateProps`** — props change, but the view doesn't react. iOS requires updating in the C++ method; only fields you check will update.
+- **Event payload shape mismatches** — the C++ event emitter must produce the exact shape the JS spec declares.
+- **Layout issues** — Fabric components participate in Yoga layout. If your native view doesn't report its preferred size, you need to set it explicitly.
+
+**Senior touch:** the senior framing — **a custom Fabric component is the right tool when JS-rendered views aren't enough.** Specifically: when you need native-only capabilities (camera preview, AR, video players, maps with vector tiles, custom drawing). For most UI, the standard `<View>`, `<Image>`, `<Text>` plus libraries suffice. Reach for a custom Fabric component when you've measured and found the JS-rendered version is the bottleneck, or when you need a native API that has no JS equivalent.

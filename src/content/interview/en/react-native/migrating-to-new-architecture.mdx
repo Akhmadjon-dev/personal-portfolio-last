@@ -1,0 +1,112 @@
+---
+q: "Migrating an existing app to the New Architecture"
+level: expert
+type: theory
+order: 5
+---
+
+Most RN apps started life on the Bridge architecture. The New Architecture (JSI / Fabric / TurboModules / Hermes) is the modern default — but migrating an existing app is non-trivial. The work splits into three categories: **dependency compatibility**, **build config**, and **behavior changes**.
+
+**Step 1 — Library compatibility.**
+
+Every RN library either supports the New Architecture or doesn't. Mixing them is sometimes possible (legacy modules in fallback mode) but ideally everything migrates together.
+
+Check each library:
+
+- Look for "New Architecture support" badge in the README.
+- Check the version that introduced support (often a major version bump).
+- For libraries without support, look for a fork or community alternative.
+
+Common libraries and their status by 2026:
+
+| Library | New Architecture |
+|---|---|
+| React Navigation | Yes, since v6 |
+| Reanimated | Yes, since v3 |
+| Gesture Handler | Yes, since v2.10 |
+| react-native-svg | Yes |
+| react-native-screens | Yes |
+| react-native-mmkv | Yes |
+| `@gorhom/bottom-sheet` | Yes |
+| react-native-firebase | Yes (recent versions) |
+
+Almost everything popular has migrated. The holdouts are niche libraries; check before adopting.
+
+**Step 2 — Bump RN version.**
+
+The New Architecture requires RN 0.68+ (recommended 0.74+ where it's default-on).
+
+```bash
+npx react-native upgrade  # bare RN
+npx expo upgrade          # Expo
+```
+
+This step alone often surfaces incompatibilities — old peer deps, deprecated APIs, native config drift.
+
+**Step 3 — Enable the New Architecture.**
+
+For Expo apps (managed):
+
+```json
+// app.json
+{ "expo": { "newArchEnabled": true } }
+```
+
+For bare RN — iOS (`Podfile`):
+
+```ruby
+:fabric_enabled => true,
+:new_arch_enabled => true,
+```
+
+For bare RN — Android (`gradle.properties`):
+
+```
+newArchEnabled=true
+```
+
+Rebuild via `npx expo run:ios` / `run:android`. The first build will be slower as codegen runs across all libraries.
+
+**Step 4 — Find runtime breakages.**
+
+After enabling, the app will likely have runtime errors. Common ones:
+
+- **"NativeModules.X is undefined"** — a legacy module that needs migrating to TurboModule format.
+- **"Codegen failed for X"** — a library's spec is incompatible with codegen.
+- **"View component X not found"** — a custom native view needs Fabric migration.
+
+For each error, either update the library (if a newer version supports the New Architecture) or replace it.
+
+**Step 5 — Address behavior changes.**
+
+Some patterns change subtly:
+
+- **Sync vs async timing.** Bridge-era code that relied on the async nature of certain calls may behave differently with sync TurboModules.
+- **Concurrent React effects.** Fabric supports React 18 concurrent rendering, which means components can render multiple times before a commit. Side effects in render are even more dangerous than before.
+- **StrictMode interactions.** RN 0.71+ enables React 18's full StrictMode, which double-mounts effects in dev. Surfaces lifecycle bugs that were previously hidden.
+
+**Step 6 — Validate perf and ship.**
+
+- Run a Hermes profile before and after — confirm perf is at least as good.
+- Test on slow devices (older Android, low-RAM iOS).
+- Check memory profiles — New Architecture should reduce, not increase, memory.
+- Run E2E tests — Maestro or Detox to catch regressions.
+
+If perf or correctness regresses, you can disable the New Architecture and investigate before committing.
+
+**The "incremental migration" myth:**
+
+You'll see advice like "enable Fabric per-component" or "migrate one module at a time." In practice, this rarely works — the New Architecture is mostly all-or-nothing for the app. You can mix legacy and new modules to some extent, but enabling Fabric is global.
+
+**A staged team rollout:**
+
+What *can* be staged is the team rollout:
+
+1. **Dev branch.** Enable New Architecture, fix breakages, validate.
+2. **Beta channel via EAS Update.** Ship to internal users on the new architecture build.
+3. **5% rollout in production.** Monitor crash rate, perf metrics.
+4. **Scale up.** 25% → 50% → 100% over a week as confidence builds.
+
+Same playbook as any major shift — small audience first, observe, scale.
+
+**Senior touch:** the senior framing — **the New Architecture migration is a strategic project, not a bug fix.** It touches every library, every native module, every native build configuration. The right approach is to dedicate a sprint (or two) to it, validate thoroughly, and ship carefully with a staged rollout. Rushing the migration leads to subtle behavior changes shipping to users; skipping it means staying on a legacy runtime that's increasingly second-class in the RN ecosystem. By 2026, the wait-and-see strategy is no longer the safer choice — the New Architecture *is* the platform.

@@ -1,0 +1,87 @@
+---
+q: "Migrating from Cordova/Ionic/Flutter to React Native"
+level: architect
+type: theory
+order: 3
+---
+
+If you have an existing app on Cordova, Ionic, or Flutter, migrating to React Native is a significant undertaking. The strategy depends on the size of the existing app, the team's appetite for disruption, and the timeline.
+
+**Three migration strategies:**
+
+**1. Big-bang rewrite.**
+
+Start a new RN app from scratch, mirror the existing app's features, switch over once feature parity is achieved.
+
+**Pros:** clean foundation; no legacy compromises; modern architecture from day one.
+**Cons:** months of "no new features" while the rewrite happens; risk of running over budget; users on the old app while you build.
+
+**When it makes sense:** small apps (< 30 screens), greenfield-friendly teams, the existing codebase is genuinely unmaintainable.
+
+**2. Incremental migration — RN screens inside the old shell.**
+
+You can embed React Native views inside an existing native (or hybrid) app. New screens are written in RN; existing screens stay in the legacy framework. Over time, more of the app becomes RN.
+
+```objc
+// iOS — embedding RN in an existing UIViewController
+RCTRootView *rnView = [[RCTRootView alloc]
+  initWithBundleURL:bundleURL
+        moduleName:@"MyNewScreen"
+ initialProperties:nil
+     launchOptions:nil];
+[self.view addSubview:rnView];
+```
+
+For Cordova specifically, this is harder — Cordova owns the WebView; embedding RN inside a WebView is not the right model. The typical path is *"RN replaces Cordova, the WebView gets retired."*
+
+**Pros:** ship new features in RN immediately; lower risk; rollback per-screen.
+**Cons:** two stacks to maintain; complex build pipeline; some primitives don't bridge cleanly (navigation, theme, auth state).
+
+**3. Greenfield with shared design system.**
+
+Build the RN app from scratch, but extract design tokens (colors, spacing, typography) and brand assets into a shared package consumed by both apps. Both apps look the same; only RN gets new features.
+
+**Pros:** RN team isn't blocked; visual consistency maintained; old app gets bug fixes only.
+**Cons:** two apps to ship and update; users may be on either.
+
+**Per-framework migration considerations:**
+
+**From Cordova/Ionic:**
+
+- **WebView code doesn't port directly.** HTML/CSS/JS in Cordova ≠ JSX/StyleSheet in RN.
+- **Cordova plugins are not RN modules.** Each plugin needs an RN equivalent or a custom native module.
+- **Routing model is different.** Single-page app routing vs. React Navigation's stack model.
+- **The "feel" upgrade is the win.** Cordova apps look web-shaped; RN apps look native. Users notice.
+
+**From Flutter:**
+
+- **Different language ecosystem.** Dart → JS/TS is a significant team retraining cost.
+- **Performance is comparable.** Flutter and RN (with New Architecture) are both production-grade. Don't migrate for raw perf.
+- **Library ecosystem differs.** Flutter has Dart-native libraries; RN has the npm ecosystem. Pick based on which fits your needs better.
+- **Why migrate?** Usually hiring (RN has a larger developer pool), code sharing with web React, or strategic Meta alignment.
+
+**From native (Swift + Kotlin):**
+
+- **Migrating from working native code is a tough call.** RN's biggest selling point — share code across platforms — only matters if you have *both* iOS and Android already, or planned.
+- **Performance ceiling.** Native code can still beat RN for graphics-intensive apps (games, video editors, 3D).
+- **Hiring strategy.** If you can't hire two native teams, RN is a real alternative.
+
+**The hard parts most people underestimate:**
+
+1. **Auth state migration.** Existing users must stay logged in across the migration. Plan token compatibility carefully.
+2. **App store identity.** The Play Store and App Store apps must keep the same bundle ID and signing keys. Users update; they don't reinstall.
+3. **Data migration.** Local storage in the old app may not be readable by the RN app unless you bridge them.
+4. **Push notifications.** Re-registering for push during migration can lose subscribers.
+5. **Analytics continuity.** Event names, user IDs, funnels must stay consistent for product analytics to remain meaningful.
+
+**Timeline expectations:**
+
+| Existing app size | Big-bang rewrite | Incremental |
+|---|---|---|
+| < 20 screens | 2-4 months | 1-2 months (start) |
+| 20-50 screens | 4-9 months | 3-6 months (start) |
+| 50+ screens | 9+ months | 6+ months (start) |
+
+Incremental gets you to "shipping RN features" faster but takes longer to fully complete. Big-bang has a discrete cutover but requires the team to support two stacks until that day.
+
+**Senior touch:** the architect framing — **migration is rarely about technology; it's about people and timing.** Can the team learn RN while supporting the existing app? Is leadership willing to slow features for the rewrite? Are users locked into specific platform behaviors that RN can't match easily? The technical migration is the easy part once these business questions are answered. The senior signal is asking the business questions first, not jumping to *"rewrite in RN"* because the codebase feels old.

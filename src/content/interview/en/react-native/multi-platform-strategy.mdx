@@ -1,0 +1,86 @@
+---
+q: "Multi-platform strategy — iOS, Android, Web, Desktop"
+level: architect
+type: theory
+order: 1
+---
+
+The premise of React Native — *"write once, run everywhere"* — gets nuanced at the architect level. The realistic 2026 question is: **what's the right deployment surface for our product?**
+
+**The platform matrix:**
+
+| Platform | RN support | Maturity |
+|---|---|---|
+| iOS | First-class | Production-ready since 2015 |
+| Android | First-class | Production-ready since 2015 |
+| Web | React Native for Web (`react-native-web`) | Production-ready; many companies ship it |
+| macOS | React Native macOS (Microsoft) | Production-ready; used in Xbox, Office |
+| Windows | React Native Windows (Microsoft) | Production-ready |
+| Apple TV / Android TV | tvOS support in RN | Less common; smaller ecosystem |
+| Watch | Apple Watch via Swift + RN companion app | RN doesn't run on watch directly |
+
+In 2026, **iOS + Android + Web from one codebase is a common deployment**. Many companies use Expo Router + RN for Web to ship all three from one repo.
+
+**Three multi-platform strategies:**
+
+**1. One codebase, three platforms (Expo + RN for Web).**
+
+```ts
+// app/dashboard.tsx — same file works on iOS, Android, Web
+import { View, Text } from 'react-native';
+
+export default function Dashboard() {
+  return (
+    <View>
+      <Text>Dashboard</Text>
+    </View>
+  );
+}
+```
+
+`react-native-web` translates `<View>` to `<div>`, `<Text>` to `<span>`, etc. The same React code runs on all three.
+
+**Pros:** maximum code sharing, single team, one source of truth.
+**Cons:** web performance can lag (you're shipping mobile-shaped UI); some libraries don't work on web; design constraints (no CSS hover, etc.).
+
+**2. Shared logic, platform-specific UI.**
+
+```
+packages/
+  core/          ← business logic, hooks, types (shared)
+  mobile/        ← React Native iOS + Android
+  web/           ← Next.js / Vite + React (separate from RN)
+```
+
+The `core/` package has everything not coupled to a UI primitive: API clients, state stores (Zustand), data transformations, validation schemas. Each platform layer consumes `core/` and renders its own UI.
+
+**Pros:** UI optimized per platform; clean platform boundaries; web uses real React, not RN for Web.
+**Cons:** more code; two design systems to maintain; more places for bugs.
+
+**3. Separate apps, share what makes sense.**
+
+Two completely separate codebases — `web/` with Next.js, `mobile/` with RN. Share via npm packages (`@yourorg/shared-types`, `@yourorg/api-client`).
+
+**Pros:** maximum platform flexibility; teams can specialize.
+**Cons:** least code sharing; design inconsistency risk.
+
+**Choosing between them:**
+
+| Situation | Strategy |
+|---|---|
+| Solo founder, small team | One codebase (Expo + RN for Web) |
+| 5-20 engineers, fast iteration | Shared logic + platform-specific UI |
+| Large org, multiple platform teams | Separate apps with shared packages |
+| Web is the primary product | Separate web app; mobile via shared logic |
+| Mobile is the primary product | RN + Expo Router + RN for Web for the web variant |
+
+The mistake is **assuming code sharing maximization is the goal**. It's not. The goal is shipping a quality product on each platform. Sometimes that's served by one codebase; sometimes by separate codebases with shared business logic; sometimes by completely independent apps.
+
+**Web with React Native for Web — what to know:**
+
+- **Bundle size matters.** RN for Web is heavier than native React — measure and consider tree-shaking.
+- **SEO is harder.** RN for Web's default output isn't optimal for SEO; Next.js + Expo Router improves this.
+- **Performance ceiling.** RN for Web optimizes for compatibility, not raw speed. For perf-critical web apps, native React on the web wins.
+- **Component libraries.** Many RN libraries don't have web equivalents. Plan for platform branches in `*.web.tsx`.
+
+**Senior touch:** the architect framing — **multi-platform is a business decision before it's a technical one.** *"Should we ship web?"* depends on user research, business model, growth strategy — not on whether RN supports it. Once the business decision is made, the technical strategy follows: maximize code sharing if speed-to-market matters, optimize per-platform if quality on each surface matters. The wrong answer is letting the technical strategy drive the business decision — *"we picked RN because it does web too"* without ever validating that the web product is wanted.

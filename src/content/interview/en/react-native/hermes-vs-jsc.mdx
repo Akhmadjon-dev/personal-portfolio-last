@@ -1,0 +1,89 @@
+---
+q: "Hermes vs JavaScriptCore (vs V8) — deep comparison"
+level: expert
+type: theory
+order: 3
+---
+
+The three JavaScript engines that have shipped in React Native: **JavaScriptCore (JSC)** (the original on iOS, Android pre-Hermes), **V8** (Android, briefly), and **Hermes** (default since RN 0.70). They have different design priorities — and the choice affects startup time, memory, and bundle size.
+
+**JavaScriptCore (JSC):**
+
+Apple's WebKit engine. Ships built-in with iOS — no extra runtime cost. Used by Safari, including JIT (Just-In-Time compilation) which speeds up hot loops at the cost of memory and startup time.
+
+| Characteristic | JSC |
+|---|---|
+| Startup | Slower (parses source on launch) |
+| Memory | Higher (JIT compile caches) |
+| Hot-loop perf | Excellent (JIT optimizes) |
+| Bundle size | Bundle is text JS |
+| Available on | iOS (built-in), Android (must bundle) |
+
+JSC on iOS is "free" — already on the device. JSC on Android required bundling the engine into the APK, adding ~10MB.
+
+**V8:**
+
+Google's engine (Chrome, Node.js). Aggressive JIT, sophisticated GC, large runtime. Briefly used in Android RN apps (`react-native-v8`) but never the default.
+
+| Characteristic | V8 |
+|---|---|
+| Startup | Slow (heavy runtime initialization) |
+| Memory | Highest (huge JIT, deopt buffers) |
+| Hot-loop perf | Excellent — best JIT in JS land |
+| Bundle size | Bundle + V8 runtime (~10MB) |
+| Available on | Android (via library) |
+
+V8 lost in RN because its startup and memory profile didn't fit mobile apps. Better for long-running servers and browsers.
+
+**Hermes:**
+
+Meta's mobile-optimized engine. **AOT bytecode compilation, no JIT, optimized for short-lived code with low memory.**
+
+| Characteristic | Hermes |
+|---|---|
+| Startup | **Fastest** (precompiled bytecode skips parse) |
+| Memory | **Lowest** (no JIT caches) |
+| Hot-loop perf | Lower than JSC/V8 |
+| Bundle size | Bytecode (~30% smaller than source JS) |
+| Available on | iOS, Android |
+
+**Why Hermes wins for RN apps:**
+
+The premise of Hermes was that mobile RN apps are **not JIT workloads**. UI code runs short bursts (render this, handle that tap), not tight numerical loops. JIT compilers spend memory and startup time warming up — for short bursts, that warmup never pays off.
+
+By skipping JIT and shipping precompiled bytecode, Hermes:
+
+- **Cold-starts in milliseconds** instead of hundreds (no parse, no compile).
+- **Memory footprint 30% lower** (no JIT caches, no deopt structures).
+- **Bundle size 30% smaller** (bytecode is more compact than source).
+
+For long-running compute-heavy code (a game engine, a crypto miner), JSC/V8 would beat Hermes. RN apps aren't that.
+
+**Choosing between them in 2026:**
+
+- **Hermes** is the default since RN 0.70. You don't enable it — it's just on.
+- **JSC** is the fallback if Hermes doesn't work for some reason (rare).
+- **V8** is essentially gone from RN; not worth considering for new projects.
+
+You opt into Hermes via `app.json` or via `enableHermes` in the build config. New projects have it on by default.
+
+**The Hermes ecosystem:**
+
+- **Hermes Debugger** — Chrome DevTools-compatible, ships with the engine.
+- **Hermes Profiler** — flame graphs of JS execution, available via the dev menu.
+- **Bytecode debugging** — production crashes can still be symbolicated with source maps.
+- **`Intl` built in** — no polyfill needed for modern Hermes.
+
+**Performance characteristics in detail:**
+
+| Workload | JSC | Hermes |
+|---|---|---|
+| Cold start | Slow (parse + compile) | Fast (bytecode ready) |
+| Steady-state UI rendering | Comparable | Comparable |
+| Number-crunching tight loops | Faster (JIT) | Slower (interpreter) |
+| Memory usage | Higher | Lower |
+| GC pauses | Sometimes long | Generally shorter (generational GC) |
+
+For typical RN UI workloads, Hermes is as fast or faster on the metrics that matter (startup, scroll, animation). For unusual workloads (large data crunching in JS), profile and decide.
+
+**Senior touch:** the senior framing — **engine choice is a tradeoff between startup/memory and steady-state CPU**. Hermes optimizes for the first; JIT engines optimize for the second. Mobile UI workloads heavily favor Hermes's choices. The senior signal is being able to explain *why* Hermes wins for RN — not just citing the benchmarks. *"AOT bytecode + no JIT = faster startup, lower memory, slightly slower hot loops — and RN apps don't have hot loops"* is the complete story.

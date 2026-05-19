@@ -1,0 +1,127 @@
+---
+q: "Monorepo strategy for React Native projects"
+level: architect
+type: theory
+order: 2
+---
+
+A monorepo houses multiple related packages in one repository. For RN teams, monorepos are valuable when you have **multiple apps**, **shared code**, or **a design system**. They're overkill for a single small app.
+
+**When a monorepo makes sense:**
+
+- You have **2+ apps** that share code (a customer app + an admin app + a delivery driver app).
+- You're building a **design system / component library** that ships to multiple apps.
+- Your **backend and mobile teams** share types or API clients.
+- You want **atomic cross-package commits** (change an API + update the consumer in one PR).
+
+**When a single repo is fine:**
+
+- One RN app, no shared library.
+- Independent products by independent teams.
+- Strong external contracts (separate npm packages, versioned APIs).
+
+**The 2026 tool landscape:**
+
+| Tool | Best for |
+|---|---|
+| **Turborepo** | Most modern choice; great caching, fast builds |
+| **Nx** | Most full-featured; opinionated; powerful for very large repos |
+| **pnpm workspaces** | Lightweight workspace primitive (no build orchestration) |
+| **Yarn workspaces** | Original workspace tool; still common in legacy repos |
+
+For new RN monorepos in 2026, **Turborepo + pnpm** is the typical default.
+
+**Typical monorepo layout:**
+
+```
+my-monorepo/
+├── apps/
+│   ├── customer-mobile/     ← Expo RN app
+│   ├── admin-web/           ← Next.js app
+│   └── driver-mobile/       ← Expo RN app
+├── packages/
+│   ├── api-client/          ← Typed API client (shared)
+│   ├── types/               ← Shared TS types
+│   ├── design-tokens/       ← Colors, spacing, type tokens
+│   ├── ui-mobile/           ← RN component library
+│   ├── ui-web/              ← Web component library
+│   └── utils/               ← Shared helpers
+├── package.json
+├── pnpm-workspace.yaml
+└── turbo.json
+```
+
+**Key configuration files:**
+
+```yaml
+# pnpm-workspace.yaml
+packages:
+  - 'apps/*'
+  - 'packages/*'
+```
+
+```json
+// turbo.json
+{
+  "pipeline": {
+    "build": { "dependsOn": ["^build"], "outputs": ["dist/**"] },
+    "test": { "dependsOn": ["build"] },
+    "lint": {},
+    "type-check": {}
+  }
+}
+```
+
+Turborepo caches each task's output keyed by inputs. Re-running `turbo build` only re-builds packages whose inputs changed. For large monorepos, this is the difference between 30-second builds and 30-minute builds.
+
+**RN-specific monorepo challenges:**
+
+**1. Metro bundler must see all source code.**
+
+RN's Metro bundler scans the project for source files. In a monorepo, it doesn't know about your `packages/` directory by default:
+
+```js
+// metro.config.js
+const path = require('path');
+const { getDefaultConfig } = require('expo/metro-config');
+
+const config = getDefaultConfig(__dirname);
+
+const workspaceRoot = path.resolve(__dirname, '../..');
+config.watchFolders = [workspaceRoot];
+config.resolver.nodeModulesPaths = [
+  path.resolve(__dirname, 'node_modules'),
+  path.resolve(workspaceRoot, 'node_modules'),
+];
+
+module.exports = config;
+```
+
+**2. Symlinks and Metro.**
+
+`pnpm` uses symlinks; Metro historically struggled with them. Metro 0.81+ supports symlinks natively. For older versions, use `nohoist` workarounds or use `npm`/`yarn` workspaces instead.
+
+**3. Native module duplication.**
+
+If `app1` depends on `react-native-mmkv@2.0.0` and `app2` depends on `2.1.0`, the native module is installed twice — wasted disk + potential conflicts. Pin shared native dep versions at the root.
+
+**4. Build isolation.**
+
+Each app's iOS/Android build is independent. Caches don't share across apps because the native build pipelines aren't aware of the monorepo. Turborepo can cache `npx expo prebuild` outputs to mitigate.
+
+**Versioning shared packages:**
+
+```json
+{
+  "dependencies": {
+    "@myorg/api-client": "workspace:*",
+    "@myorg/types": "workspace:*"
+  }
+}
+```
+
+`workspace:*` means *"use whatever version is in the workspace."* Changes to `api-client` are visible to all apps immediately — no version bumps.
+
+For external publishing, use **Changesets** to manage versions and changelogs.
+
+**Senior touch:** the architect framing — **monorepos are a force multiplier when you have shared concerns, and pure overhead when you don't.** The signal: do multiple apps benefit from changing together? Is the design system painful to consume cross-repo? Are types drifting across services? If yes, monorepo. If no, separate repos with versioned packages may be simpler. The most common mistake is adopting a monorepo for a single app because *"it's the modern thing"* — adds complexity, gives no benefits, slows iteration.
