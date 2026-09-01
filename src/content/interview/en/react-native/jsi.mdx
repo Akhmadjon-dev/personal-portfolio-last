@@ -1,0 +1,78 @@
+---
+q: "JSI — JavaScript Interface deep dive"
+level: senior
+type: theory
+order: 1
+---
+
+**JSI** (JavaScript Interface) is the C++ layer that replaced React Native's legacy "Bridge." It provides a way for JavaScript and native code to communicate **synchronously and type-safely**, without the JSON serialization overhead the bridge required.
+
+**The bridge era — what JSI replaced:**
+
+In the original RN architecture, JS and native communicated through a JSON message bus:
+
+```
+JS thread       →  serialize to JSON  →  bridge  →  parse JSON  →  Native thread
+Native thread   →  serialize to JSON  →  bridge  →  parse JSON  →  JS thread
+```
+
+Every cross-thread call paid the cost of:
+
+- `JSON.stringify` on one side
+- Async batching across the bridge
+- `JSON.parse` on the other side
+
+Result: **all calls were async**, **all data was loosely typed**, and high-frequency operations (animations, gestures, layout) bottlenecked on bridge throughput.
+
+**JSI — direct C++ interop:**
+
+JSI is a thin C++ abstraction over the underlying JavaScript engine (Hermes, JavaScriptCore, V8). It exposes the JS engine's value types — strings, numbers, objects, functions — as C++ classes:
+
+```cpp
+// C++ (native side)
+jsi::Value myFunction(jsi::Runtime& rt, /* args */) {
+  return jsi::String::createFromUtf8(rt, "Hello from native");
+}
+```
+
+Native code can **synchronously read or write JS values, call JS functions, expose C++ objects as JS objects**. No JSON. No bridge.
+
+**Three things JSI enables:**
+
+1. **Synchronous native calls.** `const result = MyModule.doThing();` — no callback, no promise, just a return value. (Most TurboModules still use promises by convention, but they *can* be sync.)
+2. **Host objects.** A C++ object exposed to JS as if it were a regular JS object. The actual data lives in C++; JS reads/writes via property accessors that call C++.
+3. **Worklets.** Reanimated 3 uses JSI to share values between the JS thread and the UI thread synchronously — the foundation of UI-thread animations.
+
+**The runtime is engine-agnostic:**
+
+JSI is designed so the same module code works whether the JS engine is Hermes, JavaScriptCore, or V8. Each engine implements the JSI interface; modules don't care which engine they run on. This is what let RN move from JSC to Hermes without rewriting every native module.
+
+**Host objects example:**
+
+```cpp
+class MyHostObject : public jsi::HostObject {
+public:
+  jsi::Value get(jsi::Runtime& rt, const jsi::PropNameID& name) override {
+    if (name.utf8(rt) == "version") {
+      return jsi::String::createFromUtf8(rt, "1.0");
+    }
+    return jsi::Value::undefined();
+  }
+};
+```
+
+Exposed to JS, this looks like a regular object: `MyHostObject.version`. JS accessing `.version` triggers the C++ `get` method.
+
+**When JSI matters in your code:**
+
+For most app development, **never directly**. You write JS; the libraries you use (Reanimated, MMKV, Gesture Handler) use JSI internally. The reasons to write JSI directly:
+
+- Custom TurboModule implementation.
+- Library author optimizing critical paths.
+- Synchronous interop with native graphics, audio, or system APIs.
+
+**JSI in 2026:**
+
+JSI is the foundation of the entire New Architecture. By 2026, every modern RN library worth using is built on JSI. The bridge still exists for backwards compatibility, but it's a fallback, not the default.
+
+**Senior touch:** the senior framing — **JSI is the "why" behind every perf claim about the New Architecture.** Sync native calls, type safety, host objects, UI-thread animations, MMKV's sync API, FlashList's recycling — they all trace back to JSI. Knowing it by name and being able to explain what it replaced (JSON-serialized async bridge) is what separates someone who reads RN release notes from someone who understands what changed.

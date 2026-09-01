@@ -1,0 +1,47 @@
+---
+q: "What is the use of `refs`?"
+level: entry
+type: theory
+order: 7
+---
+
+Refs give you a way to reference a DOM node — or a mutable value that doesn't trigger re-renders. They're React's escape hatch into imperative code, used when the declarative model isn't enough.
+
+```jsx
+function FocusOnMount() {
+  const inputRef = useRef(null);
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+  return <input ref={inputRef} />;
+}
+```
+
+`useRef(initial)` returns an object `{ current: initial }`. React assigns the DOM node to `.current` after the component mounts; you can read or write `.current` from effects, event handlers, or anywhere outside the render body.
+
+**The three things refs are used for:**
+
+| Use case | Examples |
+|---|---|
+| Accessing DOM nodes | Focus an input, measure size, integrate D3 / charts / WebGL |
+| Storing mutable values | Timer IDs, AbortController instances, previous-render snapshots |
+| Bypassing re-renders | Tracking a value the UI does NOT depend on |
+
+**Two rules to internalize:**
+
+- **Don't read `ref.current` during render.** It hasn't been set yet on first render, and React can't track changes to it for re-rendering purposes. Use refs in effects or event handlers, not in the render body.
+- **Mutating a ref doesn't trigger a re-render.** That's intentional — refs are for values that shouldn't cause UI updates. If you need the UI to update when a value changes, use state instead.
+
+**Refs vs state:**
+
+```jsx
+// State: triggers re-render
+const [count, setCount] = useState(0);
+setCount(c => c + 1); // → component re-renders, UI updates
+
+// Ref: silent, no re-render
+const countRef = useRef(0);
+countRef.current += 1; // no re-render, UI is unaware
+```
+
+**Senior touch:** the most common misuse of refs is reaching for them to "avoid the re-render cost of state." Almost always wrong — if the UI depends on the value, it needs to be state. Refs are for values the UI does **not** depend on: timer handles, mutex flags, the latest version of a stale closure. When in doubt, start with state; switch to a ref only when you discover the value is read but never displayed.

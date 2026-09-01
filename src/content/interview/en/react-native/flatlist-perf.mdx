@@ -1,0 +1,79 @@
+---
+q: "FlatList performance tuning"
+level: mid
+type: theory
+order: 1
+---
+
+For lists beyond a few dozen items, FlatList performance is mostly about which props you set — virtualization alone isn't enough.
+
+```jsx
+<FlatList
+  data={items}
+  keyExtractor={(item) => item.id}
+  renderItem={renderItem}
+
+  getItemLayout={(_, index) => ({
+    length: ITEM_HEIGHT,
+    offset: ITEM_HEIGHT * index,
+    index,
+  })}
+
+  initialNumToRender={10}
+  windowSize={5}
+  maxToRenderPerBatch={10}
+  updateCellsBatchingPeriod={50}
+  removeClippedSubviews={true}
+/>
+```
+
+**The performance props in order of impact:**
+
+| Prop | What it does | When to use |
+|---|---|---|
+| `getItemLayout` | Skip dynamic measurement when item height is fixed | Always, if items are same height |
+| `keyExtractor` | Stable identity for each item | Always — no array-index keys |
+| `initialNumToRender` | How many items to render on first mount | Default 10; reduce for faster initial paint |
+| `windowSize` | Multiples of viewport to keep mounted | Default 21; reduce on heavy items |
+| `maxToRenderPerBatch` | How many items to render per scroll batch | Default 10; balance smoothness vs CPU |
+| `updateCellsBatchingPeriod` | Time between batches (ms) | Default 50; lower = more responsive, higher = less CPU |
+| `removeClippedSubviews` | Detach off-screen items from native view tree | Default true on Android, false on iOS — usually leave it |
+
+**`getItemLayout` is the single biggest win:**
+
+```jsx
+const ITEM_HEIGHT = 80;
+const getItemLayout = (_, index) => ({
+  length: ITEM_HEIGHT,
+  offset: ITEM_HEIGHT * index,
+  index,
+});
+```
+
+Without it, FlatList has to measure each item as it appears, which forces a layout pass per item. With it, FlatList skips measurement — and can also `scrollToIndex` instantly.
+
+**Memoize `renderItem`:**
+
+```jsx
+// ❌ New function every render — children re-render even if memoized
+<FlatList renderItem={({ item }) => <Row item={item} />} />
+
+// ✅ Stable reference
+const renderItem = useCallback(({ item }) => <Row item={item} />, []);
+<FlatList renderItem={renderItem} />
+```
+
+And memoize the `Row` component itself with `React.memo` so it doesn't re-render when its parent does.
+
+**Common anti-patterns:**
+
+- **`ScrollView` for long lists.** Mounts everything; FlatList virtualizes.
+- **Inline functions for `renderItem`.** Forces re-render of every visible row on every parent render.
+- **Inline objects in `renderItem` props.** Same issue — new object identity defeats memoization.
+- **Variable-height items without optimization.** Use `ItemSeparatorComponent` for consistent dividers, or estimated heights with FlashList.
+
+**When FlatList isn't enough — escalate to FlashList:**
+
+For lists > 500 items or with complex item rendering, Shopify's FlashList performs dramatically better. It recycles components instead of unmounting them, similar to native `RecyclerView` (Android) and `UICollectionView` (iOS).
+
+**Senior touch:** the senior signal — **profile before optimizing.** Use the Performance Monitor (dev menu → "Show Perf Monitor") to see FPS during scroll. If you're below 60 FPS, start with `getItemLayout` and `React.memo` on the Row. If still slow, move to FlashList. Throwing every optimization at every list is junior; measuring and applying the right one is senior.

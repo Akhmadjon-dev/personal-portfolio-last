@@ -1,0 +1,65 @@
+---
+q: "Difference between `state` and `props`?"
+level: junior
+type: theory
+order: 5
+---
+
+Both are how data lives inside a React component. The difference is **who owns it** and **how it changes**.
+
+| Props | State |
+|---|---|
+| Passed from parent | Owned by the component itself |
+| Read-only | Mutable via setter |
+| Changes when parent re-renders | Changes when setter is called |
+| Decided by the caller | Decided by the component |
+| External input | Internal memory |
+
+**Props example:**
+
+```jsx
+function Avatar({ src, size }) {
+  return <img src={src} width={size} height={size} />;
+}
+
+<Avatar src="/me.jpg" size={48} />
+```
+
+`Avatar` doesn't decide `size` — it accepts whatever the parent passes. Different parents can pass different sizes; same `Avatar` code, different output.
+
+**State example:**
+
+```jsx
+function Counter() {
+  const [count, setCount] = useState(0);
+  return (
+    <button onClick={() => setCount(count + 1)}>
+      Count: {count}
+    </button>
+  );
+}
+```
+
+`count` is internal. The parent doesn't see it, can't read it directly, and can't change it. It's the component's own memory.
+
+**The fuzzy boundary — derived state.**
+
+The most common mistake is duplicating state from props. Don't:
+
+```jsx
+// ❌ Bad: copying props into state
+function Profile({ user }) {
+  const [name, setName] = useState(user.name);
+  // Now `name` is stale when `user.name` changes externally
+}
+
+// ✅ Good: derive from props directly
+function Profile({ user }) {
+  return <h1>{user.name}</h1>;
+  // Always in sync — component re-renders when `user` changes
+}
+```
+
+If the value can be derived from props, **don't put it in state**. State is for values the component owns and updates *itself*; props are for everything passed in.
+
+**Senior touch:** "lifting state up" is the pattern that connects the two. When two siblings need the same value, you don't pass it via props *between* siblings — you move the state into their common parent, and pass it down to both as props. The parent owns the state; the children read it as props. This is React's idiomatic way of sharing data across the tree before reaching for context or a store. Getting the lifting depth right is one of the senior signals in React design.

@@ -1,0 +1,37 @@
+---
+q: "What is the difference between React and Angular?"
+level: entry
+type: theory
+order: 13
+---
+
+React and Angular both build single-page applications, but they take fundamentally different philosophies. React is a **library** focused on the view layer; Angular is a **full framework** that prescribes routing, forms, HTTP, dependency injection, and more.
+
+| | React | Angular |
+|---|---|---|
+| **Type** | Library (view layer only) | Full framework |
+| **Language** | JS or TS (TS optional) | TypeScript (mandatory) |
+| **Templating** | JSX (JS expressions inline) | Angular templates (HTML + directives) |
+| **Data flow** | Unidirectional, props down | Two-way binding via `[(ngModel)]` |
+| **DOM strategy** | Virtual DOM + reconciliation | Real DOM + change detection (Zone.js, signals) |
+| **DI** | None built-in | Built-in dependency injection container |
+| **Routing** | Pick your own (React Router, TanStack Router) | Built-in `@angular/router` |
+| **Forms** | Pick your own (`react-hook-form`, etc.) | Built-in template-driven & reactive forms |
+| **HTTP** | Pick your own (`fetch`, axios, TanStack Query) | Built-in `HttpClient` with RxJS streams |
+| **State** | Pick your own (Zustand, Redux, Jotai) | RxJS-based services, NgRx for Redux-style |
+| **Build system** | Pick your own (Vite, Next.js, etc.) | Angular CLI |
+| **Learning curve** | Gentler at start, harder at scale | Steeper at start, more guidance at scale |
+
+**Where this matters in practice:**
+
+- **Choice fatigue.** A React project decides: which router, which state lib, which CSS approach, which build tool. Angular gives you opinionated defaults.
+- **Migration / consistency.** Two Angular codebases look similar. Two React codebases can look completely different. That's a strength (flexibility) and a weakness (no shared muscle memory).
+- **Hiring.** The React market is significantly larger globally. Angular has a strong enterprise foothold (especially finance, large orgs, Java-stack shops).
+
+**Where the other contenders fit:**
+
+- **Vue** — Angular-like batteries-included experience with React-like flexibility. Strong in Asia, growing globally.
+- **Svelte** — compile-time framework, no Virtual DOM. Smaller bundles, simpler syntax, smaller ecosystem.
+- **Solid** — fine-grained reactivity, no Virtual DOM. Often faster than React on benchmarks. Niche ecosystem.
+
+**Senior touch:** the honest answer in an interview is rarely "X is better than Y." It's "X fits a team that values Z, Y fits a team that values W." React's flexibility and ecosystem suit teams that want to assemble their own stack; Angular's prescription suits teams that prefer one canonical way of doing things and don't want to relitigate routing, forms, and HTTP every project. Pick based on team taste and existing investment, not framework marketing.

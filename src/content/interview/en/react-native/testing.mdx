@@ -1,0 +1,103 @@
+---
+q: "Testing React Native — Jest + Testing Library"
+level: mid
+type: theory
+order: 11
+---
+
+The standard RN testing stack is **Jest + React Native Testing Library**. Same model as web React testing: render the component, query it like a user, assert on visible behavior — not implementation details.
+
+```jsx
+import { render, fireEvent, screen } from '@testing-library/react-native';
+import { Counter } from './Counter';
+
+test('increments on press', () => {
+  render(<Counter />);
+
+  expect(screen.getByText('Count: 0')).toBeOnTheScreen();
+  fireEvent.press(screen.getByRole('button', { name: 'Increment' }));
+  expect(screen.getByText('Count: 1')).toBeOnTheScreen();
+});
+```
+
+**Three layers of testing:**
+
+| Layer | Tool | What it tests |
+|---|---|---|
+| Unit | Jest | Pure functions, hooks (in isolation) |
+| Component | RN Testing Library + Jest | Single components with mocked dependencies |
+| E2E | Detox or Maestro | Full app flows on a real (sim/emulator) device |
+
+**Query priorities (RN Testing Library):**
+
+| Priority | Query | Use for |
+|---|---|---|
+| 1 | `getByRole`, `getByLabelText` | Accessibility-first selection — what a screen reader sees |
+| 2 | `getByText`, `getByPlaceholderText` | Visible text content |
+| 3 | `getByTestId` | Last resort — when nothing else identifies the element |
+
+Prefer the accessibility queries — they double as accessibility audits. If your test relies on `testID` everywhere, your app probably isn't accessible.
+
+**Hooks testing:**
+
+```jsx
+import { renderHook, act } from '@testing-library/react-native';
+
+test('useCounter increments', () => {
+  const { result } = renderHook(() => useCounter());
+
+  act(() => result.current.increment());
+  expect(result.current.count).toBe(1);
+});
+```
+
+**Mocking native modules:**
+
+Most RN tests run in a Node.js environment via Jest. Native modules (`expo-camera`, `react-native-mmkv`, etc.) don't exist there — you mock them:
+
+```js
+// jest.setup.js
+jest.mock('expo-camera', () => ({
+  Camera: { requestCameraPermissionsAsync: jest.fn() },
+}));
+
+jest.mock('react-native-mmkv', () => ({
+  MMKV: jest.fn().mockImplementation(() => ({
+    getString: jest.fn(),
+    set: jest.fn(),
+  })),
+}));
+```
+
+The `jest-expo` preset handles most of this for Expo projects automatically.
+
+**E2E testing:**
+
+**Detox** has been the standard for years — runs your app on a real simulator/emulator, drives interactions through native automation. Heavy setup, slow, accurate.
+
+**Maestro** (2023+) is the rising challenger — simpler YAML-based test definitions, faster setup, growing adoption:
+
+```yaml
+# flow.yaml
+appId: com.example.myapp
+---
+- launchApp
+- tapOn: "Login"
+- inputText: "user@example.com"
+- tapOn: "Sign In"
+- assertVisible: "Welcome back"
+```
+
+Maestro is what most new RN projects in 2026 are adopting for E2E.
+
+**Test coverage strategy:**
+
+| Layer | Coverage |
+|---|---|
+| Unit / hook | High — these are fast and stable |
+| Component | High for shared UI, focused for app screens |
+| E2E | A handful of critical-path tests (login, checkout, core flows) |
+
+Aiming for E2E coverage of every interaction is a treadmill. A few well-chosen smoke tests catch the regressions that matter.
+
+**Senior touch:** the senior framing — **test what users do, not how components are implemented.** RN Testing Library encourages this by making implementation queries hard. If your test breaks on every refactor, you're testing implementation; if your test breaks only when behavior changes, you're testing usefully. For E2E, **Maestro over Detox** for new projects in 2026 — faster, simpler, easier to onboard a team to.

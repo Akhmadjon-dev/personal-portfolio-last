@@ -1,0 +1,100 @@
+---
+q: "Animated API basics"
+level: junior
+type: theory
+order: 8
+---
+
+React Native's built-in `Animated` API drives animations using `Animated.Value` (a special wrapper around a number) that components subscribe to. It runs on the JS thread by default; with `useNativeDriver: true`, it can run animations on the native UI thread for smoother performance.
+
+```jsx
+import { Animated, useEffect, useRef } from 'react-native';
+
+function FadeIn({ children }) {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
+  return (
+    <Animated.View style={{ opacity: fadeAnim }}>
+      {children}
+    </Animated.View>
+  );
+}
+```
+
+**Animation types:**
+
+| Type | What it does |
+|---|---|
+| `Animated.timing` | Animate over a duration with easing |
+| `Animated.spring` | Physics-based spring animation |
+| `Animated.decay` | Inertia-style deceleration (rare) |
+
+**Composing animations:**
+
+```jsx
+Animated.sequence([
+  Animated.timing(fade, { toValue: 1, duration: 200, useNativeDriver: true }),
+  Animated.timing(scale, { toValue: 1, duration: 200, useNativeDriver: true }),
+]).start();
+
+Animated.parallel([
+  Animated.timing(fade, { toValue: 1, duration: 200, useNativeDriver: true }),
+  Animated.timing(scale, { toValue: 1, duration: 200, useNativeDriver: true }),
+]).start();
+```
+
+**The native driver — critical for performance:**
+
+`useNativeDriver: true` runs the animation off the JS thread, on the native UI thread. Animation continues smoothly even if JS is busy. But it has limits — only properties that don't affect layout (`opacity`, `transform`, `backgroundColor`).
+
+```jsx
+// ✅ Works with native driver
+Animated.timing(value, { toValue: 1, useNativeDriver: true });
+// applied to opacity, transform: [{ scale, translateX, ... }]
+
+// ❌ Can't use native driver — width affects layout
+Animated.timing(width, { toValue: 200, useNativeDriver: true });
+// throws an error
+```
+
+For layout animations (width, height), you need `useNativeDriver: false`, which runs on the JS thread and can stutter.
+
+**Why most modern RN apps reach for Reanimated 3:**
+
+```jsx
+import Animated, { useSharedValue, useAnimatedStyle, withTiming }
+  from 'react-native-reanimated';
+
+function FadeIn({ children }) {
+  const opacity = useSharedValue(0);
+
+  useEffect(() => {
+    opacity.value = withTiming(1, { duration: 500 });
+  }, []);
+
+  const style = useAnimatedStyle(() => ({ opacity: opacity.value }));
+  return <Animated.View style={style}>{children}</Animated.View>;
+}
+```
+
+Reanimated runs animations on the UI thread by default (no `useNativeDriver` flag), supports gesture-driven animations through Gesture Handler integration, and works for all properties — including layout.
+
+**Comparison:**
+
+| | Animated | Reanimated 3 |
+|---|---|---|
+| Built-in | Yes | No (library) |
+| Native driver | Opt-in | Default |
+| Gesture integration | Manual | First-class |
+| Layout animations | No (with native driver) | Yes |
+| Performance | Good for simple cases | Better for complex |
+
+**Senior touch:** in 2026, **Reanimated 3 is the production standard**. The built-in Animated API is what RN had from day one and is fine for simple opacity/transform animations. For anything gesture-driven, layout-changing, or performance-sensitive, Reanimated is what teams reach for. The senior signal is naming Reanimated and explaining *why* — UI-thread animations by default, gesture handler integration, layout-animation support. *"Animated for a simple fade; Reanimated for everything else"* is the right framing.

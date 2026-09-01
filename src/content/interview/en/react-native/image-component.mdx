@@ -1,0 +1,84 @@
+---
+q: "Working with the `<Image>` component"
+level: entry
+type: theory
+order: 13
+---
+
+The `<Image>` component renders images — local bundled assets or remote URLs. The API is small but has a few rules unlike the web's `<img>`.
+
+```jsx
+import { Image } from 'react-native';
+
+// Remote URL
+<Image
+  source={{ uri: 'https://example.com/avatar.jpg' }}
+  style={{ width: 80, height: 80 }}
+/>
+
+// Local file (bundled at build time)
+<Image source={require('./assets/logo.png')} style={{ width: 200, height: 60 }} />
+```
+
+**Three rules that catch newcomers:**
+
+1. **Width and height are required for remote images.** RN needs explicit dimensions before fetching — it doesn't know the image's size until it loads, so layout depends on you providing the size.
+2. **`source` is an object for URIs**, not a string: `source={{ uri: '...' }}` (not `source="..."`).
+3. **Local images use `require()`**, not a path string: `require('./logo.png')`. Metro statically analyzes these to bundle the right resolution variants.
+
+**`resizeMode` — how the image fits its box:**
+
+| Value | Behavior |
+|---|---|
+| `cover` (default) | Fill the box, crop excess (like `object-fit: cover`) |
+| `contain` | Fit inside the box, leave empty space if needed |
+| `stretch` | Stretch to fill the box, distort aspect ratio |
+| `repeat` | Tile the image |
+| `center` | Center the image without resizing |
+
+**Performance — image caching:**
+
+The default `<Image>` caches remote images on disk, but the cache is opaque. For more control:
+
+```jsx
+<Image source={{ uri, cache: 'force-cache' }} />
+// 'reload' / 'only-if-cached' / 'default' also available (iOS)
+```
+
+For production apps with lots of images, reach for **`expo-image`** (or `react-native-fast-image` on bare RN). They handle progressive loading, blurhash placeholders, GIF support, and have better cache control:
+
+```jsx
+import { Image } from 'expo-image';
+
+<Image
+  source={{ uri }}
+  placeholder={blurhash}   // hash for an instant blurred placeholder
+  contentFit="cover"
+  transition={200}
+  cachePolicy="memory-disk"
+/>
+```
+
+`expo-image` is the 2026 default for non-trivial image use.
+
+**Loading multiple resolutions automatically:**
+
+For local images, name your assets `@2x` and `@3x` and Metro picks the right one for the device:
+
+```
+assets/
+  logo.png      ← 1x
+  logo@2x.png   ← 2x density
+  logo@3x.png   ← 3x density
+```
+
+`require('./assets/logo.png')` automatically picks the right variant on each device.
+
+**Other useful props:**
+
+- `onLoad`, `onError` — event callbacks
+- `defaultSource` — fallback while remote image loads
+- `loadingIndicatorSource` — placeholder image during load
+- `blurRadius` — applies a blur
+
+**Senior touch:** for most production RN apps, **install `expo-image` and use it everywhere** instead of the built-in `<Image>`. It handles blurhashes, progressive loading, caching, and content fit far better. The built-in is fine for static bundled assets; `expo-image` is what you reach for the moment a real network image appears in your UI.

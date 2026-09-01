@@ -1,0 +1,74 @@
+---
+q: "`Pressable` vs `TouchableOpacity` — when to use what?"
+level: entry
+type: theory
+order: 5
+---
+
+`Pressable` is the modern, recommended touchable wrapper in React Native. `TouchableOpacity` is the legacy version that's still common in older codebases. They do the same thing — wrap children and respond to touch — but with different APIs.
+
+**TouchableOpacity (legacy):**
+
+```jsx
+<TouchableOpacity onPress={handlePress} style={styles.button}>
+  <Text>Click me</Text>
+</TouchableOpacity>
+```
+
+On press, the wrapped content's opacity drops (default 0.2). Simple, but limited — you can only change opacity, and there's no way to access press state from inside.
+
+**Pressable (modern):**
+
+```jsx
+<Pressable
+  onPress={handlePress}
+  style={({ pressed }) => [
+    styles.button,
+    pressed && styles.buttonPressed,
+  ]}
+>
+  {({ pressed }) => (
+    <Text style={pressed && styles.textPressed}>
+      {pressed ? 'Pressing!' : 'Click me'}
+    </Text>
+  )}
+</Pressable>
+```
+
+`Pressable` passes a state object (`{ pressed, hovered, focused }`) to both `style` and `children`, letting you customize any aspect of the pressed appearance — not just opacity.
+
+**Pressable's extra capabilities:**
+
+- **`pressRetentionOffset`** — area outside the component where the press is still considered active. Better mobile UX for small buttons.
+- **`hitSlop`** — expand the touch target without affecting layout. Critical for accessibility (44pt minimum).
+- **`onPressIn`, `onPressOut`, `onLongPress`** — granular events.
+- **`unstable_pressDelay`** — delay before the press is considered active (useful for scroll views with embedded buttons).
+- **Hover and focus states** — automatic for keyboard/mouse on macOS and RN for Web.
+- **`android_ripple`** — Android Material ripple effect, no extra component needed.
+
+**Side-by-side:**
+
+| | TouchableOpacity | Pressable |
+|---|---|---|
+| Press feedback | Opacity only | Any style change |
+| Hover/focus support | No | Yes |
+| Long press | Manual | Built-in |
+| Hit slop / retention | Manual | Built-in props |
+| State accessible to children | No | Yes |
+| Android ripple | Separate component | Built-in prop |
+| Recommended? | Legacy only | **Yes** |
+
+**Other Touchable* components:**
+
+- `TouchableHighlight` — darkens background on press (rare)
+- `TouchableWithoutFeedback` — no visual feedback (rarely correct UX)
+- `TouchableNativeFeedback` — Android ripple (use Pressable's `android_ripple` instead)
+
+All of these predate `Pressable` and are mostly obsolete. `Pressable` covers their use cases with a cleaner API.
+
+**When you might still use TouchableOpacity:**
+
+- Maintaining a large existing codebase where `TouchableOpacity` is everywhere — keep consistency.
+- The opacity feedback is exactly what you want, and you don't need any other Pressable features.
+
+**Senior touch:** in 2026, all new code should use `Pressable`. The senior signal in an interview is naming why: Pressable exposes press state to both `style` and `children` (allowing arbitrary feedback, not just opacity), supports hover/focus for keyboard accessibility on iPad/macOS, has built-in `hitSlop` and `pressRetentionOffset` for better touch targets, and is what Meta recommends going forward. *"TouchableOpacity is fine, but Pressable is the API the next 5 years of RN will be designed around"* — that's the framing.

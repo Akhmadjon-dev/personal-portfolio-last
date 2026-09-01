@@ -1,0 +1,39 @@
+---
+q: "What are the advantages of React?"
+level: entry
+type: theory
+order: 10
+---
+
+The advantages of React fall into four groups: developer experience, runtime performance, ecosystem, and team scaling.
+
+**Developer experience:**
+
+- **Declarative UI.** You describe what the UI should look like for a given state; React figures out the DOM. No imperative `appendChild` calls, no manual diffing.
+- **Component model.** Small, isolated, composable units. Easy to read, easy to test in isolation, easy to share across an app or between projects.
+- **Tooling.** React DevTools, Fast Refresh, source maps, deep TypeScript integration — among the best in any UI framework.
+
+**Runtime performance:**
+
+- **Virtual DOM + reconciliation.** Batches DOM updates, minimizes mutations.
+- **Concurrent rendering (React 18+).** Interruptible rendering keeps the app responsive even during expensive updates.
+- **Server Components (React 19).** Render parts of the UI on the server only, shipping zero JS for those parts.
+
+**Ecosystem:**
+
+- **Massive library landscape.** Almost any UI primitive — forms, tables, charts, animation, drag-and-drop — has a mature React library.
+- **Cross-platform.** React Native reuses the same component model for mobile; React Native for Windows/macOS extends it to desktop.
+- **Hireable.** The React job market is the largest of any frontend framework, which matters for team scaling.
+
+**Team scaling:**
+
+- **Unidirectional data flow.** Easier to reason about state changes than two-way binding.
+- **Stable API.** Major versions are infrequent and migrations are usually straightforward. Code from 2019 mostly still works in 2026.
+- **Community knowledge.** Answers to almost any production problem exist somewhere on Stack Overflow, a blog post, or a GitHub issue.
+
+**Tradeoffs (worth saying in an interview):**
+
+- React is a *library*, not a framework — you assemble routing, data fetching, and state management from separate libraries. Flexibility, but also decision fatigue.
+- SEO needs SSR or SSG (Next.js, Remix) — pure client-rendered React is invisible to search engines without extra work.
+
+**Senior touch:** "what are the advantages" is really asking *"why React over alternatives."* The honest answer in 2026 is that React isn't necessarily better than Vue, Svelte, or Solid on technical merits — it's the safest bet because of ecosystem maturity, hiring market, and Meta's commitment to backwards compatibility. For most teams, that combination outweighs the marginal technical wins of newer frameworks.

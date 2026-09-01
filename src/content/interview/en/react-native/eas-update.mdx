@@ -1,0 +1,98 @@
+---
+q: "EAS Update — over-the-air JS updates"
+level: mid
+type: theory
+order: 10
+---
+
+**EAS Update** (and its predecessor, CodePush) lets you ship JS changes to users **without going through the app stores**. Bug fixes, copy changes, feature flags — anything in your JS bundle can be updated in hours instead of days.
+
+```bash
+# Publish an update
+eas update --branch production --message "Fix login crash"
+
+# Users on `production` branch see the update on their next app open
+```
+
+That's the whole UX from the developer side. EAS hosts the new bundle; the app downloads it on launch.
+
+**What can be OTA-updated:**
+
+- **JavaScript code** — anything in your `src/` (compiled to bundle).
+- **Bundled assets** — images, fonts, JSON data files.
+- **TypeScript / TS-compiled JS.**
+
+**What CANNOT be OTA-updated:**
+
+- **Native code** — Swift, Kotlin, Objective-C, Java additions.
+- **Native dependencies** — adding `react-native-camera` or upgrading native libraries.
+- **`app.json` changes** that produce native config differences (icons, splash, plist values).
+- **App permissions or entitlements.**
+
+If a change requires native code, you need a full app store build. EAS Update is **JS-only**.
+
+**Branch strategy:**
+
+```bash
+# Stage to a preview branch first
+eas update --branch preview --message "WIP feature"
+
+# Beta users / staff get updates from preview
+# Once verified, promote to production
+eas update --branch production --message "Verified rollout"
+```
+
+Branches let you stage rollouts: dev → preview → production. Same code, controlled audience.
+
+**Rollback in seconds:**
+
+```bash
+# Republish the previous bundle as the latest
+eas update --branch production --republish --group <previous-update-id>
+```
+
+If a bug ships, you can revert without app store involvement. **This is the single biggest reason teams adopt EAS Update** — emergency rollbacks measured in minutes, not days.
+
+**App configuration:**
+
+```js
+// app.json
+{
+  "expo": {
+    "runtimeVersion": "1.0.0",
+    "updates": {
+      "url": "https://u.expo.dev/your-project-id",
+      "fallbackToCacheTimeout": 0,
+    },
+  },
+}
+```
+
+**`runtimeVersion`** matters: an OTA update only applies to app builds with the same `runtimeVersion`. If you bump native dependencies (which requires a new app store build), bump `runtimeVersion` too — otherwise the new JS bundle might call a missing native module.
+
+**`fallbackToCacheTimeout: 0`** means: don't wait for the network — start with the cached bundle, fetch updates in the background, apply on next launch. Good UX; slight delay between bug fix and visibility.
+
+**Programmatic control:**
+
+```jsx
+import * as Updates from 'expo-updates';
+
+async function checkForUpdates() {
+  const update = await Updates.checkForUpdateAsync();
+  if (update.isAvailable) {
+    await Updates.fetchUpdateAsync();
+    Alert.alert('Update ready', 'Restart to apply?', [
+      { text: 'Later' },
+      { text: 'Restart', onPress: () => Updates.reloadAsync() },
+    ]);
+  }
+}
+```
+
+Useful for: forcing critical updates immediately, showing "update available" prompts, controlling when the update applies.
+
+**CodePush (legacy):**
+
+Microsoft's CodePush is the older equivalent. Same concept, different infrastructure. Microsoft sunset App Center in 2025; new RN projects should use EAS Update. Migration from CodePush is well-documented.
+
+**Senior touch:** the senior framing — **EAS Update is a force multiplier for shipping confidence.** Knowing you can revert a bad release in 10 minutes (vs the app store's 24-48 hour review window) changes how aggressively you can ship — and how you sleep the night after a release. The discipline is to never make it a crutch: native bugs still need full builds, `runtimeVersion` must be bumped on native changes, and over-reliance on OTA can create "two app states" (some users on old JS, some on new) that complicate bug reports.

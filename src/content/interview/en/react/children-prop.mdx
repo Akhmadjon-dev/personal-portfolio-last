@@ -1,0 +1,74 @@
+---
+q: "What is `children` prop?"
+level: mid
+type: theory
+order: 12
+---
+
+`props.children` is a special prop that contains whatever is between a component's opening and closing tags. It's how parent components pass content into children without explicitly naming a prop.
+
+```jsx
+<Card>
+  <h2>Title</h2>
+  <p>Body text</p>
+</Card>
+
+// Inside Card:
+function Card({ children }) {
+  return <div className="card">{children}</div>;
+}
+```
+
+The `<h2>` and `<p>` become `children`. `Card` renders them without knowing what they are.
+
+**What `children` can be:**
+
+- **A string:** `<Title>Hello</Title>` → `children` is `"Hello"`
+- **A single element:** `<Box><Img /></Box>` → `children` is the `<Img />` element
+- **An array of elements:** `<List><li/><li/><li/></List>` → `children` is an array of three elements
+- **A function** (render prop pattern): `<DataLoader>{(data) => <View data={data} />}</DataLoader>` → `children` is a function
+- **`undefined`:** `<EmptyBox />` → `children` is `undefined`
+
+**Why `children` is powerful:**
+
+- **It enables composition.** Wrapper components don't need to know about content.
+- **It avoids prop drilling.** If the consumer renders the eventual child anyway, they can pass it directly via JSX instead of threading a `content` or `body` prop down.
+- **It supports natural nesting.** `<a href><Icon /> Click here</a>` reads like HTML, with structure top-to-bottom.
+
+**Useful patterns:**
+
+```jsx
+// Conditional rendering of children
+function Hidden({ when, children }) {
+  return when ? null : children;
+}
+
+// Function-as-children (render props)
+<DataLoader>
+  {({ data, loading, error }) => {
+    if (loading) return <Spinner />;
+    if (error)   return <Error />;
+    return <View data={data} />;
+  }}
+</DataLoader>
+
+// Filtering children when you need to inspect them
+import { Children, isValidElement } from 'react';
+function Tabs({ children }) {
+  const validTabs = Children.toArray(children).filter(isValidElement);
+  // ...
+}
+```
+
+**`React.Children` utilities** (rarely needed, but worth knowing):
+
+| Utility | What it does |
+|---|---|
+| `Children.map(children, fn)` | Like array `.map`, but safe for single-element / undefined |
+| `Children.count(children)` | Count safely regardless of shape |
+| `Children.toArray(children)` | Convert to a real array |
+| `Children.only(children)` | Assert there's exactly one child; throws otherwise |
+
+These exist because `children` can be a single element, an array, or `undefined` — the utilities handle all three uniformly.
+
+**Senior touch:** `children` is the foundation of **composition over inheritance** in React. The senior signal is recognizing that almost any case where you're tempted to add many specific props (`headerContent`, `bodyContent`, `footerContent`) is actually better as composition through `children` or slot props. The pattern keeps components more flexible and consumer code more natural to read.

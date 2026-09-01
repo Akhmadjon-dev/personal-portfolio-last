@@ -1,0 +1,73 @@
+---
+q: "What are Render Props?"
+level: senior
+type: theory
+order: 9
+---
+
+A render prop is a pattern where a component takes a **function as a prop** (often as `children`) that returns JSX. The component manages some state or behavior, then "calls back" the render function with that data, letting the consumer decide how to render.
+
+```jsx
+function MouseTracker({ render }) {
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+  return (
+    <div onMouseMove={(e) => setPos({ x: e.clientX, y: e.clientY })}>
+      {render(pos)}
+    </div>
+  );
+}
+
+<MouseTracker render={({ x, y }) => <p>Mouse at {x}, {y}</p>} />
+```
+
+The variant using `children` as the render function — more common in practice:
+
+```jsx
+<MouseTracker>
+  {({ x, y }) => <p>Mouse at {x}, {y}</p>}
+</MouseTracker>
+```
+
+**What they were used for historically:**
+
+- **Sharing stateful behavior** without HOC wrapper hell — `<DataLoader>{(data) => ...}</DataLoader>`
+- **Inversion of rendering control** — the wrapper owns state, the consumer owns rendering
+- **Library APIs** — Downshift, React Motion, the old `<Route>` API in React Router
+
+**The problem they had — pyramid of nesting:**
+
+```jsx
+<Auth>
+  {(user) => (
+    <Theme>
+      {(theme) => (
+        <Mouse>
+          {(pos) => <Component user={user} theme={theme} pos={pos} />}
+        </Mouse>
+      )}
+    </Theme>
+  )}
+</Auth>
+```
+
+Each level adds indentation. Three render props deep is uncomfortable; five is unreadable.
+
+**Why hooks replaced them:**
+
+```jsx
+function Component() {
+  const user = useAuth();
+  const theme = useTheme();
+  const pos = useMouse();
+  return <Inner user={user} theme={theme} pos={pos} />;
+}
+```
+
+Flat. No pyramid. Each hook is a single line. Custom hooks took the use case render props served — **sharing stateful logic** — and made it ergonomic.
+
+**Where render props still make sense:**
+
+- **Component-level rendering customization.** When the consumer needs to render *different markup* based on state from the wrapper: `<List>{(item) => <CustomRow item={item} />}</List>`.
+- **Library APIs that need flexibility about markup.** TanStack Table uses render props heavily for cell rendering — the table owns row state, you own how each cell looks.
+
+**Senior touch:** render props aren't *wrong* — they're an older pattern that hooks largely obsoleted for stateful-logic reuse. You'll still see them in libraries that need rendering flexibility, but in new component code, **a custom hook is almost always the better answer**. The senior signal in an interview is recognizing render props as a historical pattern, knowing why hooks replaced them, and knowing the narrow cases where they still earn their place (TanStack Table's cell rendering is a good example).

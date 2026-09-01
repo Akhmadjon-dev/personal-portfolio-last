@@ -1,0 +1,72 @@
+---
+q: "What is hydration in React?"
+level: senior
+type: theory
+order: 15
+---
+
+Hydration is the process where React takes server-rendered HTML and **makes it interactive** by attaching event listeners and reconnecting client-side state. It's how SSR (Server-Side Rendering) becomes a working React app in the browser.
+
+```jsx
+// Server (or build time): renders <App /> to HTML string
+const html = renderToString(<App />);
+// → <div><h1>Hello</h1><button>Click</button></div>
+
+// Client: takes that HTML and "hydrates" it
+import { hydrateRoot } from 'react-dom/client';
+hydrateRoot(document.getElementById('root'), <App />);
+```
+
+After hydration, the HTML the user sees becomes a real React app — clicks work, state updates re-render, etc.
+
+**Why hydration exists:**
+
+Without it, an SSR-rendered page would show HTML immediately, but clicks wouldn't do anything until React downloaded, parsed, and rendered the entire tree from scratch — replacing the HTML and causing a "flash of broken UI." Hydration avoids this by *attaching* to the existing HTML instead of replacing it.
+
+**The hydration flow:**
+
+1. Server renders `<App />` to an HTML string and sends it with the page.
+2. Browser shows the HTML — users see content immediately.
+3. JS bundle downloads in parallel.
+4. React calls `hydrateRoot()` — it walks the existing DOM, reconciles it against the rendered component tree, attaches event listeners.
+5. Page is now fully interactive.
+
+**Hydration mismatch — the classic bug:**
+
+If the server-rendered HTML doesn't match what React renders on the client, React logs a warning and patches up the subtree:
+
+```jsx
+function Greeting() {
+  // ❌ Returns different values on server vs client
+  return <p>{new Date().toLocaleString()}</p>;
+}
+```
+
+The server renders the time at request time; the client renders the time at hydration time. They don't match → mismatch warning → React patches up.
+
+**Common causes:**
+
+- `Date.now()`, `Math.random()`, or any nondeterministic value
+- Reading `window`, `localStorage`, `navigator` (server doesn't have these)
+- Different content based on `window.matchMedia()` or feature detection
+
+The fix is to either render the same content on both sides or defer client-only content with `useEffect` so it appears *after* hydration.
+
+**React 18 — selective hydration:**
+
+Before React 18, hydration was a single blocking pass — the whole tree had to hydrate before any of it became interactive. React 18 introduced **selective hydration**: with Suspense boundaries, React can hydrate sections independently, prioritizing whichever section the user interacts with first.
+
+```jsx
+<>
+  <Suspense fallback={<HeaderSkeleton />}>
+    <Header />
+  </Suspense>
+  <Suspense fallback={<MainSkeleton />}>
+    <Main />
+  </Suspense>
+</>
+```
+
+If the user clicks on `Header`, React hydrates `Header` first — even if `Main` is still loading data on the server.
+
+**Senior touch:** hydration is where the *cost* of SSR becomes visible. The server-rendered HTML appears fast, but the page can't respond to clicks until JS downloads, parses, and hydrates. This "time to interactive" gap is what frameworks like Astro (with islands architecture) and Qwik (with resumability) try to minimize. Knowing hydration explains *why* React Server Components and partial hydration matter — both reduce the JS that needs to ship and hydrate, narrowing the gap between paint and interactivity.

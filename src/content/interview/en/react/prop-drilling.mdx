@@ -1,0 +1,80 @@
+---
+q: "What is prop drilling and how to avoid it?"
+level: mid
+type: theory
+order: 2
+---
+
+Prop drilling is passing props through intermediate components that don't use them, just to reach a descendant that does. The intermediate components become "pipes" — they have to know about props they shouldn't care about.
+
+```jsx
+// 4 levels of drilling — Section and Toolbar don't use `user`, they just pass it down
+function App() {
+  const user = useCurrentUser();
+  return <Page user={user} />;
+}
+function Page({ user })    { return <Section user={user} />; }
+function Section({ user }) { return <Toolbar user={user} />; }
+function Toolbar({ user }) { return <ProfileBadge user={user} />; }
+```
+
+This works but creates problems:
+
+- **Coupling.** Renaming `user` to `currentUser` forces edits in every intermediate component.
+- **Refactor friction.** Moving `ProfileBadge` to a new parent means re-threading the prop again.
+- **Visual noise.** Component signatures fill up with props they don't actually use.
+
+**Five ways to avoid it:**
+
+| Approach | Best for |
+|---|---|
+| **Component composition** (`children`) | When the consumer is part of a JSX tree passed by the owner |
+| **Context** | Truly app-wide values — theme, locale, auth, feature flags |
+| **State libraries** (Zustand, Jotai, Redux) | Cross-tree state with frequent updates and selectors |
+| **Server state libraries** (TanStack Query, SWR) | Data from APIs — auto-deduped, cached, refetched on focus |
+| **URL state** (router, search params) | State that should be shareable / bookmarkable |
+
+**1. Composition over drilling.** Pass JSX as children instead of threading props down:
+
+```jsx
+// Before: drilling
+<Page user={user}>
+  <Profile />
+</Page>
+
+// After: composition — Page doesn't see `user` at all
+function App() {
+  const user = useCurrentUser();
+  return (
+    <Page>
+      <ProfileBadge user={user} />
+    </Page>
+  );
+}
+```
+
+**2. Context for app-wide values:**
+
+```jsx
+const UserContext = createContext(null);
+
+function App() {
+  const user = useCurrentUser();
+  return (
+    <UserContext.Provider value={user}>
+      <Page />
+    </UserContext.Provider>
+  );
+}
+
+function ProfileBadge() {
+  const user = useContext(UserContext);
+  return <div>{user?.name}</div>;
+}
+```
+
+Intermediate components don't pass `user` anymore — `ProfileBadge` reads it directly from context.
+
+**3. State libraries for shared, frequently-changing state.** Zustand is the modern minimal choice — components that need a slice subscribe to it; the rest don't re-render.
+
+**Senior touch:** prop drilling isn't always bad — for 1–2 levels, just drill. The cost of indirection (context, store) is real, and reaching for them too early is its own anti-pattern. The senior heuristic: **drill until it hurts; then promote to context or a store**. "Hurts" usually means 3+ levels, frequent changes, or multiple branches of the tree needing the same value. Premature globalization is a worse problem than a little drilling.

@@ -1,0 +1,89 @@
+---
+q: "TurboModules — typed, lazy native modules"
+level: senior
+type: theory
+order: 3
+---
+
+**TurboModules** are the New Architecture's replacement for legacy "Native Modules." They differ in three important ways: **type-safe** (via codegen), **lazy-loaded** (not loaded until first use), and **synchronous** (via JSI, not the bridge).
+
+**The legacy Native Module:**
+
+```objc
+// MyModule.m (iOS, legacy)
+@implementation MyModule
+RCT_EXPORT_MODULE();
+RCT_EXPORT_METHOD(doThing:(NSString *)arg
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+  resolve(@"result");
+}
+@end
+```
+
+```jsx
+// JS side
+import { NativeModules } from 'react-native';
+const result = await NativeModules.MyModule.doThing('input');
+```
+
+Problems with this pattern:
+
+- **All modules loaded at startup**, even if never used.
+- **No type safety** — JS calls are stringly-typed; args/return are validated at runtime.
+- **All calls async** via the bridge.
+
+**The TurboModule version:**
+
+```ts
+// NativeMyModule.ts — the JS-side spec
+import type { TurboModule } from 'react-native';
+import { TurboModuleRegistry } from 'react-native';
+
+export interface Spec extends TurboModule {
+  doThing(arg: string): Promise<string>;
+  getConstants(): { version: string };
+}
+
+export default TurboModuleRegistry.getEnforcing<Spec>('MyModule');
+```
+
+What changed:
+
+- **TypeScript spec is the contract.** Both JS and native generated bindings derive from it.
+- **Codegen produces glue code** at build time — no manual bridge declarations on either side.
+- **Lazy loading.** The module isn't initialized until JS first calls `TurboModuleRegistry.getEnforcing(...)` — saves app startup time.
+- **JSI under the hood.** Calls are direct C++ → JS, no JSON.
+
+**Three benefits in practice:**
+
+**1. Faster app startup.** Modules aren't all loaded eagerly. The 50+ native modules a typical RN app has don't all initialize before the first frame.
+
+**2. Type safety from JS to native.** The TypeScript types are enforced by codegen — passing a number where a string is expected fails at build time, not runtime.
+
+**3. Synchronous calls possible.** Most TurboModules still use promises for API consistency, but they *can* be synchronous when needed (e.g., `getDeviceName(): string` that returns instantly).
+
+**Backwards compatibility:**
+
+Apps with the New Architecture enabled can still load legacy Native Modules — there's a fallback path. But TurboModules get all the benefits; new code should use them.
+
+**Codegen — generating the bindings:**
+
+At build time, RN's codegen tool reads your TypeScript specs and generates:
+
+- Java/Kotlin bindings for Android
+- Objective-C++ bindings for iOS
+- C++ JSI registration code
+
+You write the spec; codegen handles the boilerplate. This eliminates the most error-prone part of legacy native module development.
+
+**TurboModule registry:**
+
+```ts
+TurboModuleRegistry.get<Spec>('MyModule');           // returns null if not registered
+TurboModuleRegistry.getEnforcing<Spec>('MyModule');  // throws if not registered
+```
+
+`getEnforcing` is the typical choice for required modules. It triggers lazy loading on first call.
+
+**Senior touch:** the senior framing — **TurboModules are why "native module" is no longer a scary phrase.** The legacy pattern required understanding the bridge, writing bidirectional bindings by hand, and accepting runtime type checking. TurboModules + codegen reduce that to writing a TypeScript spec and the native implementation — the bindings, the type safety, the JSI registration are all generated. By 2026, every actively-maintained RN library that needs native code uses TurboModules.

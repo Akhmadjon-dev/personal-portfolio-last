@@ -1,0 +1,79 @@
+---
+q: "Implement a custom `useFetch` hook"
+level: mid
+type: code
+order: 7
+---
+
+A production-grade `useFetch` needs more than the textbook version. It must:
+
+- Track loading and error state
+- Abort on unmount or URL change (prevent stale responses)
+- Survive re-renders without re-fetching the same URL
+- Avoid race conditions when URLs change quickly
+
+```tsx
+function useFetch<T>(url: string, options?: RequestInit) {
+  const [data, setData] = useState<T | null>(null);
+  const [error, setError] = useState<Error | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    const controller = new AbortController();
+
+    setLoading(true);
+    setError(null);
+
+    fetch(url, { ...options, signal: controller.signal })
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((json: T) => {
+        if (!cancelled) {
+          setData(json);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (err.name === 'AbortError' || cancelled) return;
+        setError(err);
+        setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [url]); // intentionally not including options — see below
+
+  return { data, error, loading };
+}
+
+// Usage:
+const { data, error, loading } = useFetch<User[]>('/api/users');
+```
+
+**What the implementation gets right:**
+
+- **AbortController** cancels the in-flight request on unmount or URL change.
+- **`cancelled` flag** prevents the stale `.then` from updating state after unmount (the AbortController handles the network request, this handles the JS Promise resolution).
+- **Reset state on URL change** (loading=true, error=null) so the UI shows a fresh loading state.
+- **Status code check** — `fetch` doesn't reject on 4xx/5xx; you have to check `res.ok` manually.
+
+**The `options` deps footgun:**
+
+```tsx
+useFetch('/api/users', { headers: { Authorization: token } });
+```
+
+If you pass `options` inline, it's a new object every render — and including it in deps would re-fetch on every render. Your options:
+
+1. Memoize the options at the call site: `const options = useMemo(() => ({ headers }), [headers])`
+2. Stringify and hash for deps (ugly)
+3. Don't include in deps and accept that options can be stale (what the implementation above does)
+
+TanStack Query's approach is to serialize the entire request to a "key" — the cleanest solution at the cost of a dependency.
+
+**Senior touch:** **don't ship this in production.** Custom `useFetch` is fine for a tiny app or an interview demo. Real apps need caching, deduplication across components, retries, focus refetching, background revalidation, optimistic updates, mutation tracking. **TanStack Query** (or SWR) solves all of this. The senior framing in an interview: "I can write `useFetch`, but for anything beyond a demo I'd reach for TanStack Query. Rebuilding it badly is a common production mistake — and once you have two fetching patterns in the same codebase, the bugs multiply."

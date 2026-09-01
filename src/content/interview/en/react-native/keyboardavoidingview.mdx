@@ -1,0 +1,71 @@
+---
+q: "What is `KeyboardAvoidingView`?"
+level: entry
+type: theory
+order: 14
+---
+
+`<KeyboardAvoidingView>` is a layout component that **shifts its content out of the way when the soft keyboard appears**, preventing inputs from being hidden under the keyboard.
+
+```jsx
+import { KeyboardAvoidingView, Platform, TextInput } from 'react-native';
+
+function LoginForm() {
+  return (
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <TextInput placeholder="Email" />
+      <TextInput placeholder="Password" secureTextEntry />
+    </KeyboardAvoidingView>
+  );
+}
+```
+
+**The `behavior` prop — three options:**
+
+| Behavior | What it does | Best for |
+|---|---|---|
+| `'padding'` | Adds padding equal to the keyboard height | iOS — most natural feel |
+| `'height'` | Reduces the view's height to fit | Android — more reliable |
+| `'position'` | Shifts the view's position | Rarely the right choice |
+
+**Platform differences:**
+
+The behaviors don't work identically across iOS and Android, which is why the canonical pattern uses a Platform check:
+
+```jsx
+<KeyboardAvoidingView
+  behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+  keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
+  style={{ flex: 1 }}
+>
+  ...
+</KeyboardAvoidingView>
+```
+
+`keyboardVerticalOffset` adds extra space if you have a header above the avoiding view — by default, `KeyboardAvoidingView` doesn't know about navigation headers.
+
+**Common gotchas:**
+
+- **Wrap the whole screen, not just the input.** The view needs to be the parent layout container, so it can resize when the keyboard appears.
+- **`flex: 1` on the KAV.** Without it, the avoiding behavior doesn't have room to operate.
+- **Forms inside `ScrollView`** — wrap the `ScrollView` in `KeyboardAvoidingView`, and use `keyboardShouldPersistTaps="handled"` so taps outside inputs dismiss the keyboard.
+- **Android automatic resize** — Android often does this natively via `android:windowSoftInputMode="adjustResize"` in `AndroidManifest.xml`. Sometimes you don't need KAV on Android at all.
+
+**The library alternative — `react-native-keyboard-controller`:**
+
+The built-in `KeyboardAvoidingView` has reliability issues on Android, and the iOS animation doesn't always sync with the keyboard's. The community library **`react-native-keyboard-controller`** provides better, more consistent keyboard handling with reanimated animations:
+
+```jsx
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+
+<KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+  ...
+</KeyboardAvoidingView>
+```
+
+Drop-in replacement, much smoother behavior on both platforms.
+
+**Senior touch:** the built-in `KeyboardAvoidingView` is okay for simple cases but breaks in subtle ways with navigation headers, modal screens, and Android's window-resize behavior. In 2026 most production apps reach for **`react-native-keyboard-controller`** instead — same API, cross-platform consistency, animations synchronized with the actual keyboard movement. Naming this library is the senior signal in an interview.

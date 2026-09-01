@@ -1,0 +1,60 @@
+---
+q: "What are Portals?"
+level: mid
+type: theory
+order: 16
+---
+
+A portal renders a component's children into a **different DOM node** from the one its parent occupies. The React component tree stays the same — `Modal` is still a child of `App` from React's perspective — but the rendered DOM lives elsewhere.
+
+```jsx
+import { createPortal } from 'react-dom';
+
+function Modal({ isOpen, children, onClose }) {
+  if (!isOpen) return null;
+  return createPortal(
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
+        {children}
+      </div>
+    </div>,
+    document.getElementById('modal-root')
+  );
+}
+
+// In your HTML
+// <body>
+//   <div id="root"></div>
+//   <div id="modal-root"></div>  ← modals render here
+// </body>
+```
+
+**Why portals exist:**
+
+CSS `overflow: hidden`, `transform`, and `position` create stacking contexts. A modal nested deep inside an `overflow: hidden` parent gets visually clipped. By rendering the modal into a top-level node (`#modal-root`), it escapes the parent's stacking context.
+
+**Common use cases:**
+
+| Use case | Why portals fit |
+|---|---|
+| **Modals / dialogs** | Need to overlay everything, escape clipping |
+| **Tooltips** | Should float above any parent's `overflow: hidden` |
+| **Toasts / notifications** | Render at the document level, not in the component tree |
+| **Dropdowns / popovers** | Same — visual escape from parent stacking |
+
+**Key insight — React tree vs DOM tree are different:**
+
+Even though the DOM node lives at `#modal-root`, the React tree treats `Modal` as a child of whoever rendered it. That means:
+
+- **Events bubble through the React tree**, not the DOM tree. A click inside the modal bubbles up to React parents *as if* the modal were nested where it's rendered.
+- **Context works normally.** The modal can read `useContext(ThemeContext)` even though it's rendered outside the provider in the DOM.
+
+```jsx
+<ThemeContext.Provider value="dark">
+  <App>
+    <Modal>I have access to "dark" theme ↑</Modal>
+  </App>
+</ThemeContext.Provider>
+```
+
+**Senior touch:** the React-tree-vs-DOM-tree distinction is the senior insight here. Junior developers learn "portals render elsewhere"; seniors know that **event bubbling and context follow the React tree, not the DOM tree** — which means portals don't break event propagation or context inheritance even though the DOM node is detached. That's why React invented portals instead of just letting you `document.body.appendChild()` your modal: portals preserve React semantics while escaping DOM constraints. Knowing both layers is the signal.

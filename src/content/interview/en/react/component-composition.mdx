@@ -1,0 +1,81 @@
+---
+q: "What is Component Composition?"
+level: mid
+type: theory
+order: 8
+---
+
+Component Composition is the practice of building complex UIs by **combining smaller components** rather than extending or modifying them. It's React's preferred alternative to inheritance — favored so strongly that React's documentation has historically discouraged inheritance entirely.
+
+The pattern is enabled by two mechanisms: the `children` prop and explicitly named "slot" props.
+
+```jsx
+// Composition with children
+function Card({ children }) {
+  return <div className="card">{children}</div>;
+}
+
+<Card>
+  <h2>Sales</h2>
+  <p>$12,345 this month</p>
+</Card>
+```
+
+`Card` doesn't need to know about its content. It provides a shape; consumers fill it in.
+
+**Slot props — named composition for multiple regions:**
+
+```jsx
+function PageLayout({ header, sidebar, main, footer }) {
+  return (
+    <div className="layout">
+      <header>{header}</header>
+      <aside>{sidebar}</aside>
+      <main>{main}</main>
+      <footer>{footer}</footer>
+    </div>
+  );
+}
+
+<PageLayout
+  header={<Logo />}
+  sidebar={<Nav />}
+  main={<Dashboard />}
+  footer={<Copyright />}
+/>
+```
+
+This is how layout components work — define regions, accept content as JSX through props.
+
+**Why composition beats inheritance in React:**
+
+- **Easier to reason about.** "What does this Card do? Renders a styled div with its children inside." Versus inheritance: "What does `ExtendedAdminCard` do? Walk up its chain and combine everything."
+- **No fragile base class problem.** Adding a method to a parent class doesn't ripple unexpected changes through children.
+- **Type-safe with TypeScript.** Composition through props is easy to type; inheritance hierarchies fight TypeScript constantly.
+
+**Three composition patterns worth knowing:**
+
+| Pattern | Use case |
+|---|---|
+| **Children-as-content** | Card, Modal, Section — content varies, structure is fixed |
+| **Slot props** | Layouts with multiple regions (header, sidebar, main) |
+| **Compound components** | Tabs, Select, Accordion — shared implicit state across pieces |
+
+**Compound components example:**
+
+```jsx
+<Tabs defaultIndex={0}>
+  <Tabs.List>
+    <Tabs.Tab>Overview</Tabs.Tab>
+    <Tabs.Tab>Settings</Tabs.Tab>
+  </Tabs.List>
+  <Tabs.Panels>
+    <Tabs.Panel>...</Tabs.Panel>
+    <Tabs.Panel>...</Tabs.Panel>
+  </Tabs.Panels>
+</Tabs>
+```
+
+`Tabs` shares state with its children via Context — they appear to be siblings but coordinate through invisible state.
+
+**Senior touch:** the senior signal here is recognizing that **composition is often the cure for the prop drilling problem**. Before reaching for context or a global store, ask: *"Could I just compose this with `children` instead?"* If the consumer is going to render the eventual child anyway, you can pass the child directly via JSX and skip the entire prop-threading exercise. That insight prevents a lot of premature globalization.

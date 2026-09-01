@@ -1,0 +1,87 @@
+---
+q: "Implement `useThrottle`"
+level: senior
+type: code
+order: 12
+---
+
+Throttling ensures a callback fires **at most once per N milliseconds**. Different from debouncing (which waits for stability): throttle fires immediately and then ignores further calls within the delay window.
+
+```tsx
+function useThrottle<T>(value: T, limit = 300): T {
+  const [throttled, setThrottled] = useState<T>(value);
+  const lastUpdate = useRef(Date.now());
+
+  useEffect(() => {
+    const now = Date.now();
+    const sinceLastUpdate = now - lastUpdate.current;
+
+    if (sinceLastUpdate >= limit) {
+      setThrottled(value);
+      lastUpdate.current = now;
+    } else {
+      const timer = setTimeout(() => {
+        setThrottled(value);
+        lastUpdate.current = Date.now();
+      }, limit - sinceLastUpdate);
+      return () => clearTimeout(timer);
+    }
+  }, [value, limit]);
+
+  return throttled;
+}
+```
+
+**Throttle vs debounce:**
+
+| | Debounce | Throttle |
+|---|---|---|
+| Fires | Only after activity stops for N ms | At most once every N ms during activity |
+| Use for | Search input (after user stops typing) | Scroll, resize, drag handlers |
+| If event keeps firing | Never fires | Fires regularly at the throttle rate |
+
+For a scroll handler that updates a position indicator: **throttle** to ensure smooth, regular updates (~10/sec). For a search input: **debounce** so you don't fetch on every keystroke.
+
+**Throttled callback variant:**
+
+```tsx
+function useThrottledCallback<T extends (...args: any[]) => void>(
+  fn: T,
+  limit = 300,
+) {
+  const lastCalled = useRef(0);
+  const fnRef = useRef(fn);
+  fnRef.current = fn; // always call the latest fn
+
+  return useCallback((...args: Parameters<T>) => {
+    const now = Date.now();
+    if (now - lastCalled.current >= limit) {
+      fnRef.current(...args);
+      lastCalled.current = now;
+    }
+  }, [limit]);
+}
+
+// Usage on scroll
+const onScroll = useThrottledCallback((e) => {
+  setScrollPos(e.target.scrollTop);
+}, 16); // ~60fps
+```
+
+**Common gotchas:**
+
+- **Trailing edge.** The simple version drops the *last* call if it arrives within the limit window. Production libraries (`lodash.throttle`) offer trailing-edge options that fire the last call after the limit.
+- **Stale closures.** The `fnRef` pattern (always calling the latest `fn`) prevents the callback from capturing an old version of state.
+- **Cleanup.** Throttle timers should be cleaned up on unmount, which the hook handles via the effect cleanup.
+
+**Real-world throttle rates:**
+
+| Use case | Rate |
+|---|---|
+| Scroll position tracking | 16ms (~60fps) |
+| Window resize handler | 100ms |
+| Drag/mouse position | 16ms |
+| Search API calls | Don't — use debounce |
+| Auto-save | Don't — use debounce |
+
+**Senior touch:** the throttle vs debounce confusion is one of the most common interview signals. **Throttle = "fire at a steady rate." Debounce = "fire after activity ends."** Mixing them up is junior; clarifying the choice based on use case (scroll → throttle; search → debounce) is senior. For production, both behaviors exist in `lodash.throttle` / `lodash.debounce` with edge-case handling — rebuilding them by hand is rarely worth it.

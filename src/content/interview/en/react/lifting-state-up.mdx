@@ -1,0 +1,84 @@
+---
+q: "What is Lifting State Up?"
+level: mid
+type: theory
+order: 13
+---
+
+Lifting state up is the pattern of moving shared state **to the closest common ancestor** of components that need it. Instead of duplicating state in siblings, the parent owns it and passes it down as props.
+
+```jsx
+// ❌ Before: two siblings, each managing the same conceptual value
+function Page() {
+  return (
+    <>
+      <TemperatureInput unit="c" />
+      <TemperatureInput unit="f" />
+    </>
+  );
+}
+// Problem: when one updates, the other doesn't see it.
+
+// ✅ After: state lifted to the parent
+function Page() {
+  const [temperature, setTemperature] = useState('');
+  const [unit, setUnit] = useState('c');
+
+  return (
+    <>
+      <TemperatureInput
+        unit="c"
+        value={unit === 'c' ? temperature : toC(temperature)}
+        onChange={(v) => { setTemperature(v); setUnit('c'); }}
+      />
+      <TemperatureInput
+        unit="f"
+        value={unit === 'f' ? temperature : toF(temperature)}
+        onChange={(v) => { setTemperature(v); setUnit('f'); }}
+      />
+    </>
+  );
+}
+```
+
+Both inputs now reflect the same source of truth.
+
+**When to lift state up:**
+
+- Two or more components need the **same value**.
+- A parent needs to **respond to** changes in a child's state.
+- The state needs to **persist** across re-mounts of the children (parent stays mounted; children come and go).
+
+**When NOT to lift state up:**
+
+- The state is **truly local** — only one component cares about it. Keep it there.
+- Lifting would force passing the state through 4+ intermediate components. Use context, a store, or composition instead.
+
+**The pattern in three steps:**
+
+1. **Find the closest common ancestor** of the components needing the state.
+2. **Move the state** (and its setter) into that ancestor.
+3. **Pass the state as a prop, and the setter as a callback prop** down to children that need them.
+
+```jsx
+function Parent() {
+  const [shared, setShared] = useState('');
+  return (
+    <>
+      <ChildA value={shared} onChange={setShared} />
+      <ChildB value={shared} />
+    </>
+  );
+}
+```
+
+**Lifting vs context vs store:**
+
+| Approach | When |
+|---|---|
+| **Lift state up** | 1–3 levels of sharing; state-owning parent is natural |
+| **Context** | Many levels deep, state is "ambient" (theme, user, locale) |
+| **Store** (Zustand, Redux) | Multiple unrelated branches of the tree need the state, with frequent updates |
+| **URL state** | State should survive refresh / be shareable |
+
+**Senior touch:** "lifting state up" is the canonical React pattern for shared state, and reaching for context or a store too early — instead of lifting — is one of the most common architectural mistakes. The honest order of preference is: **keep state local → lift up → composition with `children` → context → store**. Each step adds indirection, so you only escalate when the simpler option breaks down. The senior signal is naming this gradient explicitly instead of jumping straight to global state.

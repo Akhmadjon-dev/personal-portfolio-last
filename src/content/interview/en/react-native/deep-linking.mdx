@@ -1,0 +1,96 @@
+---
+q: "Deep linking in React Navigation"
+level: junior
+type: theory
+order: 7
+---
+
+Deep linking is when external URLs open specific screens in your app. Tapping `https://myapp.com/users/42` should open the user profile for ID 42 — not just launch the app.
+
+**Two flavors:**
+
+- **Universal Links (iOS) / App Links (Android)** — https URLs that open your app when installed, the website when not. The modern standard.
+- **Custom URL schemes** — `myapp://users/42`. Simpler to set up but less polished UX (no preview, requires the app to be installed).
+
+**Setup with Expo (`app.json`):**
+
+```json
+{
+  "expo": {
+    "scheme": "myapp",
+    "ios": {
+      "associatedDomains": ["applinks:myapp.com"]
+    },
+    "android": {
+      "intentFilters": [{
+        "action": "VIEW",
+        "data": [{ "scheme": "https", "host": "myapp.com", "pathPrefix": "/" }],
+        "category": ["BROWSABLE", "DEFAULT"]
+      }]
+    }
+  }
+}
+```
+
+**Configure routes in React Navigation:**
+
+```jsx
+const linking = {
+  prefixes: ['myapp://', 'https://myapp.com'],
+  config: {
+    screens: {
+      Home: '',
+      Profile: 'profile',
+      UserDetail: 'users/:id',
+    },
+  },
+};
+
+<NavigationContainer linking={linking}>
+  ...
+</NavigationContainer>
+```
+
+Now `https://myapp.com/users/42` opens `UserDetail` with `route.params.id === '42'`.
+
+**Expo Router does this automatically:**
+
+In Expo Router, the file path **is** the deep link path:
+
+```
+app/
+  users/
+    [id].tsx   ← matches both /users/42 and myapp://users/42
+```
+
+No additional config required — file-based routing and deep linking are the same thing.
+
+**Programmatically opening links:**
+
+```jsx
+import { Linking } from 'react-native';
+
+Linking.openURL('https://example.com');     // external URL
+Linking.openURL('mailto:hello@example.com');
+Linking.openURL('tel:+15551234567');
+Linking.openSettings();                      // app's settings page
+
+// Get the URL that launched the app (cold-start deep links)
+const initialURL = await Linking.getInitialURL();
+```
+
+**Auth flow gotcha:**
+
+OAuth redirects need deep linking — the OAuth provider redirects back to `myapp://oauth/callback` with an auth code. Configure carefully:
+
+```jsx
+import * as AuthSession from 'expo-auth-session';
+
+const redirectUri = AuthSession.makeRedirectUri({ scheme: 'myapp' });
+// → 'myapp://...' in standalone builds
+// → 'exp://...' in Expo Go
+```
+
+`expo-auth-session` and `expo-web-browser` handle the auth flow for you, including the deep-link return.
+
+**Senior touch:** the senior framing is recognizing **deep linking and routing are the same problem in mobile**. Web apps have URLs by default; mobile apps don't unless you set them up. Once you do, every screen has a URL, and the entire app becomes shareable, bookmarkable, and OAuth-friendly. Skip deep linking and you'll be retrofitting it under stress when marketing asks for shareable links to specific products. **Set it up from day one.**

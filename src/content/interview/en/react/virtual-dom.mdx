@@ -1,0 +1,37 @@
+---
+q: "What is the Virtual DOM?"
+level: entry
+type: theory
+order: 11
+---
+
+The Virtual DOM is an **in-memory tree representation of the UI** that React maintains alongside the real DOM. It's a lightweight JavaScript object tree, much cheaper to create and compare than actual DOM nodes.
+
+The flow on every state change:
+
+1. Your component returns a new JSX tree → React converts it to a **new Virtual DOM tree**.
+2. React **diffs** the new tree against the previous one (the algorithm is called *reconciliation*).
+3. React computes the **minimum set of DOM mutations** needed to make the real DOM match.
+4. React applies those mutations to the real DOM in a single batch.
+
+```jsx
+function Greeting({ name }) {
+  return <h1>Hello, {name}</h1>;
+}
+// First render with name="Alice"  → VDOM: <h1>Hello, Alice</h1>
+// Second render with name="Bob"   → VDOM: <h1>Hello, Bob</h1>
+// Diff: only the text node changed
+// DOM mutation: update one text node — nothing else touched
+```
+
+**Why this matters:**
+
+- **DOM mutations are expensive.** Each layout/paint cycle costs the browser real work. Minimizing them is the single biggest win for UI performance.
+- **You write declarative code.** You describe what should be on screen; the diffing algorithm figures out how to get there. You never call `removeChild`, `setAttribute`, or `replaceWith`.
+
+**Common misconceptions:**
+
+- *"Virtual DOM is faster than the real DOM."* → False. Adding a layer of indirection isn't inherently faster. What's faster is *avoiding unnecessary DOM mutations*, which the Virtual DOM enables.
+- *"Other frameworks don't have a Virtual DOM, so they're slower."* → False. Svelte, Solid, and Qwik skip the Virtual DOM entirely and are often faster than React on benchmarks. The Virtual DOM is one strategy, not a requirement.
+
+**Senior touch:** the Virtual DOM is the *strategy*; **Fiber** is the *data structure* React uses to make it interruptible. Together they enable concurrent rendering — the ability to pause, resume, and prioritize work across renders. Without Fiber, the Virtual DOM is just a diffing technique; with Fiber, it becomes a scheduling foundation. When someone asks about Virtual DOM in 2026, the right framing is: "diffing technique that, combined with Fiber, gives React its concurrent capabilities."

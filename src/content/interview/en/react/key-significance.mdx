@@ -1,0 +1,57 @@
+---
+q: "What is the significance of `key`?"
+level: mid
+type: theory
+order: 17
+---
+
+A key tells React the **identity** of an element across renders. Same key in old and new trees = "same item, just maybe with different props." Different key = "different item, replace it."
+
+The first use everyone learns: **list rendering**. Keys let React track which items moved, were added, or removed in a list. The senior signal is knowing **two other powerful uses** of keys.
+
+**Use 1: Force a component reset by changing its key.**
+
+```jsx
+function ProfileEditor({ userId }) {
+  return <Form key={userId} />;
+}
+```
+
+When `userId` changes, the key changes. React sees a different key and **fully remounts `Form`** — every `useState`, every `useEffect` runs from scratch. The form is reset cleanly without any explicit "reset" logic.
+
+This pattern is the cleanest way to:
+
+- Reset a form when switching between items (editing user A → editing user B)
+- Reset state when a route changes
+- Re-trigger an enter animation by changing the key
+
+Without the key, `Form` would be reused — it'd see the new `userId` prop, but its internal state would carry over from the previous user.
+
+**Use 2: Preserve state when moving an element.**
+
+The inverse: keeping the *same* key on an element that moves in the JSX tree preserves its state across the move.
+
+```jsx
+{isExpanded ? (
+  <div className="expanded">
+    <input key="search" />
+    <Filters />
+  </div>
+) : (
+  <div className="collapsed">
+    <input key="search" />
+  </div>
+)}
+```
+
+Same `key="search"` on the input in both branches. When `isExpanded` toggles, React sees the input "moved" to a new parent but kept its identity — internal state (current value, focus, selection) is preserved.
+
+**The pattern:**
+
+| Goal | Use keys to... |
+|---|---|
+| Track list items | Provide stable IDs as keys |
+| Reset component state | Change the key when state should reset |
+| Preserve state across DOM changes | Keep the same key |
+
+**Senior touch:** "force a reset by changing the key" is one of the patterns that separates intermediate from senior React practice. Without it, developers often write explicit `useEffect` reset logic that's brittle and error-prone — *"when `userId` changes, reset name, age, email, formError, ..."*. A single `<Form key={userId} />` does all of that automatically. The senior insight: **keys are not just for lists — they're React's primary tool for component identity**, and that identity is reusable for state reset *and* state preservation.

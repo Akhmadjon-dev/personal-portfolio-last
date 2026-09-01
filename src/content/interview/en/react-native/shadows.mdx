@@ -1,0 +1,82 @@
+---
+q: "Shadows on iOS vs Android"
+level: junior
+type: theory
+order: 14
+---
+
+Shadows are one of the few areas where iOS and Android use completely different APIs in React Native. iOS uses `shadow*` properties; Android uses `elevation`.
+
+```jsx
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 16,
+
+    // iOS
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+
+    // Android
+    elevation: 4,
+  },
+});
+```
+
+**iOS shadow properties:**
+
+| Prop | What it does |
+|---|---|
+| `shadowColor` | Color of the shadow (often `'#000'`) |
+| `shadowOffset` | `{ width, height }` — offset from the element |
+| `shadowOpacity` | 0–1 |
+| `shadowRadius` | Blur radius |
+
+iOS shadows can be any color, any offset, any opacity — full visual control.
+
+**Android `elevation`:**
+
+A single number. Android renders a shadow based on Material Design's elevation system — fixed style, no color control, only depth (higher elevation = bigger shadow). `elevation` also affects z-index — higher elevation draws on top.
+
+**The mismatch problem:**
+
+iOS gives you precise control; Android gives you a single number. Matching them visually requires trial and error. A rough approximation table:
+
+| Android elevation | iOS approximation |
+|---|---|
+| 1 | offset 0,1, opacity 0.05, radius 2 |
+| 2 | offset 0,2, opacity 0.08, radius 4 |
+| 4 | offset 0,2, opacity 0.1, radius 8 |
+| 8 | offset 0,4, opacity 0.15, radius 16 |
+| 16 | offset 0,8, opacity 0.2, radius 24 |
+
+Different design systems prefer different conventions. The right approach is platform-specific tokens rather than a universal value.
+
+**Gotchas:**
+
+- **`overflow: 'hidden'` cancels iOS shadows.** Setting overflow on the same element with the shadow clips the shadow itself. Workaround: separate shadow + clip into two parent/child views.
+- **`backgroundColor` is required on Android** for `elevation` to render. A transparent element with elevation may not cast a shadow.
+- **`borderRadius` affects shadow shape** on both platforms — usually what you want, but watch for clipping.
+
+**Boxes are easy; arbitrary shapes are hard.** The shadow follows the element's bounding box (with `borderRadius`). For an irregular shape, neither system can draw an accurate shadow — you'd need to draw it with an SVG or a separate background layer.
+
+**For consistent cross-platform shadows — `react-native-shadow-2`:**
+
+The library provides a wrapper component that produces visually identical shadows on iOS and Android by drawing the shadow with linear gradients on Android instead of relying on `elevation`:
+
+```jsx
+import { Shadow } from 'react-native-shadow-2';
+
+<Shadow distance={8} startColor="#0001">
+  <View style={{ padding: 16, backgroundColor: 'white' }}>
+    <Text>Card content</Text>
+  </View>
+</Shadow>
+```
+
+Same shadow on both platforms. Adds a small perf cost on Android (gradient rendering vs native elevation), but worth it when visual consistency matters.
+
+**Senior touch:** the senior framing — **don't expect shadows to match exactly across platforms by default.** Either accept the visual difference (and define iOS and Android tokens separately in your design system), or reach for `react-native-shadow-2` for consistency. The most common production approach: use `Platform.select` to define shadow tokens once, apply them via your design system, and accept a small Android/iOS visual difference. Pixel-perfect identical shadows are a library, not a built-in feature.

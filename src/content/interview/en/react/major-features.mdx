@@ -1,0 +1,31 @@
+---
+q: "What are the major features of React?"
+level: entry
+type: theory
+order: 6
+---
+
+React's design centers on six core features that together form its model:
+
+**1. Components.** UIs are built from small, isolated functions (or, historically, classes) that return JSX. Each component owns its data, behavior, and rendering — encapsulation by default.
+
+**2. JSX.** A syntax extension that lets you write HTML-like markup inside JavaScript. Visually clean, tool-friendly, transpiled to `React.createElement` calls at build time.
+
+**3. Virtual DOM + Reconciliation.** Instead of mutating the DOM directly, React works on an in-memory tree, diffs it against the previous one, and applies only the necessary DOM changes. Makes updates fast even in large UIs.
+
+**4. Unidirectional data flow.** Data flows parent → child via props. Combined with state and event callbacks, this makes data changes explicit and easy to trace. No two-way binding, no hidden side effects.
+
+**5. Hooks.** Functions that add state, lifecycle, and other React features to functional components (`useState`, `useEffect`, `useContext`, etc.). They replaced class components for most use cases starting with React 16.8.
+
+**6. Concurrent rendering.** React 18+ can prepare multiple UI versions in parallel, prioritize urgent updates (typing) over expensive ones (filtering), and suspend rendering while data loads. Powered by the Fiber reconciler.
+
+**Newer features (React 19+):**
+
+| Feature | What it does |
+|---|---|
+| **Server Components** | Components that render only on the server, sending serialized output to the client. Zero bundle impact, direct DB/file access. |
+| **Actions and `useTransition`** | First-class async handling for form submissions and mutations. |
+| **The React Compiler** | Automatic memoization at build time, replacing manual `useMemo` / `useCallback` / `React.memo`. |
+| **`use()` hook** | Reads promises and Context. Can be called conditionally and inside loops — breaks the usual hook rules in a controlled way. |
+
+**Senior touch:** the trajectory of React features has been *removing decisions* developers had to make manually. Hooks removed class boilerplate. Concurrent rendering removed manual scheduling. The Compiler is removing manual memoization. The pattern is consistent: simpler component code, smarter runtime — and that's the lens to use when evaluating any new React feature.

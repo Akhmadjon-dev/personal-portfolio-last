@@ -1,0 +1,56 @@
+---
+q: "Controlled vs Uncontrolled components?"
+level: junior
+type: theory
+order: 3
+---
+
+The distinction is about **where the source of truth for an input's value lives** — React state, or the DOM itself.
+
+**Controlled** — the value is driven by React state. Every keystroke calls `onChange`, which updates state, which re-renders the component, which sets the new value on the DOM.
+
+```jsx
+function Form() {
+  const [name, setName] = useState('');
+  return (
+    <input
+      value={name}
+      onChange={(e) => setName(e.target.value)}
+    />
+  );
+}
+```
+
+If `onChange` doesn't call `setName`, the input visibly does nothing — even though the user typed. React is the source of truth.
+
+**Uncontrolled** — the value lives in the DOM. React doesn't manage it; you read it via a ref when needed (typically on submit).
+
+```jsx
+function Form() {
+  const inputRef = useRef(null);
+  const handleSubmit = () => {
+    console.log(inputRef.current.value);
+  };
+  return (
+    <>
+      <input ref={inputRef} defaultValue="" />
+      <button onClick={handleSubmit}>Submit</button>
+    </>
+  );
+}
+```
+
+Note `defaultValue` instead of `value` — sets the initial value but doesn't keep it synced.
+
+**When to reach for each:**
+
+| Use controlled when... | Use uncontrolled when... |
+|---|---|
+| You need to validate / format input live | The form is fire-and-forget on submit |
+| The value drives other UI (search, filter) | You're integrating with non-React libraries |
+| You want to reset, prefill, or constrain values | You need fewer renders on huge forms |
+| Working with React Hook Form's controlled mode | Working with React Hook Form's default mode |
+
+**The third option: React Hook Form.** Most production forms in 2026 use `react-hook-form`, which is uncontrolled under the hood (registers refs, reads on submit) but feels controlled (you get values, errors, validation in a React-shaped API). It combines uncontrolled performance with controlled ergonomics.
+
+**Senior touch:** the controlled/uncontrolled distinction matters less than it used to. For a two-field form, controlled is fine. For anything more complex, reach for React Hook Form and stop thinking about the distinction entirely. The senior signal is knowing *when the question is asking about an obsolete framing* — and saying so.

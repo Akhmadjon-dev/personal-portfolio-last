@@ -1,0 +1,43 @@
+---
+q: "What are React Hooks?"
+level: junior
+type: theory
+order: 1
+---
+
+Hooks are functions that let you use state, lifecycle features, and other React capabilities inside functional components. They were introduced in React 16.8 and have effectively replaced class components for most use cases.
+
+**Why hooks exist.** Before hooks, the only way to use state and lifecycle methods was class components. Sharing stateful logic between components required higher-order components (HOCs) or render props — both led to wrapper hell, prop name collisions, and deeply nested trees. Lifecycle methods also scattered related code: a subscription's setup, update, and cleanup lived in three different methods (`componentDidMount`, `componentDidUpdate`, `componentWillUnmount`). Hooks solved both. Custom hooks extract stateful logic without wrapping the component tree, and `useEffect` colocates setup and cleanup of the same concern.
+
+**Built-in hooks you'll use daily:**
+
+| Hook | What it does |
+|---|---|
+| `useState` | Adds state to a component |
+| `useEffect` | Runs side effects — data fetching, subscriptions, DOM work |
+| `useRef` | References DOM nodes, or holds mutable values that don't trigger re-renders |
+| `useContext` | Consumes Context without `Consumer` wrapping |
+| `useReducer` | `useState` for complex state with multiple update paths |
+| `useMemo` / `useCallback` | Memoize values / function references |
+
+**Rules of Hooks** — enforced by `eslint-plugin-react-hooks`:
+
+1. Only call hooks **at the top level** — never inside conditions, loops, or after early returns.
+2. Only call hooks from **React functions** — components or other custom hooks. Not from regular JS functions.
+
+These rules exist because React tracks hook state by **call order, not by name**. Internally, React keeps an indexed list of hook calls per component. The first `useState` is slot 0, the next is slot 1, and so on. If you called a hook conditionally, every subsequent hook's index would shift between renders, and React would read the wrong slot — your `count` state could end up returning the value meant for `name`.
+
+```jsx
+// ❌ breaks the rules — call order varies between renders
+if (loggedIn) {
+  const [user, setUser] = useState(null);
+}
+
+// ✅ always called, slot index stays stable
+const [user, setUser] = useState(null);
+if (!loggedIn) return null;
+```
+
+**Custom hooks.** A custom hook is just a function that starts with `use` and calls other hooks. The `use` prefix is what triggers the lint rule that enforces the Rules of Hooks — there's no runtime magic. Extracting stateful logic into a custom hook (`useAuth`, `useDebounce`, `useFetch`) is the modern replacement for HOCs and render props.
+
+**Senior touch:** the most common production bug from violating the rules isn't the dramatic state corruption — it's a quieter version where someone adds an `if (loading) return <Spinner />` early-return *above* a `useEffect`. The lint plugin catches it; without it, the bug ships and only triggers when a specific code path is hit.

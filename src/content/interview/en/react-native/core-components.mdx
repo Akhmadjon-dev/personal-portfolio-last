@@ -1,0 +1,102 @@
+---
+q: "What are the core components in React Native?"
+level: entry
+type: theory
+order: 3
+---
+
+The handful you'll use in every screen. React Native ships these out of the box, and they map to native UI primitives on each platform.
+
+**Layout and structure:**
+
+| Component | Native equivalent | Purpose |
+|---|---|---|
+| `<View>` | UIView / android.view.View | Generic container — like `<div>` |
+| `<SafeAreaView>` | Insets-aware View | Avoids notches and home indicators |
+| `<ScrollView>` | UIScrollView / ScrollView | Scrollable container (small lists only) |
+| `<KeyboardAvoidingView>` | — | Shifts content when keyboard appears |
+
+**Text and media:**
+
+| Component | Purpose |
+|---|---|
+| `<Text>` | All text — **required wrapper** for any string |
+| `<Image>` | Display local or remote images |
+| `<ImageBackground>` | Image used as a layout background |
+
+**Input and interaction:**
+
+| Component | Purpose |
+|---|---|
+| `<TextInput>` | Text input fields |
+| `<Pressable>` | Modern touchable wrapper (preferred) |
+| `<TouchableOpacity>` | Legacy touchable with opacity feedback |
+| `<Switch>` | Native toggle switch |
+| `<Button>` | Default button — limited styling; use Pressable for custom |
+
+**Performant lists:**
+
+| Component | Purpose |
+|---|---|
+| `<FlatList>` | Virtualized list (the default for long lists) |
+| `<SectionList>` | FlatList with section headers |
+
+**Overlays:**
+
+| Component | Purpose |
+|---|---|
+| `<Modal>` | Full-screen modal (limited styling) |
+| `<ActivityIndicator>` | Spinner |
+
+**Example — assembling a screen:**
+
+```jsx
+import {
+  SafeAreaView, View, Text, TextInput,
+  Pressable, FlatList, ActivityIndicator
+} from 'react-native';
+
+function ContactsScreen({ contacts, loading, query, onChangeQuery }) {
+  if (loading) return <ActivityIndicator />;
+
+  return (
+    <SafeAreaView style={{ flex: 1 }}>
+      <View style={{ padding: 16 }}>
+        <TextInput
+          value={query}
+          onChangeText={onChangeQuery}
+          placeholder="Search..."
+        />
+      </View>
+      <FlatList
+        data={contacts}
+        keyExtractor={(c) => c.id}
+        renderItem={({ item }) => (
+          <Pressable onPress={() => openContact(item.id)}>
+            <Text>{item.name}</Text>
+          </Pressable>
+        )}
+      />
+    </SafeAreaView>
+  );
+}
+```
+
+**Three things to remember:**
+
+- **`<View>` over `<ScrollView>` for static layouts.** ScrollView mounts everything; use FlatList for any list with more than ~20 items.
+- **All text inside `<Text>`.** *"Cannot render text strings outside of a `<Text>` component"* is the most common rookie error.
+- **`<Pressable>` over `<TouchableOpacity>`.** Pressable is the modern API — more flexible (custom press states, hover, long-press), and it's what Meta now recommends.
+
+**Beyond the core — what teams add via libraries:**
+
+| Need | Library |
+|---|---|
+| Navigation | `@react-navigation/native` or Expo Router |
+| Forms | `react-hook-form` (same as web) |
+| Icons | `@expo/vector-icons` |
+| Date pickers | `@react-native-community/datetimepicker` |
+| Bottom sheets | `@gorhom/bottom-sheet` |
+| Toasts | `react-native-toast-message` |
+
+**Senior touch:** the core component list is small on purpose. React Native deliberately stayed minimal — the team's bet was that ecosystem libraries would fill the gaps better than a sprawling stdlib. Knowing which problems are solved by the core and which are solved by libraries (and *which* libraries) is part of being effective in RN. A senior developer who's shipped RN names `FlatList` and `@gorhom/bottom-sheet` in the same breath without thinking.

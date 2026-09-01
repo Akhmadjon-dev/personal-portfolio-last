@@ -1,0 +1,63 @@
+---
+q: "What is `React.memo`?"
+level: mid
+type: theory
+order: 4
+---
+
+`React.memo` is a higher-order component that memoizes a child component. It compares the new props against the previous (shallow comparison) — if the props haven't changed, React **skips rendering** that component on the parent's re-render.
+
+```jsx
+const ExpensiveList = React.memo(function ExpensiveList({ items }) {
+  console.log('ExpensiveList rendered');
+  return items.map((i) => <Row key={i.id} item={i} />);
+});
+
+function Parent() {
+  const [name, setName] = useState('');
+  const items = useMemo(() => buildItems(), []);
+  return (
+    <>
+      <input value={name} onChange={(e) => setName(e.target.value)} />
+      <ExpensiveList items={items} />
+    </>
+  );
+}
+```
+
+Without `React.memo`, typing in the input re-renders `ExpensiveList` on every keystroke (because `Parent` re-renders). With `React.memo`, `Parent` re-renders, but `ExpensiveList` sees the same `items` reference and skips.
+
+**Three things to know:**
+
+- **Shallow comparison.** `React.memo` checks if every prop is the same by reference. New object literals or new function references break the comparison.
+- **Custom comparison.** You can pass a second arg: `React.memo(Component, (prev, next) => /* return true if equal */)`. Rarely needed.
+- **It doesn't memoize the component instance itself.** Each render still creates a new element object for `<ExpensiveList />`; `React.memo` just decides whether to invoke the component function.
+
+**When `React.memo` actually helps:**
+
+- Component is **expensive to render** (lots of children, heavy computation in render).
+- Parent **re-renders frequently** for reasons unrelated to this child.
+- Child's **props change rarely** relative to parent re-renders.
+
+If any of those three is missing, `React.memo` is overhead without benefit.
+
+**Common footgun — new references break memoization:**
+
+```jsx
+// ❌ New array literal every parent render — memoization defeated
+<ExpensiveList items={[1, 2, 3]} />
+
+// ❌ New function literal every render
+<ExpensiveList onSelect={(id) => handleSelect(id)} />
+
+// ✅ Stable references via useMemo / useCallback
+const items = useMemo(() => [1, 2, 3], []);
+const onSelect = useCallback((id) => handleSelect(id), [handleSelect]);
+<ExpensiveList items={items} onSelect={onSelect} />
+```
+
+**The React Compiler (React 19+):**
+
+The React Compiler automatically memoizes components and their props. When enabled, **manual `React.memo` becomes unnecessary** for most cases — the compiler inserts the right memoization at build time. The trend going forward is fewer manual `React.memo` wrappers.
+
+**Senior touch:** the rule is the same as for `useMemo` and `useCallback` — **don't memoize until a profiler tells you to.** `React.memo` adds runtime overhead (the shallow comparison runs on every parent render); for cheap components, that overhead is more than the saved render. Profile first, memoize second.

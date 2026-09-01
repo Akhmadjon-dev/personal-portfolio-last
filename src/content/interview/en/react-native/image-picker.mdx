@@ -1,0 +1,115 @@
+---
+q: "Using `expo-image-picker`"
+level: junior
+type: code
+order: 13
+---
+
+`expo-image-picker` opens the device's photo library or camera and returns selected media. It handles permissions, the native picker UI, and result formatting.
+
+```jsx
+import * as ImagePicker from 'expo-image-picker';
+
+async function pickFromLibrary() {
+  // 1. Request permission
+  const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  if (status !== 'granted') {
+    alert('Permission to access media library is required.');
+    return;
+  }
+
+  // 2. Open the picker
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    allowsEditing: true,
+    aspect: [1, 1],
+    quality: 0.8,
+  });
+
+  if (!result.canceled) {
+    const asset = result.assets[0];
+    // asset.uri, asset.width, asset.height
+  }
+}
+```
+
+**Two main APIs:**
+
+| API | What it does |
+|---|---|
+| `launchImageLibraryAsync` | Open photo library |
+| `launchCameraAsync` | Open the camera |
+
+Both return the same result shape.
+
+**Common options:**
+
+```jsx
+await ImagePicker.launchImageLibraryAsync({
+  mediaTypes: ImagePicker.MediaTypeOptions.Images,  // 'Images', 'Videos', 'All'
+  allowsEditing: true,            // built-in crop UI
+  aspect: [1, 1],                 // crop aspect ratio (Android only)
+  quality: 0.8,                   // 0..1 — JPEG compression
+  allowsMultipleSelection: true,  // iOS 14+ / Android — pick multiple
+  selectionLimit: 5,
+  base64: true,                   // include base64 (memory-heavy)
+  exif: true,                     // include EXIF metadata
+});
+```
+
+**The result shape:**
+
+```jsx
+{
+  canceled: false,
+  assets: [{
+    uri: 'file:///...',     // local file URI
+    width: 1080,
+    height: 1920,
+    type: 'image',
+    fileName: 'IMG_1234.heic',
+    fileSize: 245678,
+    mimeType: 'image/heic',
+    base64: '...',          // if requested
+    exif: { ... },          // if requested
+  }]
+}
+```
+
+The `uri` is a local file path — usable in `<Image source={{ uri }} />`, in `fetch` for upload, or copied to a permanent location with `expo-file-system`.
+
+**Uploading to a server:**
+
+```jsx
+const formData = new FormData();
+formData.append('photo', {
+  uri: asset.uri,
+  name: 'photo.jpg',
+  type: asset.mimeType ?? 'image/jpeg',
+} as any);
+
+await fetch('/api/upload', { method: 'POST', body: formData });
+```
+
+The `as any` cast is required because RN's `FormData.append` accepts an `{ uri, name, type }` object that the standard TS types don't model.
+
+**Required permission strings (`app.json`):**
+
+```json
+{
+  "expo": {
+    "plugins": [
+      ["expo-image-picker", {
+        "photosPermission": "Allow $(PRODUCT_NAME) to access your photos.",
+        "cameraPermission": "Allow $(PRODUCT_NAME) to access the camera."
+      }]
+    ]
+  }
+}
+```
+
+**iOS-specific UX in 2026:**
+
+iOS now offers "Limited Photo Library Access" — the user picks specific photos rather than granting access to all. Your app sees only those. `mediaTypes` and selection limits work the same; you just won't see photos the user didn't grant.
+
+**Senior touch:** the senior touches on image picking — (1) handle the limited-photo-access case on iOS (request expanded access via `accessLevel: 'all'`), (2) compress/resize large images before upload (`expo-image-manipulator`) since modern phones produce 10+ MB photos, (3) copy the picked file out of the temporary location if you need it later (`expo-file-system`). The naive implementation works; the senior implementation handles size, permissions, and persistence.

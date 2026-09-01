@@ -1,0 +1,72 @@
+---
+q: "What is `useState`?"
+level: junior
+type: theory
+order: 2
+---
+
+`useState` is the most fundamental React hook — it adds state to a functional component. It returns a tuple: the current state value and a setter function that schedules updates.
+
+```jsx
+function Counter() {
+  const [count, setCount] = useState(0);
+  return (
+    <button onClick={() => setCount(count + 1)}>
+      Clicked {count} times
+    </button>
+  );
+}
+```
+
+The argument to `useState` is the initial value, used **only on the first render**. Subsequent renders ignore it and return the latest stored value.
+
+**Initial value can be lazy:**
+
+```jsx
+// Computed once, on first render only
+const [items, setItems] = useState(() => parseExpensiveData(rawJson));
+```
+
+This pattern matters when the initial computation is expensive. Without the function form, `parseExpensiveData(rawJson)` would run on *every* render — with its result thrown away after the first.
+
+**Two ways to update state:**
+
+```jsx
+// Direct — use when the new value doesn't depend on the previous
+setCount(0);
+setUser({ name: 'Alice', age: 30 });
+
+// Functional — use when the new value depends on the previous
+setCount((c) => c + 1);
+setItems((prev) => [...prev, newItem]);
+```
+
+The functional form matters because state updates are batched:
+
+```jsx
+function handleClick() {
+  setCount(count + 1);
+  setCount(count + 1);
+  // ❌ count goes up by 1, not 2 — both reads see the same stale count
+
+  setCount((c) => c + 1);
+  setCount((c) => c + 1);
+  // ✅ count goes up by 2 — each update sees the queued value
+}
+```
+
+**Multiple `useState` calls vs one object:**
+
+```jsx
+// Many independent pieces of state — the React-y default
+const [name, setName] = useState('');
+const [age, setAge] = useState(0);
+
+// One object — but you must spread on every update
+const [user, setUser] = useState({ name: '', age: 0 });
+setUser((prev) => ({ ...prev, age: 30 }));
+```
+
+Use multiple `useState` calls by default. Combine into one object only when the fields genuinely change together (and even then, `useReducer` is often a better choice).
+
+**Senior touch:** the React Compiler in React 19 doesn't change anything about `useState` itself — it's already as simple as state management gets. What it *does* change is the surrounding code: derived values via `useMemo`, callback identity via `useCallback`, and re-render avoidance via `React.memo` all become automatic. `useState` is one of the few hooks that survives unchanged after the compiler — because it has no boilerplate to optimize away.

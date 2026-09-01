@@ -1,0 +1,43 @@
+---
+q: "Explain React Fiber architecture"
+level: senior
+type: theory
+order: 2
+---
+
+**Fiber** is React's reconciliation engine, introduced in React 16. It replaced the previous "stack reconciler" — a synchronous recursive algorithm — with an interruptible, prioritizable, schedulable one. Fiber is the implementation that makes concurrent rendering possible.
+
+**The problem Fiber solves:**
+
+Pre-Fiber reconciliation was a single recursive pass: React would walk the component tree, call each component's render, build the new virtual tree, then commit to the DOM. Once started, it ran to completion. For small trees this was fine. For large trees on slow devices, it blocked the main thread — animations stuttered, clicks queued up, the browser couldn't paint.
+
+**The Fiber model:**
+
+Each Fiber node represents a unit of work — typically a component or a DOM element. Fibers form a linked-list tree with `child`, `sibling`, and `return` (parent) pointers. React walks this tree one Fiber at a time. Between processing units, Fiber checks: *"Is there higher-priority work waiting?"* If yes — a keystroke, a click, an animation frame — Fiber pauses the current tree and handles the urgent work first. Then it resumes where it left off.
+
+**Two phases:**
+
+| Phase | What happens | Interruptible? |
+|---|---|---|
+| **Render phase** | Build work-in-progress tree, run render functions, run hooks | Yes — can pause, resume, or throw away |
+| **Commit phase** | Apply DOM mutations, fire effects, attach refs | No — synchronous, atomic |
+
+The render phase is interruptible because it has no observable side effects yet. The commit phase isn't, because it's actually touching the DOM — pausing mid-commit would leave the DOM inconsistent.
+
+**What Fiber enables:**
+
+- **Concurrent rendering** — React 18's defining feature. Multiple render passes can be in flight; React picks which one to commit based on priority.
+- **`useTransition` / `useDeferredValue`** — explicitly mark some updates as low-priority so urgent ones (typing) preempt them.
+- **Suspense** — pause rendering of a subtree while data loads, fall back to a placeholder, then commit when ready.
+- **Lane-based priorities** (React 18+) — bitmask of priority lanes (`SyncLane`, `InputContinuousLane`, `DefaultLane`, `TransitionLane`, `IdleLane`) that the scheduler uses.
+- **Streaming SSR and Server Components** — partial trees can be rendered and committed independently.
+
+**The "render may run multiple times" implication:**
+
+Because Fiber may discard an in-progress tree if higher-priority work invalidates it, render functions can be called **more than once** for a single user-visible update. This is why:
+
+- Side effects in render are forbidden — they'd run multiple times and cause real bugs.
+- `useEffect` runs in the commit phase, not the render phase — guaranteed to run only for committed renders.
+- StrictMode double-invokes render in dev — specifically to catch code that's not Fiber-safe.
+
+**Senior touch:** Fiber didn't change *what* React does (diff virtual trees, mutate DOM). It changed *how* — turning a blocking algorithm into a schedulable one. Everything React 18+ has shipped since (concurrent features, Suspense, Server Components, automatic batching) is downstream of Fiber. Understanding it lets you explain *why* effects can't run in render, *why* StrictMode double-invokes, and *why* `useTransition` exists at all. Most React advanced features point back to Fiber.

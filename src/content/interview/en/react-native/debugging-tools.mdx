@@ -1,0 +1,90 @@
+---
+q: "Debugging tools for React Native"
+level: mid
+type: theory
+order: 12
+---
+
+Five tools for different debugging tasks. None of them replaces the others; production RN developers use all five.
+
+**1. React DevTools — component tree, props, state, hooks.**
+
+```bash
+npx react-devtools
+```
+
+Standalone Electron app (or in Flipper). Connect from your running RN app via dev menu → "Toggle DevTools." Inspect the component tree, edit hook values live, profile renders. Identical UX to React DevTools in Chrome.
+
+**2. Hermes / Chrome DevTools — JS debugger and profiler.**
+
+```
+Dev menu → Open JS Debugger → Chrome DevTools
+```
+
+Set breakpoints, step through JS, inspect closures, profile CPU. The **Performance tab** produces flame graphs for JS code — best for finding *"why is this JS function slow?"*
+
+```jsx
+// Performance.mark / measure work in Hermes
+performance.mark('start-filter');
+const result = filterMillionItems(items);
+performance.measure('filter', 'start-filter');
+```
+
+These show up in the Performance recording.
+
+**3. Flipper — RN-specific debugger (legacy but still common).**
+
+Meta's debugger for mobile apps. Plugins for:
+
+- **Network inspector** — see every fetch, headers, timing
+- **AsyncStorage inspector** — read/write storage from the desktop
+- **Layout inspector** — DOM-like view tree on the device
+- **Crash reporter** — symbolicated crash logs
+- **Memory** — heap usage over time
+
+Flipper is being deprecated by Meta in 2024-2025; React Native DevTools (new bundled tool) is the modern replacement. But many production apps still use Flipper, and many libraries still ship Flipper plugins.
+
+**4. React Native DevTools (2024+) — the Flipper replacement.**
+
+Built into the dev menu in modern RN. Combines what was previously several Flipper plugins:
+
+- Network inspector
+- Element / layout inspector
+- React component tree
+- Performance recorder
+
+Open with:
+
+```
+Dev menu → Open React Native DevTools
+```
+
+Less feature-rich than Flipper at its peak, but actively maintained.
+
+**5. Native platform tools — Xcode Instruments + Android Studio Profiler.**
+
+When the issue is native (memory leaks in native code, app size, app store profiling), the platform tools are unavoidable:
+
+- **Xcode Instruments → Allocations** — find iOS memory leaks
+- **Xcode Instruments → Time Profiler** — sample CPU on iOS
+- **Android Studio Profiler → Memory/CPU** — same for Android
+- **Android Studio Layout Inspector** — view hierarchy on Android
+
+These show the *whole picture* (native + JS), whereas RN tools see only the JS side.
+
+**Production logging:**
+
+```jsx
+console.log('Simple log');
+console.warn('Yellow warning banner');
+console.error('Red error banner');
+```
+
+| Tool | Use |
+|---|---|
+| **Sentry** | Crash reporting + breadcrumbs + sourcemaps |
+| **Datadog RUM** | Production monitoring, error tracking |
+| **LogRocket** | Session replay with logs |
+| **`react-native-logs`** | Local structured logging |
+
+**Senior touch:** the senior framing — **different bugs need different tools.** UI weirdness → React DevTools. JS perf → Hermes Profiler. Network → React Native DevTools (or Flipper). Memory → Xcode Instruments / Android Studio. Crash → Sentry. Knowing which tool to reach for first is what separates *"debugging is mysterious"* from *"debugging is mechanical."* Beginners reach for `console.log`; seniors reach for the profiler.

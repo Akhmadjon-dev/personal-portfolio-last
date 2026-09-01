@@ -1,0 +1,75 @@
+---
+q: "How to optimize a React app with 10K+ items?"
+level: senior
+type: theory
+order: 10
+---
+
+Eight tactics, roughly in order of impact:
+
+**1. Virtualization — the single biggest win.**
+
+Render only what's visible. Libraries: `react-window`, `@tanstack/virtual`, `react-virtuoso`. Mounting 10,000 DOM nodes is a frame-killer regardless of React; mounting only the ~20 visible ones is fast.
+
+```jsx
+import { FixedSizeList } from 'react-window';
+
+<FixedSizeList height={600} itemCount={items.length} itemSize={48} width="100%">
+  {({ index, style }) => (
+    <div style={style}>{items[index].name}</div>
+  )}
+</FixedSizeList>
+```
+
+**2. `React.memo` on the Row component.**
+
+Prevents each row from re-rendering when its props haven't changed. Critical when the parent re-renders for any unrelated reason (filter change, theme toggle, etc.).
+
+```jsx
+const Row = React.memo(function Row({ item }) {
+  return <div>{item.name}</div>;
+});
+```
+
+**3. Stable prop references (`useMemo` / `useCallback`).**
+
+Without stable refs, `React.memo` does nothing — new object/function literals every render defeat the shallow comparison.
+
+```jsx
+const onSelect = useCallback((id) => setSelected(id), []);
+const items = useMemo(() => buildItems(data), [data]);
+```
+
+**4. `useTransition` for non-urgent updates.**
+
+Filtering or sorting on every keystroke makes typing feel slow. Wrap the expensive update in `startTransition` so urgent updates (typing) preempt it:
+
+```jsx
+const [isPending, startTransition] = useTransition();
+function onSearch(value) {
+  setQuery(value); // urgent
+  startTransition(() => setFilteredItems(filter(items, value))); // deferred
+}
+```
+
+**5. Debounce user input.**
+
+Don't filter on every keystroke — debounce by 100–300ms via `useDebounce(query, 200)`.
+
+**6. Web Workers for heavy computation.**
+
+Sorting 100K items takes 100ms+ on the main thread. Move it to a Web Worker so the UI stays at 60fps. Libraries like `comlink` make worker communication ergonomic.
+
+**7. CSS `content-visibility: auto`.**
+
+A browser-level optimization that skips rendering of off-screen elements. Cheaper than JS virtualization for simple lists, but doesn't help React's render cost — only the browser's paint cost.
+
+**8. Cursor-based pagination.**
+
+For genuinely massive datasets (100K+), don't ship all the data to the client. Server-side pagination with "load more" or infinite scroll keeps memory and render cost bounded.
+
+**Measurement first:**
+
+Always profile before optimizing. The React Profiler tells you which renders are slow. Chrome DevTools Performance tells you what's blocking the main thread. Without measurement, "optimization" often makes things slower.
+
+**Senior touch:** the production priority order is **virtualization → memo + stable refs → useTransition/debounce → workers → pagination**. Virtualization alone gets you 90% of the win for most real-world lists. People often skip it and reach for memo first; memo helps, but it doesn't solve the fundamental problem of mounting too many DOM nodes. The senior signal: knowing to start with *"how many nodes are actually rendered?"* before optimizing render cost.

@@ -1,0 +1,109 @@
+---
+q: "Internationalization (i18n) in React Native"
+level: junior
+type: theory
+order: 15
+---
+
+Multi-language support in RN apps combines two pieces:
+
+1. A **translation library** (`i18next`, `react-intl`) to look up strings.
+2. A **locale source** — what language is the user's device set to?
+
+**Detecting the user's locale:**
+
+```jsx
+import { getLocales } from 'expo-localization';
+
+const locale = getLocales()[0]; // { languageCode: 'en', regionCode: 'US' }
+const lang = locale.languageCode; // 'en'
+```
+
+**A simple i18n setup with `i18next`:**
+
+```jsx
+import i18n from 'i18next';
+import { initReactI18next, useTranslation } from 'react-i18next';
+
+i18n.use(initReactI18next).init({
+  resources: {
+    en: { translation: { welcome: 'Welcome', greet: 'Hello, {{name}}' } },
+    es: { translation: { welcome: 'Bienvenido', greet: 'Hola, {{name}}' } },
+    ru: { translation: { welcome: 'Добро пожаловать', greet: 'Привет, {{name}}' } },
+  },
+  lng: 'en',
+  fallbackLng: 'en',
+  interpolation: { escapeValue: false }, // RN doesn't need HTML escaping
+});
+
+function Welcome({ name }) {
+  const { t, i18n } = useTranslation();
+  return (
+    <>
+      <Text>{t('welcome')}</Text>
+      <Text>{t('greet', { name })}</Text>
+      <Pressable onPress={() => i18n.changeLanguage('es')}>
+        <Text>Español</Text>
+      </Pressable>
+    </>
+  );
+}
+```
+
+**The three production concerns:**
+
+**1. RTL (right-to-left) languages.**
+
+Arabic, Hebrew, Persian, and Urdu render right-to-left. RN supports this via `I18nManager`:
+
+```jsx
+import { I18nManager } from 'react-native';
+
+I18nManager.allowRTL(true);
+I18nManager.forceRTL(true);  // requires app restart on iOS
+```
+
+Once enabled, layouts mirror automatically — flex directions reverse, padding swaps left/right. Test thoroughly; some layouts fight RTL (directional icons, custom transforms).
+
+**2. Pluralization.**
+
+`i18next` and `react-intl` handle CLDR plural rules:
+
+```jsx
+t('items', { count: 1 });  // "1 item"
+t('items', { count: 5 });  // "5 items"
+// In Russian: 1 / 2 (paucal) / 5 (plural) — four forms total
+```
+
+The plural rules differ by language — English has 2 forms; Russian has 4. Hand-rolling this is a mistake; use the library.
+
+**3. Date and number formatting.**
+
+```jsx
+new Intl.DateTimeFormat('en-US', { dateStyle: 'long' }).format(new Date());
+// "December 15, 2026"
+
+new Intl.NumberFormat('de-DE').format(1234.56);
+// "1.234,56"
+
+new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(99.5);
+// "$99.50"
+```
+
+`Intl` is built into Hermes (the RN JS engine). For older versions, you might need the `@formatjs/intl` polyfill.
+
+**Persistence — remember the user's choice:**
+
+```jsx
+// On change:
+await AsyncStorage.setItem('language', lang);
+i18n.changeLanguage(lang);
+
+// On app start:
+const saved = await AsyncStorage.getItem('language') ?? getLocales()[0].languageCode;
+i18n.changeLanguage(saved);
+```
+
+The senior pattern: device locale on first launch; persist if the user explicitly changes language.
+
+**Senior touch:** the senior signal on i18n — **start with i18next or react-intl from day one**, not at the moment marketing asks for it. Retrofitting i18n on a built-out app is painful — every hard-coded string becomes a refactor, plurals and dates need rework, RTL exposes layout assumptions you didn't know you were making. Even if launch is English-only, structure code so adding a second language is a 1-day task, not a 2-month project.

@@ -1,0 +1,121 @@
+---
+q: "JSI internals — host objects, host functions, runtime"
+level: expert
+type: theory
+order: 1
+---
+
+JSI is the C++ interface React Native uses to bridge JavaScript and native code. Going past *"JSI replaced the bridge,"* the **internals** matter for anyone writing native modules or debugging deep RN issues.
+
+**The three main JSI primitives:**
+
+**1. `jsi::Runtime`** — the JavaScript engine instance, abstracted.
+
+```cpp
+class Runtime {
+public:
+  virtual jsi::Value evaluateJavaScript(...) = 0;
+  virtual jsi::Object global() = 0;
+  // ... methods for creating values, functions, objects
+};
+```
+
+You don't instantiate `Runtime` directly — Hermes (or JSC) provides the implementation. JSI code receives a `Runtime&` parameter wherever it needs to interact with the engine.
+
+**2. `jsi::Value`** — a tagged union representing any JS value.
+
+```cpp
+jsi::Value v1 = jsi::Value(42);                             // number
+jsi::Value v2 = jsi::String::createFromUtf8(rt, "hello");   // string
+jsi::Value v3 = jsi::Object(rt);                            // empty object
+jsi::Value v4 = jsi::Value::null();                         // null
+jsi::Value v5 = jsi::Value::undefined();                    // undefined
+
+if (v1.isNumber()) double n = v1.asNumber();
+if (v2.isString()) std::string s = v2.asString(rt).utf8(rt);
+```
+
+`jsi::Value` is the C++ wrapper for `string`, `number`, `boolean`, `null`, `undefined`, `object`, `symbol`. All JSI APIs accept and return `jsi::Value`.
+
+**3. `jsi::HostObject` and `jsi::HostFunction`** — exposing C++ to JS.
+
+**Host objects** look like regular JS objects but their property accesses route to C++:
+
+```cpp
+class MyHostObject : public jsi::HostObject {
+public:
+  jsi::Value get(jsi::Runtime& rt, const jsi::PropNameID& name) override {
+    auto propName = name.utf8(rt);
+    if (propName == "version") return jsi::String::createFromUtf8(rt, "1.0");
+    if (propName == "compute") {
+      return jsi::Function::createFromHostFunction(rt, name, 1,
+        [](jsi::Runtime& rt, const jsi::Value& thisVal,
+           const jsi::Value* args, size_t count) -> jsi::Value {
+          return jsi::Value(args[0].asNumber() * 2);
+        });
+    }
+    return jsi::Value::undefined();
+  }
+};
+
+// Install on the global object
+jsi::Object hostObj = jsi::Object::createFromHostObject(
+  rt, std::make_shared<MyHostObject>());
+rt.global().setProperty(rt, "MyModule", hostObj);
+```
+
+From JS: `global.MyModule.version` and `global.MyModule.compute(5)` work — but the actual implementation is C++.
+
+**Host functions** are JS functions backed by C++:
+
+```cpp
+auto fn = jsi::Function::createFromHostFunction(
+  rt,
+  jsi::PropNameID::forAscii(rt, "doThing"),
+  /* paramCount */ 2,
+  [](jsi::Runtime& rt, const jsi::Value& thisVal,
+     const jsi::Value* args, size_t count) -> jsi::Value {
+    // ...
+    return jsi::Value::undefined();
+  }
+);
+
+rt.global().setProperty(rt, "doThing", fn);
+```
+
+**The threading model:**
+
+JSI calls must happen **on the thread that owns the runtime**. For the main JS thread, that's the JS thread. For Reanimated's UI worklets, that's a separate runtime that owns the UI thread.
+
+```cpp
+// On the JS thread: safe to use the JS runtime
+rt.global().setProperty(rt, "x", jsi::Value(42));
+
+// On the UI thread: must use the worklet runtime, NOT the JS runtime
+```
+
+Mixing runtimes is a common JSI bug — crashes are deferred (or worse, silent corruption).
+
+**Sync calls — the killer feature:**
+
+```js
+// JS calling a host function — synchronous
+const result = MyModule.compute(5);  // returns immediately
+```
+
+No promise, no callback, no bridge round-trip. The JS thread blocks for the duration of the C++ call. For fast operations (read a value, do simple math), this is dramatically faster than the bridge's async model.
+
+For slow operations (network, disk I/O), you still want async — JSI doesn't change physics. But the *choice* is now yours instead of being forced async.
+
+**Memory and references:**
+
+JSI uses **opaque value semantics** — you don't directly manage object lifetimes. Values are reference-counted by the engine's GC. C++ code that holds long-lived references to JS objects uses `jsi::Pointer` types that participate in GC.
+
+```cpp
+// Don't store jsi::Value across calls without care — engine may GC the value
+std::shared_ptr<jsi::Function> savedCallback; // ❌ wrong shape
+
+// Use jsi::Function copy semantics or wrap in a host object
+```
+
+**Senior touch:** the senior framing — **JSI internals are where the RN performance story comes from.** Sync host functions enable native modules that don't block on bridge serialization; host objects enable libraries like MMKV (sync storage) and Reanimated (shared values). Understanding `Runtime`, `Value`, and `HostObject` is the foundation for writing custom JSI code — and for explaining *why* modern RN libraries can do things that were impossible in the Bridge era.

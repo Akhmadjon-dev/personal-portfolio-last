@@ -1,0 +1,147 @@
+---
+q: "Writing a TurboModule"
+level: senior
+type: code
+order: 5
+---
+
+Writing a TurboModule has three steps: define the TypeScript spec, implement the native code, configure the build. Once it's published, consumers `npm install` and codegen wires everything up.
+
+**Step 1 — The spec:**
+
+```ts
+// src/NativeMyModule.ts
+import type { TurboModule } from 'react-native';
+import { TurboModuleRegistry } from 'react-native';
+
+export interface Spec extends TurboModule {
+  // Sync method (no promise)
+  getDeviceName(): string;
+
+  // Async method
+  encrypt(plaintext: string, key: string): Promise<string>;
+
+  // Constants exposed at module load
+  getConstants(): {
+    isAndroid: boolean;
+    appVersion: string;
+  };
+}
+
+export default TurboModuleRegistry.getEnforcing<Spec>('MyModule');
+```
+
+**Step 2 — iOS implementation (Swift):**
+
+```swift
+// ios/MyModule.swift
+@objc(MyModule)
+public class MyModule: NSObject, NativeMyModuleSpec {
+  @objc public static func requiresMainQueueSetup() -> Bool { false }
+
+  func getDeviceName() -> String {
+    return UIDevice.current.name
+  }
+
+  func encrypt(_ plaintext: String, key: String,
+               resolve: @escaping RCTPromiseResolveBlock,
+               reject: @escaping RCTPromiseRejectBlock) {
+    // ... encryption logic
+    resolve(encryptedString)
+  }
+
+  func getConstants() -> [AnyHashable: Any]! {
+    return [
+      "isAndroid": false,
+      "appVersion": Bundle.main.infoDictionary?["CFBundleShortVersionString"] ?? "",
+    ]
+  }
+}
+```
+
+`NativeMyModuleSpec` is the protocol that codegen produces from your TypeScript spec. Conforming to it is what makes your implementation a valid TurboModule.
+
+**Step 3 — Android implementation (Kotlin):**
+
+```kotlin
+// android/MyModule.kt
+@ReactModule(name = MyModule.NAME)
+class MyModule(reactContext: ReactApplicationContext) :
+  NativeMyModuleSpec(reactContext) {
+
+  override fun getName(): String = NAME
+
+  override fun getDeviceName(): String {
+    return android.os.Build.MODEL
+  }
+
+  override fun encrypt(plaintext: String, key: String, promise: Promise) {
+    try {
+      val result = doEncryption(plaintext, key)
+      promise.resolve(result)
+    } catch (e: Exception) {
+      promise.reject("ENCRYPT_FAILED", e)
+    }
+  }
+
+  override fun getTypedExportedConstants(): MutableMap<String, Any> {
+    return mutableMapOf(
+      "isAndroid" to true,
+      "appVersion" to BuildConfig.VERSION_NAME,
+    )
+  }
+
+  companion object { const val NAME = "MyModule" }
+}
+```
+
+`NativeMyModuleSpec` here is the generated Kotlin base class.
+
+**Step 4 — Register the module on Android:**
+
+```kotlin
+// MyAppPackage.kt
+class MyAppPackage : TurboReactPackage() {
+  override fun getModule(name: String, ctx: ReactApplicationContext): NativeModule? {
+    return if (name == MyModule.NAME) MyModule(ctx) else null
+  }
+}
+```
+
+On iOS, autolinking handles registration. On Android, you add the package to your app's package list (or use autolinking via the library's `react-native.config.js`).
+
+**Step 5 — Configure codegen in `package.json`:**
+
+```json
+{
+  "name": "react-native-my-module",
+  "codegenConfig": {
+    "name": "RNMyModuleSpec",
+    "type": "modules",
+    "jsSrcsDir": "./src"
+  }
+}
+```
+
+This tells codegen where to find your specs and what to name the generated artifacts.
+
+**Step 6 — Use it from JS:**
+
+```ts
+// Any consuming code
+import MyModule from 'react-native-my-module';
+
+const name = MyModule.getDeviceName();
+const cipher = await MyModule.encrypt('hello', 'mykey');
+```
+
+Type-safe end-to-end.
+
+**Build, test, ship:**
+
+- Build the app via `npx expo run:ios` / `run:android` (or `react-native run-ios` for bare).
+- Codegen runs as part of the build.
+- The compiled module loads on first JS access (TurboModule lazy loading).
+- For unit tests, mock the JS-side module (`jest.mock('react-native-my-module')`).
+
+**Senior touch:** the senior framing — **writing a TurboModule is now within reach for any RN engineer.** Pre-codegen, this required deep Objective-C++ and JNI expertise. Now you write TypeScript + Swift + Kotlin, conform to generated protocols, and codegen handles the rest. The complexity hasn't gone away — it's been *moved* to the build tool, where it should be. For library authors, the bar has dropped substantially; for app developers, custom TurboModules are now a reasonable tool rather than a last resort.

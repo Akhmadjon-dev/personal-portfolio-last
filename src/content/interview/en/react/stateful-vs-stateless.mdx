@@ -1,0 +1,42 @@
+---
+q: "What are Stateful vs Stateless components?"
+level: junior
+type: theory
+order: 13
+---
+
+A **stateful** component manages internal state — it uses `useState`, `useReducer`, or (in older code) class `this.state`. A **stateless** component has none — it's a pure function of its props, returning the same UI for the same inputs.
+
+```jsx
+// Stateless — pure function of props
+function Greeting({ name }) {
+  return <h1>Hello, {name}</h1>;
+}
+
+// Stateful — manages its own counter
+function Counter() {
+  const [count, setCount] = useState(0);
+  return <button onClick={() => setCount(c => c + 1)}>{count}</button>;
+}
+```
+
+**The historical class-component framing:**
+
+Pre-hooks, "stateless" and "functional" were synonyms — a component declared without the `class` keyword *couldn't* have state. The terminology was:
+
+```jsx
+const SFC = ({ name }) => <h1>Hello, {name}</h1>;        // stateless functional component
+class Stateful extends React.Component { state = {} }    // stateful (class-only)
+```
+
+After hooks (React 16.8+), this distinction blurred — functional components can have state via `useState`. The terms now describe **behavior**, not declaration style.
+
+**Why the distinction still matters in 2026:**
+
+- **Stateless = pure = predictable.** Same props → same output. Easy to test (no setup, no mocking), easy to memoize with `React.memo`, easy to reason about in isolation.
+- **Stateful = side effects, state, lifecycle.** More moving parts, harder to test in isolation, more potential for bugs around stale closures or re-render churn.
+- **Push state outward.** A common refactoring move: extract state into a parent or a custom hook, leaving the leaf component stateless. Makes the leaf more reusable and testable.
+
+**The "container vs presentational" pattern** was a popular extension: container components held state and fetched data; presentational components received props and rendered. This pattern fell out of fashion because hooks made it easy for a single component to do both *without* mixing concerns. But the underlying principle — pushing stateful logic up the tree, keeping rendering pure — is still good design.
+
+**Senior touch:** modern React doesn't classify components as stateful or stateless at the syntax level. What matters is *whether a component owns state it doesn't need to*. The senior heuristic: **a leaf component should be as stateless as possible**. State lives in custom hooks or higher up the tree, where it's easier to share, test, and reset. Stateful leaves are a smell — usually a clue that the state should be lifted.

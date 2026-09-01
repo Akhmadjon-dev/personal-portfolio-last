@@ -1,0 +1,88 @@
+---
+q: "Performance debugging — Flipper, Hermes profiler, React Profiler"
+level: senior
+type: theory
+order: 7
+---
+
+Performance issues in RN apps fall into three buckets: **JS-thread bottlenecks**, **UI-thread bottlenecks**, and **memory leaks**. Each has different tools.
+
+**JS-thread bottlenecks — the Hermes profiler:**
+
+When animations stutter, scroll feels janky, or interactions lag, the JS thread is usually overworked. The Hermes profiler tells you what JS is running:
+
+```
+Dev menu → Open JS Debugger → Performance tab → Record
+```
+
+Or via the React Native CLI:
+
+```bash
+npx react-native profile-hermes
+```
+
+The output is a Chrome DevTools-compatible flame graph showing JS call stacks over time. Wide bars = expensive functions. Most production RN perf wins come from finding wide bars and optimizing them — usually filtering, sorting, or expensive computations.
+
+**UI-thread bottlenecks — Performance Monitor:**
+
+Enable the on-device monitor (Dev menu → "Show Perf Monitor"). It overlays FPS counters for both threads:
+
+```
+JS:  60.0 fps   ← JavaScript thread frame rate
+UI:  58.2 fps   ← Native UI thread frame rate
+```
+
+When UI fps drops but JS stays high, the bottleneck is rendering — too many native views, expensive layout, heavy shadows. When both drop, JS is blocking. When only JS drops but UI stays high, JS work is too heavy (filtering, parsing, expensive `setState`).
+
+**React DevTools Profiler — for React-level perf:**
+
+For unnecessary re-renders and expensive component trees, the React DevTools Profiler is the right tool:
+
+```
+React DevTools → Profiler tab → Record
+```
+
+Same workflow as web React profiling. Shows which components rendered, why, and how long they took. Use it to find:
+
+- Components re-rendering when they shouldn't (missing `React.memo` or stable refs).
+- Components that render on every keystroke.
+- Wide flame chart bars in component trees.
+
+**Native profiling — Xcode Instruments and Android Studio:**
+
+When the issue is below the JS layer:
+
+- **Xcode Instruments → Time Profiler** — sample CPU on iOS at function granularity.
+- **Xcode Instruments → Allocations** — find iOS memory leaks by tracking allocations and their retainers.
+- **Android Studio Profiler → CPU/Memory** — same for Android.
+
+These see the *whole picture* (native + JS), unlike the JS-only profiler.
+
+**Common bottleneck patterns and fixes:**
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| Slow scroll on long list | FlatList with bad config | `getItemLayout`, `React.memo` on Row, FlashList |
+| Jank when typing | Filter / parse on every keystroke | Debounce, `useTransition`, derived state |
+| App startup slow | Heavy JS work on launch | Lazy-load screens, defer non-critical work |
+| Animation stutters | Animation running on JS thread | Reanimated 3 (UI-thread animations) |
+| Memory grows over time | Missing cleanup in `useEffect` | AbortController + return cleanup |
+
+**Real-user metrics in production:**
+
+For real-user performance, ship analytics that capture key metrics:
+
+```jsx
+import { InteractionManager } from 'react-native';
+
+InteractionManager.runAfterInteractions(() => {
+  analytics.track('screen_ready', {
+    screen: 'Dashboard',
+    timeToReady: performance.now() - startTime,
+  });
+});
+```
+
+Real user metrics catch issues that synthetic profiling misses — slow devices, slow networks, edge cases.
+
+**Senior touch:** the senior framing — **profile before optimizing**, always. The most common perf mistake is guessing — adding `React.memo` everywhere because "memoization is good." Profiling tells you *what's actually slow*. Most apps have 1-2 hot spots; fixing those addresses 90% of perceived perf issues, and the remaining 90% of components don't need any optimization at all. *"Measure, don't guess"* is the senior signal.

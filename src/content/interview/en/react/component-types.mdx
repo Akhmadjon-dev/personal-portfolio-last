@@ -1,0 +1,61 @@
+---
+q: "What are two types of components in React?"
+level: junior
+type: theory
+order: 15
+---
+
+**Functional components** and **class components**. Functional is the modern default; class is the legacy form.
+
+```jsx
+// Functional component
+function Counter({ initial }) {
+  const [count, setCount] = useState(initial);
+  return <button onClick={() => setCount(c => c + 1)}>{count}</button>;
+}
+
+// Class component (equivalent)
+class Counter extends React.Component {
+  state = { count: this.props.initial };
+  render() {
+    return (
+      <button onClick={() => this.setState({ count: this.state.count + 1 })}>
+        {this.state.count}
+      </button>
+    );
+  }
+}
+```
+
+**Functional components in 2026:**
+
+- The default. New code is almost exclusively functional.
+- Use hooks (`useState`, `useEffect`, etc.) for state, lifecycle, and side effects.
+- Smaller, more readable. No `this` binding issues. No constructor.
+- Required for most modern React features — Server Components, the React Compiler, the `use()` hook.
+
+**Class components:**
+
+- Pre-hooks legacy. Still supported, still work, but no new APIs are being added.
+- Use `this.state`, `this.setState`, and lifecycle methods (`componentDidMount`, `componentDidUpdate`, `componentWillUnmount`).
+- The only place class components are *required* is **Error Boundaries** — there's no hook equivalent yet. Most projects use the `react-error-boundary` library to wrap this in a functional API.
+
+**Side-by-side comparison:**
+
+| | Functional | Class |
+|---|---|---|
+| **State** | `useState`, `useReducer` | `this.state`, `this.setState` |
+| **Lifecycle** | `useEffect`, `useLayoutEffect` | `componentDidMount`, etc. |
+| **`this` binding** | None — no `this` | Required, via `.bind` or arrow methods |
+| **Error boundaries** | Not supported | Required for boundaries |
+| **Server Components** | Supported | Not supported |
+| **React Compiler** | Optimized | Skipped |
+| **Lines of code** | Less | More |
+
+**Why functional won:**
+
+- **Better state sharing.** Custom hooks let you extract stateful logic without wrappers. Class components had no equivalent — HOCs and render props were the workarounds, both with painful tradeoffs.
+- **Smaller mental model.** No constructor, no `this`, no remembering to bind methods. Functions all the way down.
+- **Future-facing.** Every new React feature ships first (or only) for functional components.
+
+**Senior touch:** if you're maintaining a codebase with class components, you don't need to rewrite them — they work fine. New code goes functional. The migration from classes to functional was the largest community shift in React's history (2018–2022), and the consensus by 2026 is that it was worth it. The class API is essentially in maintenance mode.

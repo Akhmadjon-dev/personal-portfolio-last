@@ -1,0 +1,78 @@
+---
+q: "Implement a `useLocalStorage` hook"
+level: mid
+type: code
+order: 18
+---
+
+A production-grade `useLocalStorage` needs:
+
+- Lazy initial read (don't hit localStorage on every render)
+- JSON serialization for non-string values
+- Sync across tabs via the `storage` event
+- SSR-safe (no `window` access during server render)
+- Type-safe with TypeScript
+
+```tsx
+function useLocalStorage<T>(key: string, initial: T) {
+  // Lazy initializer — read localStorage once on mount
+  const [value, setValue] = useState<T>(() => {
+    if (typeof window === 'undefined') return initial; // SSR-safe
+    try {
+      const stored = window.localStorage.getItem(key);
+      return stored !== null ? (JSON.parse(stored) as T) : initial;
+    } catch {
+      return initial;
+    }
+  });
+
+  // Persist to localStorage when value changes
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      window.localStorage.setItem(key, JSON.stringify(value));
+    } catch {
+      // quota exceeded, private mode, etc — swallow silently
+    }
+  }, [key, value]);
+
+  // Sync across tabs
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === key && e.newValue !== null) {
+        try {
+          setValue(JSON.parse(e.newValue) as T);
+        } catch { /* ignore malformed */ }
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, [key]);
+
+  return [value, setValue] as const;
+}
+
+// Usage
+const [theme, setTheme] = useLocalStorage<'light' | 'dark'>('theme', 'light');
+```
+
+**What the implementation gets right:**
+
+- **Lazy initializer.** `useState(() => ...)` reads localStorage only on the first render, not every render.
+- **SSR safety.** `typeof window === 'undefined'` check prevents crashes when this runs server-side (Next.js, Astro, Remix).
+- **JSON serialization.** Works for any serializable value — objects, arrays, booleans, not just strings.
+- **Cross-tab sync.** The `storage` event fires in *other* tabs when localStorage changes. Without this, opening the same app in two tabs gives stale state.
+- **Try/catch around localStorage.** Quota exceeded, private mode, security restrictions — all can throw. Failing silently is the right behavior for non-critical state.
+
+**Type safety:**
+
+The generic `<T>` propagates through — `setTheme` accepts only `'light' | 'dark'`. TypeScript catches typos and shape mismatches at the call site.
+
+**What's missing for production:**
+
+- **Migration.** If you change the shape of the stored value, parsing the old version fails. Versioning the stored data (`{ version: 1, value: ... }`) is the production fix.
+- **Encryption.** localStorage is plaintext, readable by any script on your origin. Don't store secrets — use httpOnly cookies for those.
+- **Quota awareness.** ~5MB limit. Large objects can exceed it; you need a fallback.
+
+**Senior touch:** in 2026, you'd rarely write this from scratch. Libraries like `usehooks-ts`, `react-use`, or Zustand's `persist` middleware handle all of this — including the version/migration story, which is the hardest part. The senior framing: "I can write `useLocalStorage`, and the implementation has four gotchas — lazy init, SSR, JSON, cross-tab. For production, I'd reach for a library that also handles migrations, since changing the stored shape is where the home-rolled version usually breaks."

@@ -1,0 +1,58 @@
+---
+q: "Compare `useState` and `useReducer`"
+level: mid
+type: theory
+order: 1
+---
+
+Both manage state inside a component. The choice is about **complexity and locality of updates**, not capability — anything you can do with one, you can do with the other.
+
+**Reach for `useState` when** state is simple and updates are obvious — a string, a boolean, a small object updated from one or two places.
+
+**Reach for `useReducer` when:**
+
+- State has multiple fields that **update together**
+- Multiple actions can update the state in different ways
+- The next state depends on a combination of current state and an action
+- You want **centralized, testable update logic**
+
+```ts
+type State = {
+  items: Item[];
+  loading: boolean;
+  error: Error | null;
+};
+
+type Action =
+  | { type: 'fetch_start' }
+  | { type: 'fetch_success'; items: Item[] }
+  | { type: 'fetch_error'; error: Error };
+
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case 'fetch_start':
+      return { ...state, loading: true, error: null };
+    case 'fetch_success':
+      return { items: action.items, loading: false, error: null };
+    case 'fetch_error':
+      return { ...state, loading: false, error: action.error };
+  }
+}
+
+const [state, dispatch] = useReducer(reducer, {
+  items: [],
+  loading: false,
+  error: null,
+});
+
+dispatch({ type: 'fetch_start' });
+```
+
+The reducer pattern has two wins worth naming:
+
+1. **Pure function, easy to test.** `reducer(state, action)` is a pure function — you can unit-test every transition without React, without rendering, without mocking. That's hard to do with a scattered cluster of `setLoading`, `setError`, `setItems` calls.
+2. **Centralized intent.** Every way state can change is a named action in one place. Reading the reducer tells you the entire state machine. Scattered `setX` calls across handlers, effects, and child callbacks don't.
+
+**Bridge to Redux.** A `useReducer` reducer has the exact shape of a Redux reducer — `(state, action) => state`. If your app outgrows `useReducer` and you need shared state across the tree, you can lift the reducer into Redux Toolkit (or Zustand, or wherever) **without rewriting the logic**. The action types and switch are already there.
+
+**Senior touch:** people sometimes reach for `useReducer` early "for testability" when state is one boolean. That's premature — the indirection costs more than it buys. Use `useState` until you *feel the weight* — multiple related fields, multiple update paths from different components, or a parent that should orchestrate state instead of every child re-implementing the same setters. Then the upgrade pays for itself.

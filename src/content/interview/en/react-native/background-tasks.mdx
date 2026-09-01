@@ -1,0 +1,101 @@
+---
+q: "Background tasks in React Native"
+level: mid
+type: theory
+order: 14
+---
+
+Mobile apps suspend when backgrounded — JS execution stops, network requests pause, the app is essentially frozen. Running code while the app isn't in the foreground requires explicit OS opt-in via background task APIs.
+
+**Three categories of "background" in RN:**
+
+**1. Background fetch — periodic data sync.**
+
+```jsx
+import * as BackgroundFetch from 'expo-background-fetch';
+import * as TaskManager from 'expo-task-manager';
+
+const TASK_NAME = 'background-fetch';
+
+TaskManager.defineTask(TASK_NAME, async () => {
+  try {
+    await syncPendingMessages();
+    return BackgroundFetch.BackgroundFetchResult.NewData;
+  } catch {
+    return BackgroundFetch.BackgroundFetchResult.Failed;
+  }
+});
+
+// Register on app startup
+await BackgroundFetch.registerTaskAsync(TASK_NAME, {
+  minimumInterval: 15 * 60, // 15 minutes — OS decides actual schedule
+  stopOnTerminate: false,
+  startOnBoot: true,
+});
+```
+
+The OS decides when to actually run your task — iOS may run every 15 minutes if the user uses the app daily, or never if they don't. **Don't rely on background fetch for real-time updates.**
+
+**2. Headless tasks — triggered by external events.**
+
+A headless task runs JS without a UI in response to an OS event. Most common use case: handling a push notification when the app isn't visible.
+
+```jsx
+TaskManager.defineTask('headless-push', async ({ data, error }) => {
+  if (error) return;
+  await processIncomingNotification(data);
+});
+```
+
+On Android, register the task name in `AndroidManifest.xml`. On iOS, configure background modes in `app.json`.
+
+**3. Background location tracking.**
+
+For fitness apps, delivery apps, anything that needs location while backgrounded:
+
+```jsx
+import * as Location from 'expo-location';
+
+await Location.startLocationUpdatesAsync(TASK_NAME, {
+  accuracy: Location.Accuracy.High,
+  showsBackgroundLocationIndicator: true, // iOS — blue bar
+  foregroundService: {                     // Android — required
+    notificationTitle: 'Tracking your run',
+    notificationBody: 'We use your location to record your route.',
+  },
+});
+```
+
+**Background limits — what the OS allows:**
+
+| Task | iOS | Android |
+|---|---|---|
+| Background fetch | OS-throttled, 30s budget | Constrained by Doze mode |
+| Headless task | Push-triggered only, 30s | More flexible, can run on schedule |
+| Location | Allowed with permission | Allowed with foreground service |
+| Long-running compute | Not allowed | Requires foreground service |
+
+**Don't fight the OS:** if you "need" 5 minutes of compute every hour, your app architecture is wrong. Move that work to your server.
+
+**Foreground service (Android):**
+
+For continuous tasks like music playback, fitness tracking, navigation — Android requires a "foreground service" with a persistent notification. iOS has no equivalent; you use the appropriate background mode (audio, location, VoIP) instead.
+
+```json
+{
+  "expo": {
+    "ios": {
+      "infoPlist": { "UIBackgroundModes": ["audio", "location"] }
+    },
+    "android": {
+      "permissions": ["FOREGROUND_SERVICE", "ACCESS_BACKGROUND_LOCATION"]
+    }
+  }
+}
+```
+
+**The state preservation problem:**
+
+When the app is backgrounded, JS state in memory is fine — until the OS kills the process. When the OS kills the process (low memory, user dismissed from app switcher), state is gone. **Don't rely on JS state across backgrounds; persist to MMKV / AsyncStorage if you need it.**
+
+**Senior touch:** the senior framing — **mobile background execution is constrained on purpose.** Battery and user expectations come first. The right model: design for *occasional* opportunities to run, not *guaranteed* schedule. Push notifications + background fetch + headless tasks together give you a lot — but only when the OS decides to grant time. If your feature needs guaranteed background execution, it probably needs to run on your server, not the device.

@@ -1,0 +1,99 @@
+---
+q: "Stack vs Tab vs Drawer navigators"
+level: junior
+type: theory
+order: 2
+---
+
+React Navigation provides three primary navigator patterns, each modeling a common mobile UX:
+
+**1. Stack navigator** — screens stack on top of each other.
+
+```jsx
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+const Stack = createNativeStackNavigator();
+
+<Stack.Navigator>
+  <Stack.Screen name="Home" component={HomeScreen} />
+  <Stack.Screen name="Profile" component={ProfileScreen} />
+  <Stack.Screen name="Settings" component={SettingsScreen} />
+</Stack.Navigator>
+```
+
+Each `navigate` pushes onto the stack; `goBack` pops. Native gestures (iOS swipe-from-left, Android back button) handle popping. Headers are managed automatically. This is the **most common navigator** — used for the main app flow.
+
+Two variants:
+
+- **`createNativeStackNavigator`** (preferred) — uses native iOS/Android stack components. Fast, native feel, better memory profile.
+- **`createStackNavigator`** (legacy) — JS-implemented. Slower but more customizable.
+
+**2. Tab navigator** — bottom or top tabs.
+
+```jsx
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+
+const Tab = createBottomTabNavigator();
+
+<Tab.Navigator>
+  <Tab.Screen name="Feed" component={FeedScreen} />
+  <Tab.Screen name="Search" component={SearchScreen} />
+  <Tab.Screen name="Profile" component={ProfileScreen} />
+</Tab.Navigator>
+```
+
+Tabs at the bottom of the app — Instagram, Twitter, etc. Each tab maintains its own stack (you nest Stack navigators inside Tab screens for deep navigation within a tab).
+
+Variants:
+- `createBottomTabNavigator` — bottom (most common)
+- `createMaterialTopTabNavigator` — top tabs
+- `createMaterialBottomTabNavigator` — Material Design bottom tabs
+
+**3. Drawer navigator** — slide-in side menu.
+
+```jsx
+import { createDrawerNavigator } from '@react-navigation/drawer';
+
+const Drawer = createDrawerNavigator();
+
+<Drawer.Navigator>
+  <Drawer.Screen name="Home" component={HomeScreen} />
+  <Drawer.Screen name="Settings" component={SettingsScreen} />
+</Drawer.Navigator>
+```
+
+Less common in modern mobile UX — most apps use bottom tabs. Still appropriate for tablet layouts and apps with many top-level destinations.
+
+**Nesting navigators — the standard pattern:**
+
+Most real apps combine all three:
+
+```jsx
+<NavigationContainer>
+  <Stack.Navigator>
+    <Stack.Screen name="Main" component={MainTabs} />
+    <Stack.Screen name="Modal" component={ModalScreen} options={{ presentation: 'modal' }} />
+  </Stack.Navigator>
+</NavigationContainer>
+
+function MainTabs() {
+  return (
+    <Tab.Navigator>
+      <Tab.Screen name="Feed" component={FeedStack} />
+      <Tab.Screen name="Profile" component={ProfileStack} />
+    </Tab.Navigator>
+  );
+}
+```
+
+The pattern: **top-level stack for modals; tabs for main destinations; inner stacks for deep navigation within each tab.** This gives you familiar mobile UX out of the box.
+
+**Comparison:**
+
+| Navigator | Pattern | Use for |
+|---|---|---|
+| Stack | Push/pop screens | Hierarchical flow (list → detail → edit) |
+| Tab | Switch between roots | Top-level app sections |
+| Drawer | Slide-in menu | Many destinations, especially on tablet |
+
+**Senior touch:** the senior heuristic — **stack for navigation, tabs for top-level destinations, drawer rarely.** Nesting `Stack > Tab > Stack` (top-level modal stack, tabs, per-tab stacks) is the standard pattern for any non-trivial app. Beginners often try to do everything with one stack; seniors compose multiple navigators by responsibility.

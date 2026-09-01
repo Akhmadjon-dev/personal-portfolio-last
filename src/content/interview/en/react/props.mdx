@@ -1,0 +1,42 @@
+---
+q: "What are `props` in React?"
+level: entry
+type: theory
+order: 3
+---
+
+Props are read-only inputs passed from parent to child components. They're how data flows down the component tree — explicit, unidirectional, and immutable from the child's perspective.
+
+```jsx
+function Greeting({ name, role }) {
+  return <h1>Hello, {name} ({role})</h1>;
+}
+
+<Greeting name="Alice" role="admin" />
+```
+
+Inside `Greeting`, `name` and `role` are read-only. Trying to reassign them (`name = 'Bob'`) wouldn't propagate to the parent or trigger a re-render — props are not mutable state.
+
+**Three things worth knowing about props:**
+
+- **Any value passes.** Strings, numbers, booleans, arrays, objects, functions, even React elements. `<Card header={<Title>Sales</Title>}>` is valid — passing a component as a prop is a common pattern (called "slots" elsewhere).
+- **Default values.** Destructure with `=`: `function Btn({ kind = 'primary', size = 'md' })`.
+- **Rest and spread.** `function Input({ id, ...rest })` collects unknown props; `<input {...rest} />` forwards them — useful for wrapping native elements while preserving all their attributes.
+
+**`children` is a special prop.** Whatever you put between a component's tags becomes `props.children`:
+
+```jsx
+<Card>
+  <h2>Title</h2>
+  <p>Body</p>
+</Card>
+
+// Inside Card:
+function Card({ children }) {
+  return <div className="card">{children}</div>;
+}
+```
+
+This is the foundation of **component composition** — building flexible components that don't need to know about every variation of content they hold.
+
+**Senior touch:** the "props are read-only" rule isn't enforced by the runtime — it's a convention enforced by your discipline (and `Object.freeze` warnings in dev mode). You *could* mutate `props.someArray.push(...)`, but it would create a stale prop without re-rendering, and downstream components would see inconsistent state. The fact that props flow one way is what makes React state changes traceable; breaking it intentionally is one of the fastest ways to create a bug nobody can reproduce.

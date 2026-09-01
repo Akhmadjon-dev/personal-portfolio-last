@@ -28,4 +28,20 @@ const projects = defineCollection({
     }),
 });
 
-export const collections = { projects };
+const LEVELS = ['entry', 'junior', 'mid', 'senior', 'expert', 'architect'] as const;
+const TYPES = ['theory', 'code'] as const;
+const LOCALES = ['en', 'ru', 'uz'] as const;
+
+const interview = defineCollection({
+  loader: glob({ pattern: '**/*.mdx', base: './src/content/interview' }),
+  schema: z.object({
+    q: z.string(),
+    level: z.enum(LEVELS),
+    type: z.enum(TYPES),
+    locale: z.enum(LOCALES).default('en'),
+    order: z.number().default(0),
+    related: z.array(z.string()).optional(),
+  }),
+});
+
+export const collections = { projects, interview };

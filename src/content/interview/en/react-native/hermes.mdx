@@ -1,0 +1,57 @@
+---
+q: "What is Hermes?"
+level: mid
+type: theory
+order: 5
+---
+
+Hermes is a **JavaScript engine optimized for React Native**, developed by Meta. It replaces the default JS engine (JavaScriptCore on iOS, V8 on Android pre-Hermes) with one designed specifically for mobile app workloads.
+
+**Why Hermes exists:**
+
+JavaScriptCore and V8 are designed for browsers — long-running JS contexts, lots of code, complex web APIs. Mobile RN apps have different needs: smaller code budgets, faster startup, lower memory usage. Hermes optimizes for those constraints.
+
+**Hermes wins, measurably:**
+
+| | JavaScriptCore | Hermes |
+|---|---|---|
+| App startup | Baseline | **40-50% faster** |
+| Memory usage | Baseline | **30% lower** |
+| App size (APK/IPA) | Baseline | **~30% smaller** (precompiled bytecode) |
+| Runtime perf | Often faster (JIT) | Comparable on RN workloads |
+
+**How it achieves this:**
+
+**1. Ahead-of-time bytecode compilation.** Hermes compiles JS to bytecode at build time (rather than parsing at runtime). The bundled app ships bytecode, not source code, so cold-start skips parsing and compilation.
+
+**2. No JIT.** JavaScriptCore and V8 have Just-In-Time compilers that warm up over time. Hermes runs interpreted bytecode — slower in microbenchmarks, but RN apps don't run hot loops where JIT shines. Skipping JIT saves memory and reduces startup time.
+
+**3. Optimized for short-lived code.** Mobile UI code doesn't have hot inner loops the way a game engine does. Hermes is tuned for the patterns RN apps actually use.
+
+**4. Faster GC for typical RN patterns.** Generational GC tuned for the allocation patterns of React component trees.
+
+**Enabled by default since 2022:**
+
+Hermes is the default in both iOS and Android since RN 0.70+. You don't enable it — you'd have to *disable* it explicitly (rarely a good idea).
+
+**Debugging Hermes:**
+
+The Hermes debugger is available in Chrome DevTools (or Flipper, or the dev menu's "Open JS Debugger"). You can set breakpoints, inspect variables, profile CPU — same workflow as debugging Node or Chrome.
+
+```
+Debug menu → Open Debugger → Chrome DevTools
+```
+
+The **Hermes profiler** is the best tool for finding JS hotspots in RN — generates Chrome DevTools-compatible flame graphs.
+
+**Hermes-specific features:**
+
+- **`Intl` is built in.** No polyfill needed for date/number formatting in modern Hermes versions.
+- **Detect at runtime** via `typeof HermesInternal !== 'undefined'`.
+- **Source maps work** — production stack traces resolve to original code.
+
+**When Hermes isn't a fit:**
+
+Almost never. The historical reasons to disable Hermes (slow startup of certain libraries, JIT-heavy workloads) are mostly resolved. For 99% of apps, Hermes is the right choice.
+
+**Senior touch:** the senior framing — **Hermes is part of the New Architecture story.** Together with JSI, Fabric, and TurboModules, it's what closed the perf gap between RN apps and native. Knowing Hermes by name and being able to explain *why* it exists (mobile-specific optimization, AOT bytecode, lower memory) signals you've shipped RN in the post-2022 era and understand what changed under the hood.

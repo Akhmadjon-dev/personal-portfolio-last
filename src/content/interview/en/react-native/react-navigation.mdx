@@ -1,0 +1,99 @@
+---
+q: "React Navigation basics"
+level: junior
+type: theory
+order: 1
+---
+
+React Navigation is the de facto routing library for React Native. It provides navigators (stack, tab, drawer) and a `useNavigation` hook for moving between screens. As of 2026, the two competing approaches are:
+
+1. **React Navigation** (the library) — programmatic + declarative API.
+2. **Expo Router** — file-based routing built on React Navigation.
+
+```jsx
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+const Stack = createNativeStackNavigator();
+
+function App() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Details" component={DetailsScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
+
+function HomeScreen({ navigation }) {
+  return (
+    <Pressable onPress={() => navigation.navigate('Details', { id: 42 })}>
+      <Text>Go to Details</Text>
+    </Pressable>
+  );
+}
+
+function DetailsScreen({ route }) {
+  return <Text>ID: {route.params.id}</Text>;
+}
+```
+
+**Key concepts:**
+
+- **`NavigationContainer`** — wraps the app at the root, manages navigation state and deep linking.
+- **Navigator** — a component representing a navigation pattern (Stack, Tab, Drawer).
+- **Screen** — a route definition with a name and a component.
+- **`navigation` prop** — methods like `navigate`, `goBack`, `push`, `replace`, `pop`.
+- **`route` prop** — current route info including `params`.
+
+**The hooks API — preferred in modern code:**
+
+```jsx
+import { useNavigation, useRoute } from '@react-navigation/native';
+
+function MyScreen() {
+  const navigation = useNavigation();
+  const route = useRoute();
+  // ... navigation.navigate(...), route.params.id, etc.
+}
+```
+
+`useNavigation` and `useRoute` work in any component within the navigation tree, not just screens.
+
+**Expo Router — the file-based alternative:**
+
+```
+app/
+  index.tsx           ← /
+  details.tsx         ← /details
+  user/
+    [id].tsx          ← /user/123
+```
+
+```jsx
+// app/index.tsx
+import { Link } from 'expo-router';
+
+export default function Home() {
+  return <Link href="/details">Go to Details</Link>;
+}
+```
+
+Same engine underneath (React Navigation), but routes are defined by file location instead of code. Familiar if you've used Next.js App Router.
+
+**TypeScript route typing:**
+
+```ts
+type RootStackParamList = {
+  Home: undefined;
+  Details: { id: number };
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
+```
+
+This gives type-safe `navigation.navigate('Details', { id: 42 })` — the compiler catches typos and missing params.
+
+**Senior touch:** in 2026, the choice between React Navigation (programmatic) and Expo Router (file-based) is the main architecture decision. Expo Router is newer and increasingly the default for Expo apps — it brings Next.js's file-based mental model to RN. React Navigation is more flexible for non-file-based routing patterns. Knowing both APIs and being able to pick based on the project's needs is the senior signal.

@@ -1,0 +1,35 @@
+---
+q: "How does React work?"
+level: entry
+type: theory
+order: 5
+---
+
+React's job is to keep the DOM in sync with your state. It does this in three phases on every state change:
+
+1. **Render.** Your component function runs. It returns a new JSX tree — a description of what the UI should look like *right now* given current state and props.
+2. **Reconcile.** React compares this new tree against the previous one using a diffing algorithm. It figures out the minimum set of DOM changes needed.
+3. **Commit.** React applies those mutations to the actual DOM. Effects scheduled with `useEffect` then run.
+
+The **Virtual DOM** is the in-memory tree React diffs against — a lightweight JavaScript representation, much cheaper to construct and compare than the real DOM.
+
+```jsx
+function Counter() {
+  const [count, setCount] = useState(0);
+  return <p>You clicked {count} times</p>;
+}
+
+// 1. setCount(1) is called
+// 2. Counter() runs again, returns new JSX
+// 3. React diffs new tree against previous
+// 4. Only the text node "0" → "1" needs updating
+// 5. Browser repaints just that text node
+```
+
+**Why this matters in practice:**
+
+- **You describe state, not steps.** You never call `element.textContent = '1'`. You set state; React figures out the DOM mutations.
+- **Updates are minimal.** Even if your component returns a huge tree, only the parts that *actually changed* hit the DOM. That's why React stays fast as apps grow.
+- **Predictable.** Same state → same UI, every time. No drift between "what should be on screen" and "what is on screen."
+
+**Senior touch:** React 18+ uses the **Fiber** reconciler, which makes that diffing **interruptible** — React can pause mid-render to handle a higher-priority update (a keystroke, an animation frame) and resume later. This is what enables concurrent features like `useTransition` and Suspense. The conceptual model (state → render → diff → commit) is unchanged; what changed is that the diffing is now schedulable, not blocking.

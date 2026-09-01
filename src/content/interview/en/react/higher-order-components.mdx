@@ -1,0 +1,53 @@
+---
+q: "What are Higher-Order Components (HOC)?"
+level: junior
+type: theory
+order: 8
+---
+
+A Higher-Order Component is a **function that takes a component and returns a new component** with extra behavior. It's a pattern for cross-cutting concerns — authentication, logging, theming, data injection — anything you want to layer onto multiple components.
+
+```jsx
+function withAuth(Component) {
+  return function AuthenticatedComponent(props) {
+    const user = useUser();
+    if (!user) return <LoginPrompt />;
+    return <Component {...props} user={user} />;
+  };
+}
+
+const Dashboard = withAuth(DashboardBase);
+```
+
+`withAuth` wraps `DashboardBase` in an auth check. `Dashboard` now requires a logged-in user before it renders — and `DashboardBase` itself never had to know about auth.
+
+The name comes from functional programming (*higher-order functions*). Naming convention: prefix with `with` — `withAuth`, `withLogging`, `withTheme`, `withRouter`.
+
+**What HOCs were used for historically:**
+
+- **Authentication / authorization** — block or redirect users without permissions
+- **Data injection** — `withRouter`, `connect` (Redux), `withApollo` (Apollo Client)
+- **Logging / analytics** — wrap every component to log mounts and unmounts
+- **Theming** — inject theme props from a top-level provider
+
+**The problems with HOCs (and why hooks replaced them):**
+
+- **Wrapper hell.** `withAuth(withTheme(withRouter(withApollo(DashboardBase))))` creates deep nesting that shows up in DevTools as a chain of "anonymous component" wrappers.
+- **Prop collisions.** Two HOCs both injecting a `user` prop silently clobber each other — no warning, just broken behavior.
+- **`ref` forwarding.** Refs don't pass through HOCs by default — you have to use `forwardRef` explicitly inside the wrapper.
+- **Static method loss.** HOCs lose any static methods on the wrapped component unless you copy them manually with `hoist-non-react-statics`.
+
+**Hooks solve all of these:**
+
+```jsx
+// Same idea as withAuth, but as a hook
+function Dashboard() {
+  const user = useUser();
+  if (!user) return <LoginPrompt />;
+  return <DashboardContent user={user} />;
+}
+```
+
+No wrapper, no prop injection, no collisions. The component owns its access pattern, and the logic is reusable as a custom hook.
+
+**Senior touch:** HOCs aren't *wrong* — they're an older pattern that hooks largely obsoleted. You'll still see them in legacy code, in libraries like Redux (`connect`), and in rare cases where you genuinely need to wrap a component class. But in new code, **a custom hook is almost always the better answer**. The senior signal in an interview is recognizing HOCs as a historical pattern, knowing precisely why hooks replaced them, and knowing the narrow cases where HOCs still make sense.

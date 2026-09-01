@@ -1,0 +1,62 @@
+---
+q: "React Native vs React (web)?"
+level: entry
+type: theory
+order: 2
+---
+
+They're the same idea (component model, JSX, hooks, state, props) applied to different rendering targets. **React renders to the DOM; React Native renders to native UI components.**
+
+**What's the same:**
+
+- Component model — function components, JSX, props, children
+- All hooks — `useState`, `useEffect`, `useRef`, `useContext`, custom hooks
+- The Rules of Hooks
+- Context API
+- The component lifecycle and reconciliation
+- TypeScript, ESLint, most testing patterns
+
+**What's different:**
+
+| | React (web) | React Native |
+|---|---|---|
+| Renders to | DOM nodes | Native UI components (UIView, android.view.View) |
+| Base elements | `<div>`, `<span>`, `<button>` | `<View>`, `<Text>`, `<Pressable>` |
+| Text rendering | Anywhere | **Must be inside `<Text>`** |
+| Styling | CSS, CSS modules, Tailwind | `StyleSheet.create()`, JS objects, NativeWind |
+| Layout | Block + Flexbox + Grid | Flexbox only (with RN-specific defaults) |
+| Events | `onClick`, `onChange`, etc. | `onPress`, `onChangeText`, `onScroll` |
+| Routing | React Router, file-based (Next) | React Navigation, Expo Router (file-based) |
+| Storage | localStorage, IndexedDB | AsyncStorage, MMKV |
+| Network | `fetch`, axios | Same — `fetch` works in RN |
+
+**Four RN-specific rules to internalize:**
+
+1. **All text must be wrapped in `<Text>`.** `<View>Hello</View>` is invalid. This trips up everyone moving from web.
+2. **Flexbox defaults are different.** `flexDirection` defaults to `column` (not `row` like web). `display` is implicitly flex.
+3. **No CSS file imports.** Styles are JS objects, defined inline or via `StyleSheet.create()`.
+4. **No DOM APIs.** No `window`, `document`, `localStorage`. Use RN equivalents.
+
+**Code that's portable vs not:**
+
+```jsx
+// Portable — same in both worlds
+function useToggle() {
+  const [on, setOn] = useState(false);
+  return [on, () => setOn((x) => !x)];
+}
+
+// NOT portable — uses DOM events and HTML elements
+function WebButton() {
+  return <button onClick={...}>Click</button>;
+}
+
+// NOT portable — uses native components
+function RNButton() {
+  return <Pressable onPress={...}><Text>Click</Text></Pressable>;
+}
+```
+
+**React Native for Web** (`react-native-web`) is a compatibility layer that runs RN components in the browser by translating `<View>` to `<div>` and so on. Used by Expo Router for web preview and by teams that want truly cross-platform with one codebase. Performance is fine for most cases; for web-heavy apps, native React for web still wins.
+
+**Senior touch:** the rule of thumb is **React is React; the renderer is the difference**. Hooks, state, and context all behave identically. The friction points are: (1) different elements, (2) different events, (3) text-must-be-in-Text, (4) different layout defaults. Once you internalize those four differences, switching between React and React Native day-to-day is a small adjustment, not a re-learning.

@@ -1,0 +1,49 @@
+---
+q: "What is a Single Page Application?"
+level: entry
+type: theory
+order: 12
+---
+
+A Single Page Application (SPA) is a web app that loads **one HTML page** and updates its content dynamically as the user navigates — instead of fetching a new HTML page from the server for every URL.
+
+**How navigation works in an SPA:**
+
+1. Browser loads `index.html` once. It contains a `<div id="root">` and a `<script>` tag pointing to your JS bundle.
+2. The JS bundle boots up React (or any SPA framework) and renders the first view inside `#root`.
+3. When the user clicks an internal link, the SPA's **router** intercepts it, updates the URL via `history.pushState`, and re-renders the view from local data or an API call.
+4. The browser never requests a new HTML document. All navigation happens in-page.
+
+```jsx
+// Example with React Router
+<BrowserRouter>
+  <Routes>
+    <Route path="/" element={<Home />} />
+    <Route path="/products" element={<Products />} />
+    <Route path="/products/:id" element={<ProductDetail />} />
+  </Routes>
+</BrowserRouter>
+```
+
+**Why SPAs took over:**
+
+- **Snappy navigation.** No full reload, no flash of white between pages.
+- **Rich interactivity.** Once the app is loaded, you have all of JS + state to work with.
+- **API decoupling.** Backend ships JSON; frontend renders. The two can deploy independently.
+
+**Tradeoffs (worth saying in an interview):**
+
+- **Initial load is slower.** You ship the whole JS bundle before anything renders. Code-splitting (`React.lazy`, dynamic `import()`) mitigates this.
+- **SEO is harder.** Search engines see an empty `<div id="root">` unless you SSR/SSG. Frameworks like Next.js exist mostly to solve this.
+- **JS-required by default.** Users with JavaScript disabled see a blank page. Server-rendered frameworks (Next.js, Remix) fix this too.
+
+**SPA vs MPA:**
+
+| | SPA | MPA |
+|---|---|---|
+| Initial load | Slower (ship JS bundle) | Faster (HTML only) |
+| Subsequent navigation | Instant | Full reload |
+| SEO | Needs SSR/SSG | Built-in |
+| State persistence | Across routes by default | Lost on navigation |
+
+**Senior touch:** the "SPA vs MPA" framing is less useful than it used to be. Modern frameworks (Next.js, Remix, Astro) are *hybrid* — they SSR or SSG the initial page (MPA benefits) and hydrate to a client app (SPA benefits). The clean SPA-or-MPA dichotomy is mostly a 2015–2020 concept; in 2026 the right answer is usually "hybrid, with selective hydration."

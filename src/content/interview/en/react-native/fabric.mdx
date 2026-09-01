@@ -1,0 +1,78 @@
+---
+q: "Fabric — React Native's new renderer"
+level: senior
+type: theory
+order: 2
+---
+
+**Fabric** is the new rendering pipeline in React Native's New Architecture, replacing the legacy "Shadow Tree" + "UI Manager." It's written in C++ and shared between iOS and Android — same renderer, same code, two platforms.
+
+**The legacy renderer — what Fabric replaced:**
+
+In the old architecture, rendering involved three separate threads working asynchronously:
+
+1. **JS thread** — runs your React components, schedules updates.
+2. **Shadow thread** — calculates layout using Yoga.
+3. **Main UI thread** — applies the layout and renders native views.
+
+Updates flowed across threads via the JSON bridge — async, batched, eventually consistent. It worked for most cases, but synchronous layout (measuring before render) was hard or impossible.
+
+**Fabric — synchronous, cross-platform, concurrent-aware:**
+
+Fabric collapses the three-thread model into a unified C++ renderer with these properties:
+
+- **Cross-platform.** Same C++ code on iOS and Android. Reduces platform-specific bugs and divergence.
+- **Synchronous when needed.** Layout calculations can run synchronously on the JS thread, enabling patterns like *"measure this view and use the result in the same render."*
+- **Concurrent React support.** Integrates with React 18's concurrent rendering, `useTransition`, Suspense.
+- **Type-safe view props.** Codegen produces typed prop definitions from JS specs.
+- **Better memory profile.** Fewer allocations, less cross-thread copying.
+
+**What it means in practice:**
+
+For most app code, **nothing changes**. Same components, same JSX, same React. The wins are under the hood: faster commits, smoother animations, less stutter under load.
+
+What *does* change:
+
+- Some animation patterns work better (synchronous layout measurement).
+- Some third-party libraries needed Fabric updates (native components, custom drawing).
+- Build configuration may need explicit New Architecture flags for older libraries.
+
+**The component lifecycle in Fabric:**
+
+When a React component renders to native:
+
+1. **Render** — your component returns JSX (JS thread).
+2. **Reconcile** — React figures out what changed.
+3. **Shadow tree update** — Fabric updates its C++ representation of the view tree.
+4. **Layout** — Yoga calculates positions (synchronous in Fabric).
+5. **Commit** — Fabric applies the updated tree to native views (iOS UIView / Android View).
+6. **Mount** — native views are inserted, updated, or removed.
+
+Steps 3-6 happen in C++, on the main thread, with no bridge involvement.
+
+**Custom Fabric components — the new way to write native views:**
+
+Pre-Fabric, custom native components (e.g., a custom video player view) used the old `RCTViewManager` pattern. Fabric uses **codegen + component specs**:
+
+```ts
+// MyVideoPlayer.ts
+import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNativeComponent';
+
+export interface NativeProps extends ViewProps {
+  uri: string;
+  paused?: boolean;
+  onLoadComplete?: (event) => void;
+}
+
+export default codegenNativeComponent<NativeProps>('MyVideoPlayer');
+```
+
+Codegen produces the platform-specific glue code at build time. Type-safe props, no manual bridge declarations.
+
+**Migration considerations:**
+
+By 2026, most popular libraries support Fabric. The remaining holdouts are usually niche libraries that haven't been updated, libraries with custom native UI that needs Fabric rewrites, or companies running old RN versions because of internal dependencies.
+
+For new projects, Fabric is the default. For migrations, check each library's compatibility list before enabling the New Architecture.
+
+**Senior touch:** the senior framing — **Fabric matters because it unifies and synchronizes rendering.** The old architecture's three-thread model was a source of subtle timing bugs and layout limitations. Fabric's C++ unified pipeline eliminates that complexity. The visible result is performance and consistency; the architectural result is that **React Native's renderer is now competitive with native rendering pipelines** in capability, not just appearance.

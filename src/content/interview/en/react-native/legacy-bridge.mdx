@@ -1,0 +1,61 @@
+---
+q: "The legacy Bridge — what it was, why it was replaced"
+level: senior
+type: theory
+order: 8
+---
+
+Before the New Architecture, React Native communicated between JavaScript and native code through a thing called the **Bridge**. It defined the entire interaction model for ~7 years (2015-2022) and is the source of most "RN is slow" reputation issues.
+
+**How the Bridge worked:**
+
+JS and native lived on separate threads. The Bridge was a JSON-serialized message bus between them:
+
+```
+JS thread                                          Native thread
+┌──────────────┐                                  ┌──────────────┐
+│ setState()   │  ──serialize→ JSON ──parse→     │ Update view  │
+│ click event  │  ←parse── JSON ←serialize──    │ Touch event  │
+└──────────────┘                                  └──────────────┘
+```
+
+Every cross-thread call went through the Bridge: rendering updates, touch events, native API calls, layout calculations.
+
+**Three fundamental problems:**
+
+**1. Asynchronous and batched.** Calls were batched into bundles and flushed periodically. A click handler that called a native module didn't get a synchronous result — it scheduled a message and waited for the response. Single-frame animations were impossible across the bridge.
+
+**2. JSON serialization overhead.** Every value crossing the bridge had to be serialized to JSON, sent across, and parsed. For complex updates (large lists, animation frames), this could take milliseconds — enough to drop frames.
+
+**3. Loose typing.** JSON has no types beyond strings, numbers, booleans, arrays, objects. The compiler couldn't validate that the native side expected what JS sent. Type mismatches surfaced as runtime crashes.
+
+**The symptoms users felt:**
+
+- **Animations dropped frames** when JS was busy — the bridge couldn't keep up.
+- **List scrolling stuttered** at scale because every visible item update went through the bridge.
+- **Gestures lagged** because touch events round-tripped through the bridge before reaching JS.
+- **Startup was slow** because every native module's spec was sent over the bridge before the first render.
+
+**Why the Bridge was that way:**
+
+Original RN was designed to work with any JS engine that ran on iOS and Android. The Bridge was the simplest abstraction that worked for both. Synchronous interop required deeper JS-engine integration that didn't exist yet.
+
+**What replaced it (recap):**
+
+| Bridge | New Architecture |
+|---|---|
+| JSON serialization | Direct C++ via JSI |
+| Async only | Sync or async |
+| Loosely typed | Type-safe via codegen |
+| All modules loaded at startup | Lazy via TurboModules |
+| Three-thread render flow | C++ Fabric renderer |
+
+**The Bridge in 2026:**
+
+The Bridge isn't fully gone — it's a fallback for legacy native modules that haven't been migrated to TurboModules. Apps with the New Architecture enabled can still use bridge-era modules, just without the perf benefits.
+
+**Why it's worth knowing:**
+
+Most code in production RN apps was *written for the Bridge era*. Even if you're working in a modern codebase, you'll encounter Bridge-era patterns: async-only assumptions, `NativeModules.X.method()` calls, JSON-shaped data flows. Knowing what the Bridge did helps you recognize legacy patterns and update them when needed.
+
+**Senior touch:** the senior framing — **the Bridge isn't just an implementation detail; it shaped how the React Native community wrote code for 7 years.** Async-everywhere assumptions, JSON-friendly APIs, "ship native modules sparingly" wisdom — they all stem from Bridge-era constraints. The New Architecture didn't just speed things up; it changed which patterns make sense. Knowing both eras is what lets you read old code clearly and write new code that doesn't carry forward dead weight.

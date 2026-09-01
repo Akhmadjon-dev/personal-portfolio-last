@@ -1,0 +1,58 @@
+---
+q: "What is Expo?"
+level: entry
+type: theory
+order: 9
+---
+
+Expo is a framework and platform built on top of React Native that makes building, building, and deploying mobile apps dramatically easier. It started as "React Native with batteries included" and has evolved into the de facto way to build RN apps in 2026.
+
+```bash
+# Create a new Expo app
+npx create-expo-app my-app
+cd my-app
+npx expo start
+```
+
+Open the **Expo Go** app on your phone, scan the QR code, and your app runs — no Xcode, no Android Studio.
+
+**What Expo provides:**
+
+| Layer | What it gives you |
+|---|---|
+| **Expo SDK** | First-party libraries: camera, location, notifications, file system, sensors, sharing, secure store. Work without manual native setup. |
+| **Expo Router** | File-based routing (like Next.js App Router) for React Native. The modern way to do navigation. |
+| **EAS Build** | Cloud builds for iOS and Android — no Xcode or Android Studio needed. |
+| **EAS Submit** | Submit to App Store and Play Store from the command line. |
+| **EAS Update** | Over-the-air updates for JS-only changes (skip the app store for bug fixes). |
+| **Expo Go** | Companion app on iOS/Android — run your code without compiling. |
+| **Development builds** | Custom dev clients when Expo Go isn't enough. |
+
+**Why Expo became the default:**
+
+Before Expo, starting a React Native project meant Xcode, Android Studio, configuring CocoaPods, hooking up signing certificates, dealing with Gradle errors. Expo flattened all of that. You can build, ship, and update an app from your laptop without ever opening a native IDE.
+
+**The Expo SDK in action:**
+
+```jsx
+import * as Camera from 'expo-camera';
+import * as Location from 'expo-location';
+import * as Notifications from 'expo-notifications';
+
+async function requestPermissions() {
+  const cam = await Camera.requestCameraPermissionsAsync();
+  const loc = await Location.requestForegroundPermissionsAsync();
+  const notif = await Notifications.requestPermissionsAsync();
+  return { cam, loc, notif };
+}
+```
+
+Each of these works on iOS and Android without manual native module setup. With bare React Native, each would require Xcode and Gradle configuration.
+
+**The big tradeoff people used to worry about — *"Expo is limiting":***
+
+Historically, Expo's managed workflow couldn't run custom native code. If you needed a native module Expo didn't ship, you had to "eject" to bare RN, losing managed workflow benefits.
+
+That's no longer true. **Expo modules + EAS Build** let you write or use custom native modules while staying in the managed workflow. The Expo team built a config plugin system, and most popular native libraries now have official Expo configs. Ejecting is rarely necessary in 2026.
+
+**Senior touch:** the canonical 2026 question isn't *"Expo vs bare RN"* — it's *"Are you using Expo? You should be."* Expo Router (file-based routing), EAS Build (cloud builds), and EAS Update (OTA) became the standard stack. Knowing the full Expo product line (SDK, Router, Build, Update, Submit) and reaching for the right piece is what separates someone who's shipped RN in the last 2 years from someone who hasn't.

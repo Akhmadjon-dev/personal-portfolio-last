@@ -1,0 +1,86 @@
+---
+q: "Splash screens and app icons (Expo)"
+level: junior
+type: theory
+order: 11
+---
+
+Splash screens and app icons are configured in `app.json` (Expo) with a single image; Expo generates the platform-specific assets at build time.
+
+**Configuration:**
+
+```json
+{
+  "expo": {
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFFFFF"
+    }
+  }
+}
+```
+
+**Asset requirements:**
+
+| Asset | Size | Notes |
+|---|---|---|
+| `icon.png` | 1024 × 1024 | Square, no transparency for iOS |
+| `splash.png` | 1242 × 2436 | Centered subject (logo); will be cropped per device |
+| Android adaptive icon foreground | 1024 × 1024 | Centered subject; outer 1/3 padded for the system mask |
+
+Easiest workflow: `npx create-expo-app` (scaffolds correct sizes) and then replace the assets.
+
+**Adaptive icons on Android:**
+
+Android lets the system mask the icon — round, squircle, rounded square — depending on the launcher. You provide a `foregroundImage` (with safe-area padding) and a `backgroundColor`:
+
+```json
+{
+  "expo": {
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon-foreground.png",
+        "backgroundColor": "#F47858"
+      }
+    }
+  }
+}
+```
+
+The foreground image should keep critical content in the **inner 66%** so it's visible after masking.
+
+**Splash screen with `expo-splash-screen` — control hide timing:**
+
+By default, the splash hides when the JS bundle loads. For finer control (wait for fonts, initial data, etc.):
+
+```jsx
+import * as SplashScreen from 'expo-splash-screen';
+
+// Keep visible while we load fonts and config
+SplashScreen.preventAutoHideAsync();
+
+function App() {
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    Promise.all([loadFonts(), loadConfig()])
+      .then(() => {
+        setReady(true);
+        SplashScreen.hideAsync();
+      });
+  }, []);
+
+  if (!ready) return null;
+  return <MainApp />;
+}
+```
+
+Without `preventAutoHideAsync()`, the splash hides as soon as JS loads — exposing a flash of unstyled content before fonts arrive.
+
+**Going beyond — `react-native-bootsplash`:**
+
+For native splash screens that match the system more closely (no flicker between native splash and JS-rendered loading state), `react-native-bootsplash` is the production-grade tool. Slightly more setup than `expo-splash-screen` but better visual continuity. Used in many top-tier RN apps.
+
+**Senior touch:** the senior touch on splash/icon work is **eliminating the flash** — the moment between the native splash hiding and your first frame showing. The pattern: keep the splash on screen until fonts, theme, auth state, and initial data are all ready, then hide it. Without `preventAutoHideAsync` + an explicit `hideAsync` after preload, you get a visible flicker of unstyled content that ruins the otherwise-native feel. *Polishing this transition is one of the small details that separates a senior-built app from a junior one.*

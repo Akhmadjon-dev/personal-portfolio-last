@@ -1,0 +1,118 @@
+---
+q: "Designing OTA update architecture at scale"
+level: expert
+type: theory
+order: 4
+---
+
+EAS Update (and CodePush before it) is the building block for shipping JS updates without app store delays. At scale — millions of users, multiple environments, fast rollbacks — you need explicit architecture decisions.
+
+**Four design questions:**
+
+**1. Branch strategy.**
+
+| Branch | Audience | Purpose |
+|---|---|---|
+| `development` | Developers | Test-only; flaky changes |
+| `preview` | Internal staff, beta users | Validation before production |
+| `staging` | Internal staff | UAT environment, talks to staging API |
+| `production` | All users | Stable, signed-off code |
+
+Branches map to runtime channels. The app's `runtimeVersion` + `channel` determines which bundles are eligible.
+
+**2. `runtimeVersion` strategy.**
+
+`runtimeVersion` ties JS bundles to compatible app builds. If you add a new native dependency, you must bump the version — otherwise old apps get JS that needs missing native modules.
+
+Common patterns:
+
+- **App version**: `"runtimeVersion": { "policy": "appVersion" }` — bump per app version (1.0.0, 1.0.1).
+- **Native version**: `"runtimeVersion": { "policy": "nativeVersion" }` — bump only when native code changes (more precise).
+- **Manual**: explicit string, e.g., `"runtimeVersion": "production-2026.01"`.
+
+Native version is the senior choice — it minimizes runtime fragmentation (multiple JS bundles served per app version).
+
+**3. Rollout strategy.**
+
+| Strategy | Risk | When |
+|---|---|---|
+| Direct publish | High | Hotfixes only |
+| Staged percentage rollout | Low | Default for new features |
+| Targeted rollout (by user segment) | Lower | A/B testing or canary |
+
+EAS Update supports staged rollouts:
+
+```bash
+# Publish to 10% of users
+eas update --branch production --message "feature X" --rollout-percentage 10
+
+# Increase if no issues
+eas update --branch production --republish --rollout-percentage 50
+eas update --branch production --republish --rollout-percentage 100
+```
+
+If errors spike after the 10% rollout, you abort before it reaches most users.
+
+**4. Observability.**
+
+You need to know:
+
+- Which bundle is each user running?
+- Are crashes higher in the new bundle?
+- Is adoption rolling out as expected?
+
+```jsx
+import * as Updates from 'expo-updates';
+
+Sentry.setTag('update-id', Updates.updateId ?? 'native-bundle');
+Sentry.setTag('runtime-version', Updates.runtimeVersion);
+analytics.identify(userId, {
+  update_id: Updates.updateId,
+  update_channel: Updates.channel,
+});
+```
+
+Now crash reports can be filtered by update ID — finding "all crashes in update X" becomes a one-query lookup.
+
+**Rollback playbook:**
+
+When something is broken in production:
+
+1. **Confirm it's an OTA-able issue.** Native crashes can't be OTA-fixed.
+2. **Re-publish the previous good bundle:**
+
+```bash
+eas update:list --branch production
+eas update --branch production --republish --group <previous-update-id>
+```
+
+3. **Communicate.** Slack the team, status page, customer support.
+4. **Postmortem.** What slipped through? Add a check.
+
+For critical issues, force the update on next launch:
+
+```jsx
+useEffect(() => {
+  Updates.checkForUpdateAsync().then(async (update) => {
+    if (update.isAvailable && update.manifest.extra?.critical) {
+      await Updates.fetchUpdateAsync();
+      await Updates.reloadAsync();
+    }
+  });
+}, []);
+```
+
+`extra.critical` is an arbitrary field you set when publishing critical hotfixes.
+
+**The native version trap:**
+
+The most common OTA failure: shipping JS that calls a native API the user's app doesn't have.
+
+```jsx
+import { newNativeFeature } from 'react-native-new-feature';
+newNativeFeature(); // throws if user's app doesn't have this module
+```
+
+If you added `react-native-new-feature` and shipped a native rebuild, but some users haven't updated to that build, the OTA update breaks them. The fix is **always bump `runtimeVersion` when native deps change** — old apps then ignore the incompatible bundle.
+
+**Senior touch:** the senior framing — **OTA at scale is risk management, not just shipping faster.** The whole point is being able to fix bugs without app store delays. To do that responsibly, you need: tagged observability (which bundle is each user on?), staged rollouts (catch issues before 100%), runtime-version discipline (don't break old apps), and a tested rollback playbook (can revert in under 10 minutes). Skipping any of these turns OTA from a safety net into a footgun.

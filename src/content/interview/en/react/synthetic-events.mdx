@@ -1,0 +1,49 @@
+---
+q: "What are Synthetic Events?"
+level: junior
+type: theory
+order: 16
+---
+
+A SyntheticEvent is React's wrapper around the native browser event. When you write `onClick={handler}`, React doesn't pass the raw DOM event — it passes a SyntheticEvent that mirrors the native event's API but provides cross-browser consistency.
+
+```jsx
+function Form() {
+  const handleSubmit = (e) => {
+    e.preventDefault();          // works the same in all browsers
+    console.log(e.target.value); // standard interface
+    console.log(e.nativeEvent);  // access to underlying browser event if needed
+  };
+  return <form onSubmit={handleSubmit}>...</form>;
+}
+```
+
+**Why React wraps events:**
+
+- **Cross-browser normalization.** Different browsers historically had different event APIs — old IE was famously inconsistent. SyntheticEvent papers over the differences.
+- **Performance via pooling (React 16 only).** React used to *reuse* event objects across handlers — `e` was reset after the handler returned. If you stashed `e` in a callback and read it later, you'd see a stale (or nulled-out) object. **React 17 removed pooling**; modern SyntheticEvents behave like normal objects.
+- **Event delegation.** React doesn't attach every `onClick` listener to its element. Since React 17, it attaches a single listener at the React root. When events bubble up, React dispatches them to the right component. This is cheaper than thousands of native listeners on a large page.
+
+**The pooling gotcha (React 16 era, but still lurks in old codebases):**
+
+```jsx
+function handleClick(e) {
+  setTimeout(() => console.log(e.target), 0);
+  // React 16: e was pooled, so e.target is null by the time setTimeout fires
+  // React 17+: e is a normal object, works fine
+}
+```
+
+The React 16 workaround was `e.persist()` or capturing `e.target` into a local variable before the async callback.
+
+**Accessing the native event:**
+
+```jsx
+const onClick = (e) => {
+  e.nativeEvent; // the underlying DOM Event object
+};
+```
+
+You rarely need this — the SyntheticEvent API covers virtually all use cases. The native event is useful when interacting with browser APIs or libraries that expect a real DOM event reference.
+
+**Senior touch:** SyntheticEvents are mostly invisible in day-to-day work — you treat `e` as a normal event and it works. Knowing they exist matters for two reasons: (1) you can explain the event-delegation perf optimization React 17 introduced, and (2) if you encounter a legacy codebase with `.persist()` calls or strange null-target bugs, you immediately recognize the pre-React-17 event pooling issue.

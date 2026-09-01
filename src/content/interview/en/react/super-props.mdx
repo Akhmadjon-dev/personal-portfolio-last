@@ -1,0 +1,53 @@
+---
+q: "What is the purpose of `super(props)`?"
+level: junior
+type: theory
+order: 17
+---
+
+`super(props)` is called inside a **class component constructor** to invoke the parent (`React.Component`) constructor with the props. Doing so makes `this.props` available inside the constructor body.
+
+```jsx
+class Welcome extends React.Component {
+  constructor(props) {
+    super(props);
+    console.log(this.props.name); // accessible
+    this.state = { greeting: `Hello, ${props.name}` };
+  }
+}
+```
+
+**Why it's required:**
+
+- **JavaScript inheritance rules.** Any class that `extends` another class must call `super()` in its constructor before accessing `this`. Skip `super` → reference error.
+- **Passing `props`.** If you call just `super()` without `props`, React still sets `this.props` *after* the constructor runs — but inside the constructor body, `this.props` would be `undefined`. Calling `super(props)` propagates the prop reference up so `React.Component`'s constructor stores it correctly, and `this.props` is available immediately.
+
+**Without props:**
+
+```jsx
+class Welcome extends React.Component {
+  constructor(props) {
+    super(); // ❌ no props passed
+    console.log(this.props); // undefined inside constructor
+  }
+  render() {
+    return <h1>{this.props.name}</h1>; // ✅ works — React sets props after construction
+  }
+}
+```
+
+So strictly, you only *need* `super(props)` (with the argument) if you want to access `this.props` *inside the constructor itself*. Modern lint rules flag the missing argument regardless, as a style consistency issue.
+
+**In functional components: not applicable.**
+
+Functional components don't have constructors or `this`. Props arrive as the first argument:
+
+```jsx
+function Welcome({ name }) {
+  return <h1>Hello, {name}</h1>;
+}
+```
+
+No `super`, no `this`, no constructor. This is one of the big reasons functional components replaced classes — less ceremony for the same result.
+
+**Senior touch:** the `super(props)` question is essentially "do you remember the class era?" It's a legacy detail that's still useful for maintaining old code but not relevant for greenfield work. In an interview, the right framing is: "It's how class components forward props to `React.Component`'s constructor so `this.props` is available inside the constructor body. Functional components don't need it — that's one of the things hooks made simpler. I'd only write this when working in legacy code."

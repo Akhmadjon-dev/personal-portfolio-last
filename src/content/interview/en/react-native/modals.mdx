@@ -1,0 +1,105 @@
+---
+q: "Modal component patterns in React Native"
+level: junior
+type: theory
+order: 10
+---
+
+React Native has a built-in `<Modal>` component. It works for simple cases, but for most production apps, **modal presentation via the navigation stack is the better pattern**.
+
+**The built-in `<Modal>` component:**
+
+```jsx
+import { Modal, View, Text, Pressable } from 'react-native';
+
+function App() {
+  const [visible, setVisible] = useState(false);
+  return (
+    <>
+      <Pressable onPress={() => setVisible(true)}>
+        <Text>Open Modal</Text>
+      </Pressable>
+      <Modal
+        visible={visible}
+        onRequestClose={() => setVisible(false)}
+        animationType="slide"
+        presentationStyle="pageSheet"
+      >
+        <View>
+          <Text>Modal Content</Text>
+          <Pressable onPress={() => setVisible(false)}>
+            <Text>Close</Text>
+          </Pressable>
+        </View>
+      </Modal>
+    </>
+  );
+}
+```
+
+**Key props:**
+
+| Prop | Purpose |
+|---|---|
+| `visible` | Control modal visibility |
+| `onRequestClose` | Called on Android back button — **required on Android** |
+| `animationType` | `'none'`, `'slide'`, `'fade'` |
+| `presentationStyle` (iOS) | `'fullScreen'`, `'pageSheet'`, `'formSheet'`, `'overFullScreen'` |
+| `transparent` | If true, background is transparent (for overlay modals) |
+
+**The better pattern — modal screens via navigation:**
+
+```jsx
+<Stack.Navigator>
+  <Stack.Screen name="Main" component={MainStack} />
+  <Stack.Screen
+    name="EditProfile"
+    component={EditProfileScreen}
+    options={{ presentation: 'modal' }}
+  />
+</Stack.Navigator>
+```
+
+Now navigating to `EditProfile` slides up as a modal. Benefits:
+
+- **Deep-linkable** — modals have URLs.
+- **Back-stack integration** — Android back closes the modal naturally.
+- **Easier state** — no `useState` for visibility; just `navigation.navigate`.
+- **Familiar native animations** — iOS sheet presentation, Android slide.
+
+**Bottom sheets — neither built-in nor `<Modal>`:**
+
+For bottom sheets (the modern iOS / Android UX pattern), use **`@gorhom/bottom-sheet`**:
+
+```jsx
+import BottomSheet from '@gorhom/bottom-sheet';
+
+function App() {
+  const sheetRef = useRef(null);
+  return (
+    <>
+      <Pressable onPress={() => sheetRef.current?.expand()}>
+        <Text>Open Sheet</Text>
+      </Pressable>
+      <BottomSheet ref={sheetRef} index={-1} snapPoints={['25%', '50%', '90%']}>
+        <BottomSheetView>
+          <Text>Sheet content</Text>
+        </BottomSheetView>
+      </BottomSheet>
+    </>
+  );
+}
+```
+
+Gesture-driven (drag to expand/collapse), snap points, backdrop, keyboard handling — production-quality bottom sheets are a library, not the built-in `<Modal>`.
+
+**When to use each approach:**
+
+| Approach | Best for |
+|---|---|
+| `<Modal>` (built-in) | Simple full-screen overlays in non-navigation contexts |
+| Navigation modal (`presentation: 'modal'`) | Most "modal screens" — edit forms, settings, etc. |
+| `@gorhom/bottom-sheet` | Bottom sheets, drag-to-dismiss UX |
+| `react-native-modal` (community) | Custom-styled overlays with backdrop animation |
+
+**Senior touch:** the senior heuristic — **for "modal screens" (edit profile, picker, full-page overlay), use navigation modal presentation; for bottom sheets, use `@gorhom/bottom-sheet`; reserve the built-in `<Modal>` for genuinely overlay-only UI.** Most rookie code over-uses `<Modal>` with manual visibility state because that's the obvious primitive — but navigation modals are simpler, more shareable, and more native-feeling. Naming the three-tier strategy is the senior signal.

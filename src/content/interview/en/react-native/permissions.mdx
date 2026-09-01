@@ -1,0 +1,104 @@
+---
+q: "Handling permissions in React Native"
+level: junior
+type: theory
+order: 6
+---
+
+Mobile apps need explicit user permission for sensitive features — camera, location, microphone, photos, notifications, contacts. The OS shows a system dialog the first time you request; the user accepts or denies. The pattern is **request → check → handle**.
+
+**With Expo (the modern pattern):**
+
+```jsx
+import * as Camera from 'expo-camera';
+
+async function ensureCameraPermission() {
+  const current = await Camera.getCameraPermissionsAsync();
+  if (current.status === 'granted') return true;
+  const result = await Camera.requestCameraPermissionsAsync();
+  return result.status === 'granted';
+}
+```
+
+**Three statuses to handle:**
+
+| Status | Meaning |
+|---|---|
+| `granted` | User has allowed access |
+| `denied` | User has denied (may be temporary or permanent) |
+| `undetermined` | User hasn't been asked yet |
+
+On iOS, `denied` is **permanent** for that install — the system dialog won't appear again. The user must go to Settings → app permissions to change it. On Android, `denied` may allow re-asking, but eventually becomes permanent ("Don't ask again").
+
+**The full pattern with Settings fallback:**
+
+```jsx
+import { Alert, Linking } from 'react-native';
+
+async function ensureCameraPermission(): Promise<boolean> {
+  const current = await Camera.getCameraPermissionsAsync();
+  if (current.status === 'granted') return true;
+
+  // User has permanently denied — guide to Settings
+  if (current.status === 'denied' && !current.canAskAgain) {
+    Alert.alert(
+      'Camera permission required',
+      'Please enable camera access in Settings.',
+      [
+        { text: 'Cancel' },
+        { text: 'Open Settings', onPress: () => Linking.openSettings() },
+      ]
+    );
+    return false;
+  }
+
+  const result = await Camera.requestCameraPermissionsAsync();
+  return result.status === 'granted';
+}
+```
+
+`canAskAgain` tells you whether the system dialog will appear or whether you've exhausted your prompts.
+
+**Per-permission modules in Expo:**
+
+| Permission | Module |
+|---|---|
+| Camera | `expo-camera` |
+| Location | `expo-location` |
+| Notifications | `expo-notifications` |
+| Photos | `expo-media-library` |
+| Microphone | `expo-av` |
+| Contacts | `expo-contacts` |
+| Calendar | `expo-calendar` |
+
+Each has its own `getXPermissionsAsync()` and `requestXPermissionsAsync()`.
+
+**Permission strings in `app.json` — easy to forget:**
+
+iOS requires "usage description" strings — human-readable reasons shown in the system dialog. Forgetting these is a common bug that causes the app to crash silently:
+
+```json
+{
+  "expo": {
+    "ios": {
+      "infoPlist": {
+        "NSCameraUsageDescription": "We need camera access to scan QR codes.",
+        "NSLocationWhenInUseUsageDescription": "We use your location to show nearby venues."
+      }
+    },
+    "android": {
+      "permissions": ["CAMERA", "ACCESS_FINE_LOCATION"]
+    }
+  }
+}
+```
+
+Without these strings, iOS rejects the app at App Store review.
+
+**Best practices:**
+
+1. **Don't ask on launch.** Ask in context — when the user taps "Scan barcode," then prompt for camera. Pre-emptive permission requests have terrible accept rates.
+2. **Explain the why first.** A pre-prompt explaining why you need access ("We need notifications to remind you about workouts") boosts acceptance dramatically.
+3. **Handle denied gracefully.** Show a message + button to open Settings. Don't repeatedly try to re-prompt.
+
+**Senior touch:** the senior framing is **"permissions are UX, not just an API call."** The naive implementation calls `requestXPermissionsAsync` and crashes if denied. The right pattern is: pre-prompt → request → handle denied → guide to Settings → degrade gracefully if the user refuses. Knowing the `canAskAgain` flag and the `Linking.openSettings()` escape hatch is what separates a junior implementation from a senior one.

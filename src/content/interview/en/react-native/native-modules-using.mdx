@@ -1,0 +1,100 @@
+---
+q: "Using native modules in React Native"
+level: mid
+type: theory
+order: 15
+---
+
+A native module is a piece of native code (Swift, Kotlin, Obj-C, Java) exposed to JavaScript. Anything React Native can't do in pure JS — camera, biometrics, system clipboard, audio recording, file system at scale — requires either a built-in module or a community library.
+
+```jsx
+import * as LocalAuthentication from 'expo-local-authentication';
+
+async function authenticate() {
+  const hasHardware = await LocalAuthentication.hasHardwareAsync();
+  if (!hasHardware) return;
+
+  const result = await LocalAuthentication.authenticateAsync({
+    promptMessage: 'Confirm your identity',
+  });
+
+  if (result.success) {
+    // user authenticated via Face ID / Touch ID / fingerprint
+  }
+}
+```
+
+You import a JS module. Under the hood it's a thin shim that calls into native code via JSI (or the legacy bridge in older RN).
+
+**Where native modules come from:**
+
+| Source | Description |
+|---|---|
+| **Built-in to RN** | `View`, `Text`, `Image`, `TextInput`, `ScrollView` — the core components |
+| **Expo SDK** | `expo-camera`, `expo-location`, `expo-notifications`, etc. (~80 modules) |
+| **Community** | `react-native-mmkv`, `@gorhom/bottom-sheet`, `react-native-reanimated`, etc. |
+| **Custom** | Modules you write yourself for app-specific native code |
+
+For most use cases, Expo SDK + community libraries cover everything. **Writing custom native modules is rare** in 2026.
+
+**Discovering libraries — `react-native-directory`:**
+
+[reactnative.directory](https://reactnative.directory) is the searchable index. Filters by platform support, New Architecture support, popularity, last update. The first stop when you need a native capability.
+
+**Installing in Expo:**
+
+```bash
+# Expo-managed
+npx expo install expo-camera
+
+# Or a community library with an Expo config plugin
+npx expo install react-native-mmkv
+```
+
+`npx expo install` ensures the version is compatible with your Expo SDK and runs `prebuild` to configure native code.
+
+**Installing in bare RN:**
+
+```bash
+npm install react-native-mmkv
+cd ios && pod install && cd ..
+# May need extra Android config in build.gradle
+```
+
+Manual native dependency management — slower, more error-prone.
+
+**Checking for New Architecture support:**
+
+Libraries that aren't updated for the New Architecture (JSI / Fabric / TurboModules) will throw warnings or fail outright in apps using the New Architecture. Check the library's docs or its New Architecture status badge before adopting.
+
+**Common gotchas:**
+
+1. **Forgetting to rebuild.** After adding a native module, you need a new app build — Fast Refresh / OTA updates can't add native code. Rebuild via `npx expo run:ios` / `run:android`.
+2. **Permission strings.** Many native modules require `app.json` config — camera requires `NSCameraUsageDescription` on iOS, microphone requires `NSMicrophoneUsageDescription`, etc.
+3. **Expo Go vs dev build.** Some community native modules don't work in Expo Go (the prepackaged dev client). Use a development build (`eas build --profile development`) to include custom native code.
+
+**Wrapping a native module in a hook:**
+
+```jsx
+function useBiometrics() {
+  const [available, setAvailable] = useState(false);
+
+  useEffect(() => {
+    LocalAuthentication.hasHardwareAsync().then(setAvailable);
+  }, []);
+
+  const authenticate = useCallback(async () => {
+    if (!available) return false;
+    const { success } = await LocalAuthentication.authenticateAsync({
+      promptMessage: 'Authenticate',
+    });
+    return success;
+  }, [available]);
+
+  return { available, authenticate };
+}
+```
+
+Wrapping platform APIs in custom hooks gives you a uniform interface, easy testing (mock the hook, not the module), and a place to add fallback behavior.
+
+**Senior touch:** the senior framing — **don't write custom native modules until you've exhausted alternatives.** Expo SDK + the community library ecosystem covers 95% of needs. The remaining 5% is genuinely niche (proprietary SDK integration, custom hardware) — and for those, writing a TurboModule from scratch is non-trivial. The progression: built-in → Expo SDK → community library → custom native module, in that order. Skipping ahead is a common source of unnecessary complexity.

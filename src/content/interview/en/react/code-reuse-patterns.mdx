@@ -1,0 +1,99 @@
+---
+q: "What are React patterns for code reuse?"
+level: senior
+type: theory
+order: 14
+---
+
+Six patterns, with their place in 2026:
+
+**1. Custom hooks — the modern default.**
+
+```jsx
+function useAuth() {
+  const [user, setUser] = useState(null);
+  useEffect(() => { /* auth subscription */ }, []);
+  return user;
+}
+
+function Dashboard() {
+  const user = useAuth();
+  // ...
+}
+```
+
+The cleanest way to share **stateful logic**. No wrappers, no nesting, no prop collisions. Custom hooks replaced HOCs and render props for most use cases after React 16.8.
+
+**2. Component composition (`children`, slots).**
+
+```jsx
+<Card>
+  <Card.Header>Sales</Card.Header>
+  <Card.Body>$12,345</Card.Body>
+</Card>
+```
+
+Reuse via composition rather than configuration. `Card` doesn't need a `headerContent` prop; it accepts whatever you put inside. The cleanest way to share **structural patterns**.
+
+**3. Compound components — shared implicit state.**
+
+```jsx
+<Tabs defaultIndex={0}>
+  <Tabs.List>
+    <Tabs.Tab>Overview</Tabs.Tab>
+    <Tabs.Tab>Settings</Tabs.Tab>
+  </Tabs.List>
+  <Tabs.Panels>
+    <Tabs.Panel>...</Tabs.Panel>
+    <Tabs.Panel>...</Tabs.Panel>
+  </Tabs.Panels>
+</Tabs>
+```
+
+The parent provides Context; the children read it implicitly. Used heavily in Radix UI, Headless UI, and most modern component libraries.
+
+**4. Provider pattern.**
+
+```jsx
+<ThemeProvider theme="dark">
+  <App />
+</ThemeProvider>
+```
+
+Inject ambient values into a subtree via Context. The right choice for theme, locale, auth, feature flags — values many components read but few change.
+
+**5. Higher-Order Components — historical, rarely written today.**
+
+```jsx
+const withAuth = (Component) => (props) => {
+  const user = useAuth();
+  return user ? <Component {...props} user={user} /> : <LoginPrompt />;
+};
+
+const Dashboard = withAuth(DashboardBase);
+```
+
+HOCs were the dominant pattern before hooks. They still exist in libraries (Redux's `connect`, `withRouter`) but new code uses custom hooks instead. Wrapper hell, prop collisions, and ref-forwarding issues made them unergonomic.
+
+**6. Render props — also historical for stateful logic.**
+
+```jsx
+<DataLoader>
+  {(data) => <View data={data} />}
+</DataLoader>
+```
+
+Same fate as HOCs — replaced by hooks for sharing logic. Still appropriate when the wrapper needs to **dictate markup flexibility** (TanStack Table cells, React Aria's flexibility primitives) but not for sharing stateful logic.
+
+**How to choose:**
+
+| Goal | Pattern |
+|---|---|
+| Share stateful logic | Custom hook |
+| Share structural template | Composition with `children` |
+| Build a component family with shared state | Compound components |
+| Provide ambient values | Context + provider |
+| Wrap any component with behavior | Custom hook (avoid HOCs in new code) |
+| Render flexibility in a library | Render props |
+
+**Senior touch:** the historical answer to "patterns for code reuse" was HOCs + render props. The modern answer is **custom hooks + composition**, in that order. The senior signal is knowing both eras — recognizing HOCs and render props in legacy code, knowing why hooks replaced them, and knowing the narrow cases where the older patterns still make sense (HOCs in `connect`, render props in TanStack Table). Mentioning only hooks misses half the picture; mentioning only the old patterns dates you.

@@ -1,0 +1,54 @@
+---
+q: "What is React Native?"
+level: entry
+type: theory
+order: 1
+---
+
+React Native is a framework created by Meta for building **native mobile applications using React**. You write components in JSX/TypeScript, and React Native renders them to native UI primitives — `<View>` becomes a `UIView` on iOS and an `android.view.View` on Android, not a `<div>` in a WebView.
+
+```jsx
+import { View, Text, Pressable } from 'react-native';
+
+function Greeting() {
+  return (
+    <View>
+      <Text>Hello, world!</Text>
+      <Pressable onPress={() => alert('Hi!')}>
+        <Text>Click me</Text>
+      </Pressable>
+    </View>
+  );
+}
+```
+
+**The key idea — native UI, JavaScript logic:**
+
+- **The UI is native.** Same scroll feel, same keyboard handling, same animations as a Swift or Kotlin app.
+- **The logic is JS.** Same React knowledge, same component model, same hooks. One codebase for iOS and Android.
+
+**How it differs from a hybrid app (Cordova, Ionic):**
+
+| | React Native | Hybrid (WebView) |
+|---|---|---|
+| UI | Native components | HTML/CSS in a WebView |
+| Performance | Near-native | Slower (web runtime layer) |
+| Look & feel | Native | Web-like, often visibly off |
+| API access | Direct native modules | Bridged via Cordova plugins |
+
+**The two big architecture eras:**
+
+- **Bridge era (legacy, ~2015–2022)** — JS and native communicated via a JSON message bus. Slow for high-frequency operations like animations and gestures.
+- **New Architecture (2022+)** — **JSI** (JavaScript Interface) replaces the bridge with synchronous, type-safe calls between JS and native. **Fabric** is the new renderer; **TurboModules** are typed lazy-loaded native modules; **Hermes** is the optimized JS engine. Everything since 2023 ships on the New Architecture by default.
+
+**The two distribution paths:**
+
+- **Expo (managed workflow)** — most apps in 2026. Battery-included framework over RN. Handles iOS/Android builds, OTA updates (EAS Update), permissions, push notifications, etc. No Xcode/Android Studio needed for most day-to-day work.
+- **Bare React Native** — Xcode + Android Studio, manual native module setup. Needed for custom native code that Expo doesn't support.
+
+**What React Native isn't:**
+
+- **A "write once, run everywhere" framework.** ~90% of code is shared; the last 10% is platform-specific (icons, push, deep links, paywalls). Treating it as 100% shared is a common rookie mistake.
+- **For non-mobile platforms by default.** React Native for Web (`react-native-web`), Windows, and macOS exist but require extra setup; the core targets iOS and Android.
+
+**Senior touch:** in 2026 the React Native conversation is shaped by **Expo + New Architecture**. Expo became the default way to start any RN project; the New Architecture (JSI, Fabric, TurboModules, Hermes) became standard around 2023–2024 and dramatically narrowed the performance gap with fully native apps. Knowing this story — not just "React Native exists" — is the senior signal in 2026 interviews.

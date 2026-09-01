@@ -1,0 +1,79 @@
+---
+q: "What are Error Boundaries?"
+level: mid
+type: theory
+order: 5
+---
+
+Error Boundaries are React components that **catch JavaScript errors in their child component tree** during rendering, lifecycle methods, and constructors. They render a fallback UI instead of crashing the whole app.
+
+```jsx
+class ErrorBoundary extends React.Component {
+  state = { hasError: false, error: null };
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    logToService(error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <ErrorFallback error={this.state.error} />;
+    }
+    return this.props.children;
+  }
+}
+
+// Usage
+<ErrorBoundary>
+  <Dashboard />
+</ErrorBoundary>
+```
+
+**Error Boundaries must be class components** — there's no hook equivalent as of React 19. Most projects use the `react-error-boundary` library, which wraps this in a functional API with `useErrorBoundary()` and `<ErrorBoundary>` components.
+
+**What Error Boundaries CAN'T catch:**
+
+- **Errors in event handlers.** Use try/catch in the handler instead.
+- **Errors in async code** (Promise rejections, `setTimeout` callbacks). Catch them with `.catch()` or try/catch.
+- **Errors during server-side rendering.** SSR error handling is a different mechanism (the framework handles it).
+- **Errors thrown inside the Error Boundary itself.** The boundary above it catches them — so you need at least one parent boundary as a safety net.
+
+**Granular boundaries beat one big boundary.** Wrap independent UI sections separately so one failure doesn't blank the whole page:
+
+```jsx
+<Header />
+<ErrorBoundary fallback={<SidebarError />}>
+  <Sidebar />
+</ErrorBoundary>
+<ErrorBoundary fallback={<MainError />}>
+  <Main />
+</ErrorBoundary>
+<Footer />
+```
+
+If `Sidebar` throws, only the sidebar shows an error — `Main` and `Footer` keep working.
+
+**In Next.js App Router:**
+
+You don't usually write Error Boundaries by hand. Create an `error.tsx` file in any route folder, and Next.js automatically wraps that route in a boundary:
+
+```jsx
+// app/dashboard/error.tsx
+'use client';
+export default function Error({ error, reset }) {
+  return (
+    <div>
+      <h2>Something broke.</h2>
+      <button onClick={reset}>Try again</button>
+    </div>
+  );
+}
+```
+
+Same machinery underneath; convention-over-configuration on top.
+
+**Senior touch:** the production-grade pattern is **layered boundaries at meaningful seams** — per route, per major widget (chart, table, sidebar). Combined with `getDerivedStateFromError` for the fallback UI and `componentDidCatch` for logging to Sentry / Datadog, you get isolation + observability. A single top-level error boundary is fine as a safety net but useless for diagnostics — you can't tell *which* widget crashed.

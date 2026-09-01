@@ -1,0 +1,83 @@
+---
+q: "Implement `useDebounce`"
+level: senior
+type: code
+order: 5
+---
+
+`useDebounce` returns a value that lags behind the input — it only updates after the input has been stable for a given delay. The classic use case is debouncing a search query so you don't filter or fetch on every keystroke.
+
+```tsx
+function useDebounce<T>(value: T, delay = 300): T {
+  const [debounced, setDebounced] = useState<T>(value);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+
+  return debounced;
+}
+
+// Usage
+const [query, setQuery] = useState('');
+const debouncedQuery = useDebounce(query, 200);
+
+useEffect(() => {
+  if (!debouncedQuery) return;
+  fetch(`/api/search?q=${debouncedQuery}`).then(/* ... */);
+}, [debouncedQuery]);
+```
+
+**How it works:**
+
+1. Each time `value` changes, the effect schedules a `setTimeout`.
+2. The cleanup function clears the previous timer — so if `value` changes again before the delay passes, the previous setter is cancelled.
+3. Only the last change "wins" — after `delay` ms of stability, `setDebounced` fires and the deferred value updates.
+
+The cleanup is what makes it work. Without `clearTimeout`, you'd get a `setDebounced` call for every keystroke after the delay, defeating the purpose.
+
+**The companion — debounced callbacks:**
+
+`useDebounce` debounces a *value*. Sometimes you want to debounce a *callback*:
+
+```tsx
+function useDebouncedCallback<T extends (...args: any[]) => void>(
+  fn: T,
+  delay = 300,
+) {
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fnRef = useRef(fn);
+  fnRef.current = fn; // always call the latest fn
+
+  return useCallback((...args: Parameters<T>) => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => fnRef.current(...args), delay);
+  }, [delay]);
+}
+
+// Usage
+const debouncedSave = useDebouncedCallback((value) => {
+  api.save(value);
+}, 500);
+
+<input onChange={(e) => debouncedSave(e.target.value)} />
+```
+
+The `fnRef` trick — storing the latest `fn` in a ref — prevents stale closures while keeping the returned callback identity stable.
+
+**When to use each:**
+
+| Use case | Pattern |
+|---|---|
+| Debounce a query before filtering or fetching | `useDebounce(query, 200)` |
+| Debounce a save / submit action | `useDebouncedCallback(save, 500)` |
+| Debounce input → display in different component | `useDeferredValue` (React 18+) |
+
+**`useDeferredValue` vs `useDebounce`:**
+
+`useDeferredValue` from React 18 is built-in and works with concurrent rendering — it doesn't use a timer; it defers based on React's scheduler. Prefer it when you control the producer of the value and want React to decide when to update.
+
+`useDebounce` uses a fixed timer — predictable, simple, works in any React version.
+
+**Senior touch:** the most common debounce bug is forgetting the cleanup, which turns "debounce" into "batch with a min delay" — every change still fires, just delayed. The cleanup is what makes only the *last* change matter. In an interview, walking through the cleanup explanation ("the previous timer gets cancelled when the value changes again") signals you understand `useEffect` cleanup, not just that you've copy-pasted a hook before.

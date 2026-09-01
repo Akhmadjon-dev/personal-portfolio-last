@@ -1,0 +1,110 @@
+---
+q: "Networking — fetch and error handling"
+level: junior
+type: theory
+order: 9
+---
+
+React Native ships with the standard `fetch` API. Same shape as web `fetch`, same gotchas. For most apps, the patterns are identical to the web; the production wrinkles are around offline behavior, retries, and AbortController.
+
+```jsx
+async function loadUser(id) {
+  try {
+    const res = await fetch(`https://api.example.com/users/${id}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    if (err.name === 'AbortError') return null;
+    throw err;
+  }
+}
+```
+
+**The four production concerns:**
+
+**1. AbortController for cancellation.**
+
+```jsx
+useEffect(() => {
+  const controller = new AbortController();
+  fetch(`/api/users/${id}`, { signal: controller.signal })
+    .then((res) => res.json())
+    .then(setUser);
+  return () => controller.abort();
+}, [id]);
+```
+
+Without abort, a screen the user navigated away from can still set state on an unmounted component.
+
+**2. Network failure handling.**
+
+`fetch` rejects only on **network errors**, not on 4xx/5xx responses. You have to check `res.ok` manually:
+
+```jsx
+if (!res.ok) {
+  throw new Error(`HTTP ${res.status}: ${await res.text()}`);
+}
+```
+
+Without this check, a 500 error gets parsed as JSON and you'll see *"Unexpected token < in JSON at position 0"* — confusing for users.
+
+**3. Timeouts.**
+
+`fetch` has no built-in timeout. Add one:
+
+```jsx
+async function fetchWithTimeout(url, options, timeoutMs = 10_000) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(id);
+  }
+}
+```
+
+On mobile networks, a missing timeout can leave a request pending for minutes.
+
+**4. Offline detection.**
+
+```jsx
+import NetInfo from '@react-native-community/netinfo';
+
+const state = await NetInfo.fetch();
+if (!state.isConnected) {
+  // show offline UI, skip the request
+}
+
+NetInfo.addEventListener((state) => {
+  console.log('Connection:', state.type, state.isConnected);
+});
+```
+
+`@react-native-community/netinfo` is the standard. Production apps subscribe to connection state and show banners, queue mutations, or disable retry buttons accordingly.
+
+**TanStack Query — the production-grade pattern:**
+
+```jsx
+import { useQuery } from '@tanstack/react-query';
+
+function UserScreen({ userId }) {
+  const { data, error, isLoading } = useQuery({
+    queryKey: ['user', userId],
+    queryFn: () => fetch(`/api/users/${userId}`).then((r) => r.json()),
+  });
+}
+```
+
+TanStack Query handles caching, deduplication, retries with backoff, focus refetching, offline behavior — everything `fetch`-by-itself doesn't. **It's the right default for any non-trivial RN app.**
+
+**Alternatives to plain `fetch`:**
+
+| | When |
+|---|---|
+| `fetch` | Default, works in all RN versions |
+| `axios` | Interceptors, base URL, request/response transforms |
+| `ky` | Modern fetch wrapper with timeouts and retries built in |
+| TanStack Query | Server state management (caching, deduplication, lifecycle) |
+
+**Senior touch:** the senior framing — **`fetch` is just the transport; the production concerns are around it.** Cancellation, timeouts, offline detection, retries with backoff, caching, deduplication — none of these are in `fetch`. Either you build them or you reach for TanStack Query (or SWR). The senior signal is recognizing this and naming the right tool: *"fetch for the call, TanStack Query for the lifecycle, NetInfo for offline UX."*

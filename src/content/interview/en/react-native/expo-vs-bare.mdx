@@ -1,0 +1,60 @@
+---
+q: "Expo vs bare workflow — which should you choose?"
+level: entry
+type: theory
+order: 10
+---
+
+The short answer in 2026: **start with Expo. Always.** The historical "Expo is limiting" reasons no longer apply. But the distinction is worth understanding.
+
+**Bare React Native:**
+
+- Run `npx react-native init MyApp`.
+- Includes `ios/` and `android/` folders with full Xcode and Android Studio projects.
+- You're responsible for managing native dependencies, signing certs, Gradle config, Pod versions.
+- Total control over native code — write Swift, Kotlin, Objective-C, Java directly.
+- Steeper learning curve; more time spent fighting tooling.
+
+**Expo managed workflow:**
+
+- Run `npx create-expo-app MyApp`.
+- No `ios/` or `android/` folder by default (until you need one).
+- Expo handles native dependencies, configurations, builds.
+- Native code via Expo modules and config plugins.
+- EAS Build for cloud builds; no Xcode/Android Studio needed for most work.
+- Massively faster to start, faster to ship.
+
+**The "ejecting" myth:**
+
+Pre-2022, Expo's managed workflow couldn't use arbitrary native modules. If you needed a custom native module, you had to `expo eject` to bare RN, losing the managed benefits.
+
+**Three things changed (2026):**
+
+1. **Expo modules.** A first-class API for writing typed, cross-platform native modules that integrate with Expo's managed workflow.
+2. **Config plugins.** Native libraries ship config plugins that tell Expo how to integrate them without ejecting.
+3. **Development builds.** Custom dev clients that include your custom native modules but still use Expo's managed build pipeline.
+
+**Side-by-side:**
+
+| | Bare RN | Expo Managed |
+|---|---|---|
+| Setup time | Hours | Minutes |
+| Native IDEs needed | Yes | No |
+| Custom native code | Direct | Expo modules + config plugins |
+| Build infrastructure | DIY (Xcode, Gradle, Fastlane) | EAS Build (cloud) |
+| OTA updates | DIY (CodePush) | EAS Update (built-in) |
+| App store submission | Manual | EAS Submit (CLI) |
+| Best for | Total native control, legacy apps | New projects, fast iteration |
+
+**When you might still go bare:**
+
+- **Legacy app you're maintaining.** Don't migrate just to migrate.
+- **Niche native requirements** that genuinely don't fit Expo modules (rare).
+- **Custom build infrastructure** your company already has invested in.
+
+**Migration directions:**
+
+- `npx expo install` adds Expo modules to a bare RN project. You can adopt Expo incrementally.
+- The reverse (Expo → bare) is rarely needed in 2026 because of config plugins, but possible via `expo prebuild` if you decide you want the native files exposed.
+
+**Senior touch:** the senior answer in 2026 is *"start with Expo, always."* The Expo team's product investment (Expo Router, EAS Build, EAS Update, dev clients) plus the React Native team's blessing have made bare RN a legacy choice for new projects. The only reason to go bare today is an existing investment in non-Expo tooling. If someone in an interview tells you they're starting a fresh RN project in 2026 with bare RN, the question to ask is *"why?"* — there's usually a good answer or a bad one, and which it is tells you a lot.
