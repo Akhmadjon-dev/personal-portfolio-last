@@ -13,7 +13,7 @@
   "hero": {
     "eyebrow": "Senior Frontend Engineer",
     "headline": "Создаю быстрые и надёжные веб-приложения, которыми хочется пользоваться.",
-    "subline": "Шесть лет работы с React и Next.js — Pearson, EPAM, FinTech-стартапы, платформы с десятками тысяч активных пользователей.",
+    "subline": "Шесть лет работы с React и Next.js — SRP Software, Pearson, EPAM, FinTech-стартапы, платформы с десятками тысяч активных пользователей.",
     "cta_hire": "Связаться",
     "cta_cv": "Скачать резюме",
     "available": "Открыт к senior frontend ролям",
@@ -63,9 +63,9 @@
   "about": {
     "eyebrow": "Обо мне",
     "title": "Привет, я Ахмаджон.",
-    "body_1": "Senior Frontend Engineer, базируюсь в Джизаке, Узбекистан. Последние шесть лет работаю с компаниями из США, Великобритании и Восточной Европы — Pearson, EPAM, Codemotion Ninjas — над продуктами с большой нагрузкой.",
+    "body_1": "Senior Frontend Engineer, базируюсь в Фергоне, Узбекистан. Последние шесть лет работаю с компаниями из США, Великобритании и Восточной Европы — SRP Software, Pearson, EPAM, Codemotion Ninjas — над продуктами с большой нагрузкой.",
     "body_2": "Мне важно, чтобы код быстро загружался, выдерживал нагрузку и оставался удобным для тех, кто будет его поддерживать после меня. В свободное время я делаю собственные инструменты — Mon Français и DevPrep, оба указаны выше.",
-    "currently": "Сейчас открыт к senior frontend позициям с удалённым форматом — глобально."
+    "currently": "Сейчас работаю в SRP Software как Forward Deployed Engineer."
   },
   "skills": {
     "title": "Стек",
@@ -80,6 +80,13 @@
     "eyebrow": "Опыт работы",
     "title": "Где я работал.",
     "items": [
+      {
+        "company": "SRP Software",
+        "role": "Forward Deployed Engineer",
+        "period": "Июл 2026 — По настоящее время",
+        "location": "Фергона, Узбекистан",
+        "summary": "AI-решения для B2B корпоративного ПО международных клиентов с использованием NextJS, React, C# и Python. Специализация — модернизация legacy систем и интеграции с Salesforce/QuickBooks, доставка сложных проектов в двухнедельные спринты."
+      },
       {
         "company": "Pearson",
         "role": "Web Developer",
@@ -374,9 +381,9 @@
     "title": "Резюме",
     "subtitle": "Senior Frontend Engineer — React, Next.js, TypeScript",
     "summary_label": "Кратко",
-    "summary_body": "Senior Frontend Engineer с опытом 6+ лет в создании масштабируемых, высокопроизводительных веб-приложений для корпоративных и продуктовых компаний, включая Pearson и EPAM. Специализация — React, Next.js и TypeScript, опыт работы с платформами на 10 000–20 000+ одновременных пользователей.",
+    "summary_body": "Senior Frontend Engineer с опытом 6+ лет в создании масштабируемых, высокопроизводительных веб-приложений для корпоративных и продуктовых компаний, включая SRP Software, Pearson и EPAM. Специализация — React, Next.js и TypeScript, опыт работы с платформами на 10 000–20 000+ одновременных пользователей.",
     "location_label": "Местоположение",
-    "location_value": "Узбекистан — открыт к удалённой работе, глобально",
+    "location_value": "Фергона, Узбекистан — открыт к удалённой работе, глобально",
     "email_label": "Эл. почта",
     "site_label": "Сайт",
     "linkedin_label": "LinkedIn",

@@ -13,7 +13,7 @@
   "hero": {
     "eyebrow": "Senior Frontend Engineer",
     "headline": "Tez va ishonchli veb-ilovalar yarataman — odamlar haqiqatdan foydalanadigan.",
-    "subline": "Olti yil davomida Pearson, EPAM va FinTech startaplari uchun React va Next.js platformalarni yetkazib berdim — o'n minglab bir vaqtdagi foydalanuvchilar bilan.",
+    "subline": "Olti yil davomida SRP Software, Pearson, EPAM va FinTech startaplari uchun React va Next.js platformalarni yetkazib berdim — o'n minglab bir vaqtdagi foydalanuvchilar bilan.",
     "cta_hire": "Bog'lanish",
     "cta_cv": "Rezyumeni yuklab olish",
     "available": "Senior frontend rollar uchun ochiqman",
@@ -63,9 +63,9 @@
   "about": {
     "eyebrow": "Men haqimda",
     "title": "Salom, men Ahmadjonman.",
-    "body_1": "Men O'zbekistonning Jizzax shahridanman — Senior Frontend Engineer. Oxirgi olti yil davomida AQSh, Buyuk Britaniya va Sharqiy Yevropadagi kompaniyalar bilan ishladim — Pearson, EPAM, Codemotion Ninjas — yuqori yuklamali mahsulotlar ustida.",
+    "body_1": "Men O'zbekistonning Fargona shahridanman — Senior Frontend Engineer. Oxirgi olti yil davomida AQSh, Buyuk Britaniya va Sharqiy Yevropadagi kompaniyalar bilan ishladim — SRP Software, Pearson, EPAM, Codemotion Ninjas — yuqori yuklamali mahsulotlar ustida.",
     "body_2": "Men uchun muhimi — kod tez yuklansin, yuklamani ko'tarsin va mendan keyin uni qo'llab-quvvatlayotgan odamlarga qulay bo'lsin. Bo'sh vaqtda o'z vositalarimni quraman — Mon Français va DevPrep, ikkalasi ham yuqorida.",
-    "currently": "Hozir senior frontend rollarga ochiqman — masofadan, butun dunyo bo'ylab."
+    "currently": "Hozir SRP Software'da Forward Deployed Engineer sifatida ishlarni davom etmoqda."
   },
   "skills": {
     "title": "Stek",
@@ -80,6 +80,13 @@
     "eyebrow": "Tajriba",
     "title": "Qayerda ishladim.",
     "items": [
+      {
+        "company": "SRP Software",
+        "role": "Forward Deployed Engineer",
+        "period": "Iyul 2026 — Hozirgi vaqt",
+        "location": "Fargona, O'zbekiston",
+        "summary": "Xalqaro mijozlar uchun NextJS, React, C# va Python ishlatib yaratilgan AI-powered B2B korporativ dasturiy ta'minot yechimlar. Legacy tizimlarni modernizatsiya va Salesforce/QuickBooks integratsiyalarida ixtisoslashgan, murakkab loyihalarni ikkinchi haftalik sprintlar bilan yetkazadi."
+      },
       {
         "company": "Pearson",
         "role": "Web Developer",
@@ -374,9 +381,9 @@
     "title": "Rezyume",
     "subtitle": "Senior Frontend Engineer — React, Next.js, TypeScript",
     "summary_label": "Qisqa ma'lumot",
-    "summary_body": "Pearson va EPAM kabi korporativ va mahsulot kompaniyalari uchun kengaytiriladigan, yuqori unumdorlikdagi veb-ilovalar yaratish bo'yicha 6+ yillik tajribaga ega Senior Frontend Engineer. React, Next.js va TypeScript bo'yicha mutaxassislashgan, 10 000–20 000+ bir vaqtdagi foydalanuvchili platformalarda tajribaga ega.",
+    "summary_body": "SRP Software, Pearson va EPAM kabi korporativ va mahsulot kompaniyalari uchun kengaytiriladigan, yuqori unumdorlikdagi veb-ilovalar yaratish bo'yicha 6+ yillik tajribaga ega Senior Frontend Engineer. React, Next.js va TypeScript bo'yicha mutaxassislashgan, 10 000–20 000+ bir vaqtdagi foydalanuvchili platformalarda tajribaga ega.",
     "location_label": "Joylashuv",
-    "location_value": "O'zbekiston — masofaviy, global hamkorlikka ochiq",
+    "location_value": "Fargona, O'zbekiston — masofaviy, global hamkorlikka ochiq",
     "email_label": "Elektron pochta",
     "site_label": "Sayt",
     "linkedin_label": "LinkedIn",
