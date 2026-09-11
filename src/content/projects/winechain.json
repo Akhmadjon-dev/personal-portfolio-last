@@ -6,11 +6,17 @@
     "uz": "Xavfsiz saqlash va raqamli vino egizaklarining global savdosi bilan premium vino bozori."
   },
   "outcome": {
-    "en": "Trading platform with on-chain provenance, secure custody, and a fluid checkout. Frontend lead.",
-    "ru": "Торговая платформа с он-чейн происхождением, безопасным хранением и удобной оплатой. Frontend lead.",
-    "uz": "Onchain kelib chiqishi, xavfsiz saqlash va qulay to'lov bilan savdo platformasi. Frontend lead."
+    "en": "Fine wine is easy to buy and hard to trade: reselling normally means physically shipping bottles and re-proving their provenance. As frontend lead I built the marketplace around a digital twin of each bottle, so ownership trades while the wine stays in secure custody and provenance stays verifiable on-chain. Shipped the trading, custody and checkout flows in React, Next.js and TypeScript.",
+    "ru": "Коллекционное вино легко купить и трудно перепродать: обычно это означает физическую пересылку бутылок и повторное подтверждение происхождения. Как frontend lead я построил маркетплейс вокруг цифрового двойника каждой бутылки — право собственности торгуется, вино остаётся на безопасном хранении, а происхождение проверяемо он-чейн. Выпустил потоки торговли, хранения и оплаты на React, Next.js и TypeScript.",
+    "uz": "Kolleksion vinoni sotib olish oson, qayta sotish qiyin: odatda bu butilkalarni jismoniy jo'natish va kelib chiqishini qaytadan tasdiqlashni talab qiladi. Frontend lead sifatida har bir butilkaning raqamli egizagi atrofida bozor qurdim — egalik huquqi savdo qilinadi, vino xavfsiz saqlanadi, kelib chiqishi esa onchain tekshiriladi. Savdo, saqlash va to'lov oqimlarini React, Next.js va TypeScript da chiqardim."
   },
-  "tech": ["React", "TypeScript", "Next.js", "Node.js", "MongoDB"],
+  "tech": [
+    "React",
+    "TypeScript",
+    "Next.js",
+    "Node.js",
+    "MongoDB"
+  ],
   "image": "../../assets/projects/winechain.webp",
   "link": "https://winechain.co/",
   "order": 1

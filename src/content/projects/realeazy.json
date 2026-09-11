@@ -6,11 +6,17 @@
     "uz": "Dubaydagi ijara mulklarini boshqarish uchun veb-ilova."
   },
   "outcome": {
-    "en": "Full property lifecycle: listings, tenants, payments, maintenance — in one dashboard.",
-    "ru": "Полный жизненный цикл недвижимости: объявления, арендаторы, платежи и обслуживание в одном дашборде.",
-    "uz": "Mulkning to'liq hayot tsikli: e'lonlar, ijarachilar, to'lovlar va xizmat ko'rsatish — bitta dashboardda."
+    "en": "Landlords and agents running rental portfolios in Dubai were tracking listings, tenants, payments and maintenance across separate tools, with no single view of a unit. I built a dashboard covering the full property lifecycle from listing to renewal, on React, Node, Express and MongoDB. One screen now answers which unit is vacant, late on rent, or due for maintenance.",
+    "ru": "Владельцы и агенты, управляющие арендными портфелями в Дубае, вели объявления, арендаторов, платежи и обслуживание в разных инструментах — без единой картины по объекту. Я построил дашборд, покрывающий полный жизненный цикл недвижимости от объявления до продления, на React, Node, Express и MongoDB. Теперь один экран отвечает, какой объект свободен, просрочен по аренде или требует обслуживания.",
+    "uz": "Dubayda ijara portfelini boshqaradigan mulkdorlar va agentlar e'lonlar, ijarachilar, to'lovlar va xizmat ko'rsatishni turli vositalarda yuritardi — bitta obyekt bo'yicha yagona ko'rinish yo'q edi. Men e'londan yangilashgacha mulkning to'liq hayot tsiklini qamrab oladigan dashboardni React, Node, Express va MongoDB da qurdim. Endi bitta ekran qaysi obyekt bo'sh, ijara bo'yicha kechikkan yoki xizmat talab qilayotganini ko'rsatadi."
   },
-  "tech": ["React", "TypeScript", "Node.js", "Express", "MongoDB"],
+  "tech": [
+    "React",
+    "TypeScript",
+    "Node.js",
+    "Express",
+    "MongoDB"
+  ],
   "image": "../../assets/projects/property.webp",
   "link": "https://realeazy.io/login",
   "order": 3

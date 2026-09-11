@@ -2,7 +2,8 @@
 import '../styles/global.css';
 import Nav from '../components/shared/Nav.astro';
 import Footer from '../components/shared/Footer.astro';
-import { getLocaleFromUrl, type Locale } from '../i18n/utils';
+import { getDict, getLocaleFromUrl, localizePath, locales, stripLocale, type Locale } from '../i18n/utils';
+import photo from '../assets/photos/ahmadjon.jpg';
 
 interface Props {
   title: string;
@@ -11,8 +12,76 @@ interface Props {
 }
 
 const urlLocale = getLocaleFromUrl(Astro.url);
-const { title, description = 'Ahmadjon Abdusamadov — full-stack engineer.', locale = urlLocale } = Astro.props;
+const { title, locale = urlLocale } = Astro.props;
+const t = getDict(locale);
+const description = Astro.props.description ?? t.seo.description;
+
 const pathname = Astro.url.pathname;
+const site = Astro.site ?? new URL('https://ahmadjon.uz');
+const canonical = new URL(pathname, site).href;
+const ogImage = new URL(photo.src, site).href;
+
+// hreflang set so an agent reconciling the three locales treats them as one
+// identity rather than three different people.
+const basePath = stripLocale(pathname);
+const alternates = locales.map((loc) => ({
+  loc,
+  href: new URL(localizePath(basePath, loc), site).href,
+}));
+
+const OG_LOCALE: Record<Locale, string> = { en: 'en_US', ru: 'ru_RU', uz: 'uz_UZ' };
+
+const LINKEDIN = 'https://www.linkedin.com/in/akhmadjonabdusamadov/';
+const GITHUB = 'https://github.com/Akhmadjon-dev';
+const TELEGRAM = 'https://t.me/Akhmadjon_dev';
+
+/**
+ * Person schema. The point of this block is entity reconciliation: a recruiter's
+ * agent (or Google) crawling ahmadjon.uz, LinkedIn and GitHub needs to conclude
+ * "same person" rather than "three similar names". `sameAs` is what does that,
+ * and `alternateName` covers the Ahmadjon / Akhmadjon transliteration split.
+ */
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  '@id': `${site.origin}/#person`,
+  name: 'Akhmadjon Abdusamadov',
+  alternateName: ['Ahmadjon Abdusamadov', 'Ahmadjon'],
+  url: `${site.origin}/`,
+  image: ogImage,
+  jobTitle: ['Senior Frontend Engineer', 'Forward Deployed Engineer'],
+  description: t.seo.description,
+  email: 'mailto:info.ahmadjon@gmail.com',
+  worksFor: {
+    '@type': 'Organization',
+    name: 'Silk Road Professionals',
+  },
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Fergana',
+    addressCountry: 'UZ',
+  },
+  alumniOf: {
+    '@type': 'CollegeOrUniversity',
+    name: 'Jizzakh Polytechnic Institute',
+  },
+  knowsAbout: [
+    'React',
+    'Next.js',
+    'TypeScript',
+    'JavaScript',
+    'Node.js',
+    'GraphQL',
+    'REST APIs',
+    'Frontend architecture',
+    'Web performance optimisation',
+    'LLM integration',
+    'Salesforce integration',
+    'CI/CD',
+  ],
+  knowsLanguage: ['en', 'ru', 'uz', 'fr'],
+  sameAs: [LINKEDIN, GITHUB, TELEGRAM],
+};
 ---
 
 <!doctype html>
@@ -22,15 +91,32 @@ const pathname = Astro.url.pathname;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" />
+    <link rel="canonical" href={canonical} />
+    {alternates.map((a) => <link rel="alternate" hreflang={a.loc} href={a.href} />)}
+    <link rel="alternate" hreflang="x-default" href={new URL(localizePath(basePath, 'en'), site).href} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
     <meta name="generator" content={Astro.generator} />
+    <meta name="author" content="Akhmadjon Abdusamadov" />
     <meta name="description" content={description} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content="profile" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content={OG_LOCALE[locale]} />
+    <meta property="profile:first_name" content="Akhmadjon" />
+    <meta property="profile:last_name" content="Abdusamadov" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
     <title>{title}</title>
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(personSchema)} />
     <script is:inline>
       (() => {
         const saved = localStorage.getItem('theme');

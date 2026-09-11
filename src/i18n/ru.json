@@ -13,10 +13,10 @@
   "hero": {
     "eyebrow": "Senior Frontend Engineer",
     "headline": "Создаю быстрые и надёжные веб-приложения, которыми хочется пользоваться.",
-    "subline": "Шесть лет работы с React и Next.js — SRP Software, Pearson, EPAM, FinTech-стартапы, платформы с десятками тысяч активных пользователей.",
+    "subline": "Шесть лет разработки платформ на React, Next.js и TypeScript для Pearson, EPAM и Silk Road Professionals — теперь строю на них AI-интегрированные функции.",
     "cta_hire": "Связаться",
     "cta_cv": "Скачать резюме",
-    "available": "Открыт к senior frontend ролям",
+    "available": "Открыт к senior frontend и AI-интеграционным ролям",
     "scroll": "Прокрутить"
   },
   "what_i_do": {
@@ -33,7 +33,7 @@
       },
       "ai": {
         "title": "AI-инструменты",
-        "body": "Функции на основе LLM, которые превращаются в реальные продукты, которыми пользуются."
+        "body": "LLM-функции, которые доходят до реального продукта — от разговорной обратной связи через Anthropic API до AI-процессов в корпоративных системах."
       }
     }
   },
@@ -63,17 +63,67 @@
   "about": {
     "eyebrow": "Обо мне",
     "title": "Привет, я Ахмаджон.",
-    "body_1": "Senior Frontend Engineer, базируюсь в Фергоне, Узбекистан. Последние шесть лет работаю с компаниями из США, Великобритании и Восточной Европы — SRP Software, Pearson, EPAM, Codemotion Ninjas — над продуктами с большой нагрузкой.",
+    "body_1": "Senior Frontend Engineer, базируюсь в Фергане, Узбекистан. Последние шесть лет работаю с компаниями из США, Великобритании и Восточной Европы — Silk Road Professionals, Pearson, EPAM, Codemotion Ninjas — над продуктами с большой нагрузкой.",
     "body_2": "Мне важно, чтобы код быстро загружался, выдерживал нагрузку и оставался удобным для тех, кто будет его поддерживать после меня. В свободное время я делаю собственные инструменты — Mon Français и DevPrep, оба указаны выше.",
-    "currently": "Сейчас работаю в SRP Software как Forward Deployed Engineer."
+    "currently": "Сейчас Forward Deployed Engineer в Silk Road Professionals."
   },
   "skills": {
     "title": "Стек",
     "groups": {
-      "frontend": { "label": "Frontend", "items": ["React", "Next.js", "TypeScript", "Redux", "Tailwind", "MUI"] },
-      "backend": { "label": "Backend", "items": ["Node.js", "Express", "REST", "GraphQL"] },
-      "data": { "label": "Данные", "items": ["MongoDB", "SQL"] },
-      "tooling": { "label": "Инструменты", "items": ["Webpack", "Jest", "CI/CD", "Производительность"] }
+      "frontend": {
+        "label": "Frontend",
+        "items": [
+          "React",
+          "Next.js",
+          "TypeScript",
+          "JavaScript",
+          "Redux",
+          "Tailwind CSS",
+          "MUI"
+        ]
+      },
+      "backend": {
+        "label": "Backend",
+        "items": [
+          "Node.js",
+          "Express",
+          "REST API",
+          "GraphQL",
+          "Python",
+          "C#"
+        ]
+      },
+      "ai": {
+        "label": "AI-интеграции",
+        "items": [
+          "LLM-интеграции",
+          "Anthropic API",
+          "AI-функции в продукте",
+          "Prompt engineering"
+        ]
+      },
+      "data": {
+        "label": "Данные и интеграции",
+        "items": [
+          "MongoDB",
+          "SQL",
+          "Firebase",
+          "Salesforce",
+          "ActivePieces",
+          "BigCommerce"
+        ]
+      },
+      "tooling": {
+        "label": "Инструменты и практики",
+        "items": [
+          "CI/CD",
+          "Webpack",
+          "Vite",
+          "Jest",
+          "Оптимизация производительности",
+          "Agile / Scrum"
+        ]
+      }
     }
   },
   "experience": {
@@ -81,46 +131,80 @@
     "title": "Где я работал.",
     "items": [
       {
-        "company": "SRP Software",
+        "company": "Silk Road Professionals",
         "role": "Forward Deployed Engineer",
         "period": "Июл 2026 — По настоящее время",
-        "location": "Фергона, Узбекистан",
-        "summary": "AI-решения для B2B корпоративного ПО международных клиентов с использованием NextJS, React, C# и Python. Специализация — модернизация legacy систем и интеграции с Salesforce/QuickBooks, доставка сложных проектов в двухнедельные спринты."
+        "location": "Фергана, Узбекистан",
+        "summary": "AI-интегрированное B2B корпоративное ПО для международных клиентов на Next.js, React, C# и Python. Модернизация legacy-систем и интеграции с Salesforce и ActivePieces в двухнедельных спринтах.",
+        "bullets": [
+          "Разрабатываю AI-интегрированное B2B корпоративное ПО для международных клиентов на Next.js, React, C# и Python в двухнедельных спринтах.",
+          "Модернизирую legacy-системы клиентов и строю интеграции с Salesforce и ActivePieces, убирающие ручной перенос данных между бизнес-системами.",
+          "Работаю напрямую со стейкхолдерами клиента: собираю требования и развёртываю решения в их среде."
+        ]
       },
       {
         "company": "Pearson",
-        "role": "Web Developer",
+        "role": "Software Engineer",
         "period": "Июл 2023 — Янв 2026",
         "location": "Удалённо",
-        "summary": "React и Next.js для корпоративных e-commerce платформ с 20 000+ одновременных пользователей. Витрины на BigCommerce. Прямое взаимодействие со стейкхолдерами по требованиям и оценкам."
+        "summary": "React и Next.js для корпоративных e-commerce платформ с 20 000+ одновременных пользователей. Витрины на BigCommerce и прямая работа со стейкхолдерами по требованиям и оценкам.",
+        "bullets": [
+          "Разрабатывал и оптимизировал React и Next.js приложения для корпоративных e-commerce платформ с 20 000+ одновременных пользователей.",
+          "Выпускал витрины на BigCommerce с JavaScript и Handlebars для образовательных продуктов, продающихся по всему миру.",
+          "Собрал переиспользуемые адаптивные React-компоненты, применяемые сразу в нескольких витринах.",
+          "Работал напрямую со стейкхолдерами, превращая бизнес-требования в технические оценки и объём поставки."
+        ],
+        "employment": "Контракт"
       },
       {
         "company": "Codemotion Ninjas",
         "role": "React Software Engineer",
-        "period": "Май 2022 — Июл 2023",
-        "location": "Украина, удалённо",
-        "summary": "Frontend-системы для FinTech и логистических стартапов. Масштабируемая UI-архитектура на React, Vue и TypeScript."
+        "period": "Фев 2022 — Июл 2023",
+        "location": "Киев, Украина — удалённо",
+        "summary": "Frontend-системы для FinTech и логистических стартапов. Масштабируемая UI-архитектура на React, Vue и TypeScript.",
+        "bullets": [
+          "Проектировал и выпускал масштабируемые UI-архитектуры на React, Vue и TypeScript для FinTech и логистических стартапов.",
+          "Переводил сложные дизайн-требования в производительные компоненты, сократив дублирование UI-кода через общий слой компонентов.",
+          "Интегрировал REST API вместе с backend-командами и переработал клиентскую работу с данными, убрав лишние сетевые запросы.",
+          "Проводил технические интервью и поддерживал junior-разработчиков по React и Redux."
+        ]
       },
       {
-        "company": "EPAM Systems",
-        "role": "Software Engineer",
-        "period": "2021 — 2022",
-        "location": "США",
-        "summary": "React + TypeScript на высоконагруженных корпоративных платформах. 10 000+ пользователей, 2 ТБ+ CDN, 1 000+ маркетинговых кампаний. Менторство и технические интервью."
+        "company": "EPAM Systems (клиент: Thomson Reuters)",
+        "role": "Frontend Developer",
+        "period": "Июн 2021 — Янв 2022",
+        "location": "Джизак, Узбекистан — удалённо",
+        "summary": "React и TypeScript на высоконагруженных корпоративных платформах — 10 000+ одновременных пользователей, 2 ТБ+ CDN-трафика, 1 000+ маркетинговых кампаний.",
+        "bullets": [
+          "Разрабатывал функциональность на React и TypeScript для высоконагруженных корпоративных платформ с 10 000+ одновременных пользователей.",
+          "Поддерживал инфраструктуру доставки, обрабатывающую 2 ТБ+ CDN-трафика и 1 000+ маркетинговых кампаний.",
+          "Менторил junior-инженеров в lab-программе EPAM и проводил технические интервью для frontend-кандидатов."
+        ]
       },
       {
         "company": "Alitech Website Solutions",
         "role": "Full-stack Developer",
-        "period": "2019 — 2021",
-        "location": "Узбекистан",
-        "summary": "Full-stack приложения на React, Node, Express, MongoDB. REST API, реалтайм-трекинг, интеграции и оптимизация производительности."
+        "period": "Авг 2019 — Май 2021",
+        "location": "Джизак, Узбекистан",
+        "summary": "Full-stack приложения на React, Node.js, Express и MongoDB. Проектирование REST API, реалтайм-трекинг, интеграции и оптимизация производительности.",
+        "bullets": [
+          "Строил full-stack приложения на React, Node.js, Express и MongoDB, включая проектирование и выпуск REST API.",
+          "Интегрировал сторонние сервисы, включая реалтайм-трекинг и картографических провайдеров.",
+          "Отвечал за операционную диагностику и оптимизацию производительности работающих клиентских систем."
+        ]
       },
       {
         "company": "Alitech Website Solutions",
         "role": "Frontend Developer",
-        "period": "2018 — 2019",
-        "location": "Узбекистан",
-        "summary": "UI на React + TypeScript. Ролевая авторизация, автоплатежи, KYC-системы для 20 000+ одновременных пользователей."
+        "period": "Янв 2018 — Июл 2019",
+        "location": "Джизак, Узбекистан",
+        "summary": "UI на React и TypeScript — ролевая авторизация, автоплатежи и KYC-верификация для высоконагруженной потребительской финтех-платформы.",
+        "bullets": [
+          "Собирал UI-компоненты на React и TypeScript для высоконагруженной потребительской финтех-платформы.",
+          "Реализовал ролевую авторизацию, автоплатежи и процессы KYC-верификации.",
+          "Писал unit-тесты и поддерживал стабильность приложения между релизами."
+        ],
+        "employment": "Частичная занятость"
       }
     ]
   },
@@ -131,19 +215,26 @@
       {
         "quote": "С Ахмаджоном работать — настоящее удовольствие. Тот самый программист, которому можно доверить проект от начала до конца.",
         "name": "Клиент",
-        "role": "Бизнесмен"
+        "role": "Бизнесмен",
+        "company": "",
+        "linkedin": ""
       },
       {
         "quote": "Чёткий коммуникатор с упорством и уверенностью, чтобы глубоко погружаться в сложные дизайн-задачи и выдавать отличный результат.",
         "name": "Lead Designer",
-        "role": "Продуктовый дизайнер"
+        "role": "Продуктовый дизайнер",
+        "company": "",
+        "linkedin": ""
       },
       {
         "quote": "Каждый проект сдан в срок и в точности по ТЗ. Самая высокая рекомендация с нашей стороны.",
         "name": "Engineering Lead",
-        "role": "Разработчик"
+        "role": "Разработчик",
+        "company": "",
+        "linkedin": ""
       }
-    ]
+    ],
+    "on_linkedin": "Смотреть рекомендацию в LinkedIn"
   },
   "contact": {
     "eyebrow": "Связаться",
@@ -166,10 +257,10 @@
     "telegram_label": "Telegram",
     "phone_label": "Телефон",
     "location_label": "Местоположение",
-    "location": "Джизак, Узбекистан"
+    "location": "Фергана, Узбекистан"
   },
   "footer": {
-    "tagline": "Сделано с заботой в Джизаке, Узбекистан.",
+    "tagline": "Сделано с заботой в Фергане, Узбекистан.",
     "built": "На Astro, React и Tailwind."
   },
   "french": {
@@ -379,11 +470,11 @@
   },
   "cv": {
     "title": "Резюме",
-    "subtitle": "Senior Frontend Engineer — React, Next.js, TypeScript",
+    "subtitle": "Senior Frontend Engineer — React, Next.js, TypeScript, AI-интеграции",
     "summary_label": "Кратко",
-    "summary_body": "Senior Frontend Engineer с опытом 6+ лет в создании масштабируемых, высокопроизводительных веб-приложений для корпоративных и продуктовых компаний, включая SRP Software, Pearson и EPAM. Специализация — React, Next.js и TypeScript, опыт работы с платформами на 10 000–20 000+ одновременных пользователей.",
+    "summary_body": "Senior Frontend Engineer с 6+ годами опыта создания масштабируемых высокопроизводительных веб-приложений для корпоративных и продуктовых компаний, включая Pearson, EPAM и Silk Road Professionals. Специализация — React, Next.js и TypeScript, с текущим фокусом на AI-интегрированных функциях продукта и корпоративных интеграциях с Salesforce и ActivePieces. Опыт на платформах с 10 000–20 000+ одновременных пользователей.",
     "location_label": "Местоположение",
-    "location_value": "Фергона, Узбекистан — открыт к удалённой работе, глобально",
+    "location_value": "Фергана, Узбекистан — открыт к удалённой работе по всему миру",
     "email_label": "Эл. почта",
     "site_label": "Сайт",
     "linkedin_label": "LinkedIn",
@@ -402,11 +493,37 @@
       "period": "2018 — 2022"
     },
     "leadership_items": [
-      "Ментор программы EPAM lab — поддержка новых инженеров.",
-      "Frontend-ментор-волонтёр в IT Park Jizzakh (2020–2021).",
-      "Технический интервьюер для junior frontend кандидатов."
+      "Менторил junior-инженеров и проводил технические интервью в EPAM и Codemotion Ninjas.",
+      "Ментор в lab-программе EPAM — помогал онбордингу инженеров.",
+      "Frontend-ментор-волонтёр в IT Park Jizzakh (2020–2021)."
     ],
     "languages_value": "Английский (продвинутый), французский, русский (элементарный)",
-    "certifications_value": "JavaScript: Best Practices for Functions and Classes; Node.js: Microservices; React Native CRM Application Development."
+    "certifications_value": "JavaScript: Best Practices for Functions and Classes; Node.js: Microservices; React Native CRM Application Development.",
+    "projects_items": [
+      {
+        "name": "WineChain",
+        "role": "Frontend lead",
+        "link": "https://winechain.co/",
+        "body": "Премиальный винный маркетплейс с он-чейн происхождением, безопасным хранением и мировой торговлей цифровыми двойниками вин. Вёл frontend-разработку. React, Next.js, TypeScript, Node.js."
+      },
+      {
+        "name": "AI-Lean",
+        "role": "Frontend engineer",
+        "link": "https://home.ai-lean.com/",
+        "body": "SaaS на базе ИИ, сжимающий процесс залога-аукциона для операторов складов с недель ручной работы до одного управляемого потока. Построил end-to-end UI. React, Next.js, TypeScript, Node.js."
+      },
+      {
+        "name": "Mon Français",
+        "role": "Автор",
+        "link": "https://ahmadjon.uz/french",
+        "body": "Приложение для изучения французского с AI: 63 темы грамматики, 500+ слов и разговорная практика с обратной связью через Anthropic API. Astro, React, TypeScript."
+      }
+    ],
+    "full_name": "Akhmadjon Abdusamadov",
+    "projects_label": "Избранные проекты"
+  },
+  "seo": {
+    "description": "Senior Frontend Engineer: AI-интегрированные веб-платформы на React, Next.js и TypeScript. 6+ лет работы с Pearson, EPAM и Silk Road Professionals.",
+    "cv_description": "Резюме Akhmadjon Abdusamadov — Senior Frontend Engineer (React, Next.js, TypeScript, AI-интеграции). 6+ лет в Pearson, EPAM и Silk Road Professionals."
   }
 }

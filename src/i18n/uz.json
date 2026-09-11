@@ -13,10 +13,10 @@
   "hero": {
     "eyebrow": "Senior Frontend Engineer",
     "headline": "Tez va ishonchli veb-ilovalar yarataman — odamlar haqiqatdan foydalanadigan.",
-    "subline": "Olti yil davomida SRP Software, Pearson, EPAM va FinTech startaplari uchun React va Next.js platformalarni yetkazib berdim — o'n minglab bir vaqtdagi foydalanuvchilar bilan.",
+    "subline": "Olti yil davomida Pearson, EPAM va Silk Road Professionals uchun React, Next.js va TypeScript platformalarini yetkazib berdim — endi ular ustida AI bilan integratsiyalangan funksiyalar quraman.",
     "cta_hire": "Bog'lanish",
     "cta_cv": "Rezyumeni yuklab olish",
-    "available": "Senior frontend rollar uchun ochiqman",
+    "available": "Senior frontend va AI integratsiya rollari uchun ochiqman",
     "scroll": "Aylantiring"
   },
   "what_i_do": {
@@ -33,7 +33,7 @@
       },
       "ai": {
         "title": "AI bilan birlashgan vositalar",
-        "body": "Odamlar haqiqatdan foydalana boshlaydigan, LLM bilan ishlaydigan funksiyalar."
+        "body": "Haqiqiy mahsulotga aylanadigan LLM funksiyalari — Anthropic API orqali nutq bo'yicha fikr-mulohazadan korporativ AI oqimlariga qadar."
       }
     }
   },
@@ -63,17 +63,67 @@
   "about": {
     "eyebrow": "Men haqimda",
     "title": "Salom, men Ahmadjonman.",
-    "body_1": "Men O'zbekistonning Fargona shahridanman — Senior Frontend Engineer. Oxirgi olti yil davomida AQSh, Buyuk Britaniya va Sharqiy Yevropadagi kompaniyalar bilan ishladim — SRP Software, Pearson, EPAM, Codemotion Ninjas — yuqori yuklamali mahsulotlar ustida.",
+    "body_1": "Men Senior Frontend Engineer, O'zbekistonning Farg'ona shahridanman. Oxirgi olti yil davomida AQSh, Buyuk Britaniya va Sharqiy Yevropadagi kompaniyalar bilan ishladim — Silk Road Professionals, Pearson, EPAM, Codemotion Ninjas — yuqori yuklamali mahsulotlar ustida.",
     "body_2": "Men uchun muhimi — kod tez yuklansin, yuklamani ko'tarsin va mendan keyin uni qo'llab-quvvatlayotgan odamlarga qulay bo'lsin. Bo'sh vaqtda o'z vositalarimni quraman — Mon Français va DevPrep, ikkalasi ham yuqorida.",
-    "currently": "Hozir SRP Software'da Forward Deployed Engineer sifatida ishlarni davom etmoqda."
+    "currently": "Hozir Silk Road Professionals'da Forward Deployed Engineer."
   },
   "skills": {
     "title": "Stek",
     "groups": {
-      "frontend": { "label": "Frontend", "items": ["React", "Next.js", "TypeScript", "Redux", "Tailwind", "MUI"] },
-      "backend": { "label": "Backend", "items": ["Node.js", "Express", "REST", "GraphQL"] },
-      "data": { "label": "Ma'lumotlar", "items": ["MongoDB", "SQL"] },
-      "tooling": { "label": "Vositalar", "items": ["Webpack", "Jest", "CI/CD", "Tezlik"] }
+      "frontend": {
+        "label": "Frontend",
+        "items": [
+          "React",
+          "Next.js",
+          "TypeScript",
+          "JavaScript",
+          "Redux",
+          "Tailwind CSS",
+          "MUI"
+        ]
+      },
+      "backend": {
+        "label": "Backend",
+        "items": [
+          "Node.js",
+          "Express",
+          "REST API",
+          "GraphQL",
+          "Python",
+          "C#"
+        ]
+      },
+      "ai": {
+        "label": "AI integratsiya",
+        "items": [
+          "LLM integratsiya",
+          "Anthropic API",
+          "AI asosidagi funksiyalar",
+          "Prompt engineering"
+        ]
+      },
+      "data": {
+        "label": "Ma'lumot va integratsiyalar",
+        "items": [
+          "MongoDB",
+          "SQL",
+          "Firebase",
+          "Salesforce",
+          "ActivePieces",
+          "BigCommerce"
+        ]
+      },
+      "tooling": {
+        "label": "Vositalar va amaliyotlar",
+        "items": [
+          "CI/CD",
+          "Webpack",
+          "Vite",
+          "Jest",
+          "Unumdorlikni optimallashtirish",
+          "Agile / Scrum"
+        ]
+      }
     }
   },
   "experience": {
@@ -81,46 +131,80 @@
     "title": "Qayerda ishladim.",
     "items": [
       {
-        "company": "SRP Software",
+        "company": "Silk Road Professionals",
         "role": "Forward Deployed Engineer",
         "period": "Iyul 2026 — Hozirgi vaqt",
-        "location": "Fargona, O'zbekiston",
-        "summary": "Xalqaro mijozlar uchun NextJS, React, C# va Python ishlatib yaratilgan AI-powered B2B korporativ dasturiy ta'minot yechimlar. Legacy tizimlarni modernizatsiya va Salesforce/QuickBooks integratsiyalarida ixtisoslashgan, murakkab loyihalarni ikkinchi haftalik sprintlar bilan yetkazadi."
+        "location": "Farg'ona, O'zbekiston",
+        "summary": "Xalqaro mijozlar uchun Next.js, React, C# va Python asosida AI bilan integratsiyalangan B2B korporativ dasturiy ta'minot. Legacy tizimlarni modernizatsiya qilish va Salesforce, ActivePieces integratsiyalari — ikki haftalik sprintlarda.",
+        "bullets": [
+          "Xalqaro mijozlar uchun Next.js, React, C# va Python asosida AI bilan integratsiyalangan B2B korporativ dasturiy ta'minotni ikki haftalik sprintlarda yetkazib beraman.",
+          "Mijozlarning legacy tizimlarini modernizatsiya qilaman va biznes tizimlar o'rtasidagi qo'lda ma'lumot kiritishni yo'q qiladigan Salesforce va ActivePieces integratsiyalarini quraman.",
+          "Mijoz stakeholderlari bilan bevosita ishlab talablarni aniqlayman va yechimlarni ularning muhitiga joylashtiraman."
+        ]
       },
       {
         "company": "Pearson",
-        "role": "Web Developer",
+        "role": "Software Engineer",
         "period": "Iyul 2023 — Yan 2026",
         "location": "Masofadan",
-        "summary": "20 000+ bir vaqtdagi foydalanuvchili korporativ e-commerce platformalar uchun React va Next.js. BigCommerce do'konlari. Talablar va baholash bo'yicha to'g'ridan-to'g'ri stakeholderlar bilan ishlash."
+        "summary": "20 000+ bir vaqtdagi foydalanuvchiga xizmat qiluvchi korporativ e-commerce platformalari uchun React va Next.js. BigCommerce do'konlari va stakeholderlar bilan bevosita ish.",
+        "bullets": [
+          "20 000+ bir vaqtdagi foydalanuvchiga xizmat qiluvchi korporativ e-commerce platformalari uchun React va Next.js ilovalarini qurdim va optimallashtirdim.",
+          "Butun dunyoda sotiladigan ta'lim mahsulotlari uchun JavaScript va Handlebars asosida BigCommerce do'konlarini yetkazib berdim.",
+          "Bir nechta do'konlarda birgalikda ishlatiladigan qayta foydalanuvchi, moslashuvchan React komponent kutubxonalarini qurdim.",
+          "Biznes talablarini texnik baholash va yetkazib berish hajmiga aylantirish uchun stakeholderlar bilan bevosita ishladim."
+        ],
+        "employment": "Shartnoma"
       },
       {
         "company": "Codemotion Ninjas",
         "role": "React Software Engineer",
-        "period": "May 2022 — Iyul 2023",
-        "location": "Ukraina, masofadan",
-        "summary": "FinTech va logistika startaplari uchun frontend tizimlar. React, Vue va TypeScript da kengaytiriladigan UI arxitekturasi."
+        "period": "Fev 2022 — Iyul 2023",
+        "location": "Kiyev, Ukraina — masofadan",
+        "summary": "FinTech va logistika startaplari uchun frontend tizimlar. React, Vue va TypeScript da kengaytiriladigan UI arxitekturasi.",
+        "bullets": [
+          "FinTech va logistika startaplari uchun React, Vue va TypeScript da kengaytiriladigan UI arxitekturalarini loyihalashtirdim va chiqardim.",
+          "Murakkab dizayn talablarini unumdor komponentlarga aylantirdim va umumiy komponent qatlami orqali takrorlanuvchi UI kodini qisqartirdim.",
+          "Backend jamoalari bilan REST API larni integratsiya qildim va keraksiz tarmoq so'rovlarini yo'q qilib mijoz tomonidagi ma'lumot bilan ishlashni qayta qurdim.",
+          "Texnik intervyular o'tkazdim va junior dasturchilarni React va Redux bo'yicha qo'lladim."
+        ]
       },
       {
-        "company": "EPAM Systems",
-        "role": "Software Engineer",
-        "period": "2021 — 2022",
-        "location": "AQSh",
-        "summary": "Yuqori yuklamali korporativ platformalarda React + TypeScript. 10 000+ foydalanuvchi, 2 TB+ CDN, 1 000+ marketing kampaniyasi. Junior dasturchilarni o'qitish va texnik intervyu."
+        "company": "EPAM Systems (mijoz: Thomson Reuters)",
+        "role": "Frontend Developer",
+        "period": "Iyun 2021 — Yan 2022",
+        "location": "Jizzax, O'zbekiston — masofadan",
+        "summary": "Yuqori yuklamali korporativ platformalarda React va TypeScript — 10 000+ bir vaqtdagi foydalanuvchi, 2 TB+ CDN trafigi, 1 000+ marketing kampaniyasi.",
+        "bullets": [
+          "10 000+ bir vaqtdagi foydalanuvchiga xizmat qiluvchi yuqori yuklamali korporativ platformalar uchun React va TypeScript da funksiyalar ishlab chiqdim.",
+          "2 TB+ CDN trafigi va 1 000+ marketing kampaniyasini qayta ishlaydigan yetkazib berish infratuzilmasini qo'llab-quvvatladim.",
+          "EPAM lab programmasida junior injenerlarga mentorlik qildim va frontend nomzodlar uchun texnik intervyular o'tkazdim."
+        ]
       },
       {
         "company": "Alitech Website Solutions",
         "role": "Full-stack Developer",
-        "period": "2019 — 2021",
-        "location": "O'zbekiston",
-        "summary": "React, Node, Express, MongoDB asosida full-stack ilovalar. REST API, real vaqt kuzatuv, integratsiyalar va tezlikni optimallashtirish."
+        "period": "Avg 2019 — May 2021",
+        "location": "Jizzax, O'zbekiston",
+        "summary": "React, Node.js, Express va MongoDB asosida full-stack ilovalar. REST API loyihalash, real vaqt kuzatuvi, integratsiyalar va unumdorlikni optimallashtirish.",
+        "bullets": [
+          "React, Node.js, Express va MongoDB asosida full-stack ilovalar qurdim, REST API loyihalash va chiqarishni ham o'z ichiga oldi.",
+          "Real vaqt kuzatuvi va karta provayderlari kabi uchinchi tomon xizmatlarini integratsiya qildim.",
+          "Ishlayotgan mijoz tizimlari uchun operatsion diagnostika va unumdorlikni optimallashtirishga javob berdim."
+        ]
       },
       {
         "company": "Alitech Website Solutions",
         "role": "Frontend Developer",
-        "period": "2018 — 2019",
-        "location": "O'zbekiston",
-        "summary": "React + TypeScript UI. Rolga asoslangan avtorizatsiya, avtotolov, 20 000+ bir vaqtdagi foydalanuvchili KYC tizimlar."
+        "period": "Yan 2018 — Iyul 2019",
+        "location": "Jizzax, O'zbekiston",
+        "summary": "React va TypeScript da UI ishlari — rolga asoslangan avtorizatsiya, avtomatik to'lov va KYC tekshiruvi yuqori yuklamali iste'mol fintex platformasi uchun.",
+        "bullets": [
+          "Yuqori yuklamali iste'mol fintex platformasi uchun React va TypeScript da UI komponentlar qurdim.",
+          "Rolga asoslangan avtorizatsiya, avtomatik to'lov va KYC tekshiruv oqimlarini amalga oshirdim.",
+          "Unit testlar yozdim va relizlar orasida ilova barqarorligini saqladim."
+        ],
+        "employment": "Yarim kunlik"
       }
     ]
   },
@@ -131,19 +215,26 @@
       {
         "quote": "Ahmadjon bilan ishlash haqiqiy zavq edi — loyihani boshidan oxirigacha ishonib topshirsa bo'ladigan dasturchi.",
         "name": "Mijoz",
-        "role": "Tadbirkor"
+        "role": "Tadbirkor",
+        "company": "",
+        "linkedin": ""
       },
       {
         "quote": "Aniq muloqotchi, murakkab dizayn vaziyatlariga sabr va ishonch bilan kirib boradigan, ajoyib natija beradigan mutaxassis.",
         "name": "Lead Designer",
-        "role": "Mahsulot dizayneri"
+        "role": "Mahsulot dizayneri",
+        "company": "",
+        "linkedin": ""
       },
       {
         "quote": "Har bir loyiha o'z vaqtida va aniq kelishilganidek topshiriladi. Eng yuqori darajadagi tavsiyamizni bera olamiz.",
         "name": "Engineering Lead",
-        "role": "Dasturchi"
+        "role": "Dasturchi",
+        "company": "",
+        "linkedin": ""
       }
-    ]
+    ],
+    "on_linkedin": "LinkedIn'da tavsiyani ko'rish"
   },
   "contact": {
     "eyebrow": "Bog'lanish",
@@ -166,10 +257,10 @@
     "telegram_label": "Telegram",
     "phone_label": "Telefon",
     "location_label": "Joylashuv",
-    "location": "Jizzax, O'zbekiston"
+    "location": "Farg'ona, O'zbekiston"
   },
   "footer": {
-    "tagline": "Jizzax, O'zbekistonda mehr bilan yaratilgan.",
+    "tagline": "Farg'ona, O'zbekistonda mehr bilan yaratilgan.",
     "built": "Astro, React va Tailwind asosida."
   },
   "french": {
@@ -379,11 +470,11 @@
   },
   "cv": {
     "title": "Rezyume",
-    "subtitle": "Senior Frontend Engineer — React, Next.js, TypeScript",
+    "subtitle": "Senior Frontend Engineer — React, Next.js, TypeScript, AI integratsiya",
     "summary_label": "Qisqa ma'lumot",
-    "summary_body": "SRP Software, Pearson va EPAM kabi korporativ va mahsulot kompaniyalari uchun kengaytiriladigan, yuqori unumdorlikdagi veb-ilovalar yaratish bo'yicha 6+ yillik tajribaga ega Senior Frontend Engineer. React, Next.js va TypeScript bo'yicha mutaxassislashgan, 10 000–20 000+ bir vaqtdagi foydalanuvchili platformalarda tajribaga ega.",
+    "summary_body": "Senior Frontend Engineer, 6+ yillik tajriba bilan Pearson, EPAM va Silk Road Professionals kabi korporativ va mahsulot kompaniyalari uchun kengaytiriladigan, yuqori unumdor veb-ilovalar quraman. React, Next.js va TypeScript bo'yicha ixtisoslashgan, hozirgi fokus — AI bilan integratsiyalangan mahsulot funksiyalari hamda Salesforce va ActivePieces bilan korporativ integratsiyalar. 10 000–20 000+ bir vaqtdagi foydalanuvchili platformalarda tajriba.",
     "location_label": "Joylashuv",
-    "location_value": "Fargona, O'zbekiston — masofaviy, global hamkorlikka ochiq",
+    "location_value": "Farg'ona, O'zbekiston — masofadan, global ishga ochiq",
     "email_label": "Elektron pochta",
     "site_label": "Sayt",
     "linkedin_label": "LinkedIn",
@@ -402,11 +493,37 @@
       "period": "2018 — 2022"
     },
     "leadership_items": [
-      "EPAM lab dasturida mentor — yangi muhandislarning onboardingiga yordam.",
-      "IT Park Jizzakhda volontyor frontend mentor (2020–2021).",
-      "Junior frontend nomzodlar uchun texnik intervyuer."
+      "EPAM va Codemotion Ninjas'da junior injenerlarga mentorlik qildim va texnik intervyular o'tkazdim.",
+      "EPAM lab programmasida mentor — yangi injenerlarning onboardingiga yordam berdim.",
+      "IT Park Jizzakhda volontyor frontend mentor (2020–2021)."
     ],
     "languages_value": "Ingliz (yuqori daraja), fransuz, rus (boshlang'ich)",
-    "certifications_value": "JavaScript: Best Practices for Functions and Classes; Node.js: Microservices; React Native CRM Application Development."
+    "certifications_value": "JavaScript: Best Practices for Functions and Classes; Node.js: Microservices; React Native CRM Application Development.",
+    "projects_items": [
+      {
+        "name": "WineChain",
+        "role": "Frontend lead",
+        "link": "https://winechain.co/",
+        "body": "Onchain kelib chiqishi, xavfsiz saqlash va raqamli vino egizaklarining global savdosi bilan premium vino bozori. Frontend qurilishini boshqardim. React, Next.js, TypeScript, Node.js."
+      },
+      {
+        "name": "AI-Lean",
+        "role": "Frontend engineer",
+        "link": "https://home.ai-lean.com/",
+        "body": "Ombor operatorlari uchun garov-auktsion jarayonini haftalab qo'l mehnatidan bitta yo'naltirilgan oqimga siqadigan AI asosidagi SaaS. End-to-end UI ni qurdim. React, Next.js, TypeScript, Node.js."
+      },
+      {
+        "name": "Mon Français",
+        "role": "Muallif",
+        "link": "https://ahmadjon.uz/french",
+        "body": "AI yordamidagi fransuz tili ilovasi: 63 grammatika mavzusi, 500+ lug'at birligi va Anthropic API orqali fikr-mulohaza bilan nutq mashqi. Astro, React, TypeScript."
+      }
+    ],
+    "full_name": "Akhmadjon Abdusamadov",
+    "projects_label": "Tanlangan loyihalar"
+  },
+  "seo": {
+    "description": "Senior Frontend Engineer: React, Next.js va TypeScript asosida AI bilan integratsiyalangan veb-platformalar. Pearson, EPAM va Silk Road Professionals bilan 6+ yil.",
+    "cv_description": "Akhmadjon Abdusamadov rezyumesi — Senior Frontend Engineer (React, Next.js, TypeScript, AI integratsiya). Pearson, EPAM va Silk Road Professionals bilan 6+ yil."
   }
 }

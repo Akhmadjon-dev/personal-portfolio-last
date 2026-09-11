@@ -1,0 +1,223 @@
+---
+/**
+ * ATS-safe CV source document.
+ *
+ * This page exists purely to be rendered to public/cv.pdf by
+ * `npm run cv:pdf` (headless Chrome --print-to-pdf). It deliberately shares
+ * nothing with the site chrome:
+ *
+ *   - no Layout, so no nav / footer / theme script leaks into the PDF
+ *   - no Tailwind, no grid, no flex: one linear column, top to bottom
+ *   - no icons, emoji, images, tables, headers or footers
+ *   - standard headings (Summary / Experience / Skills / Education)
+ *   - real <ul><li> bullets, so text extraction keeps one bullet per line
+ *   - em/en dashes normalised to ASCII hyphens for older parsers
+ *
+ * Content comes from src/i18n/en.json, so the PDF and the /cv page can never
+ * drift apart. Regenerate the PDF after editing the dictionary.
+ */
+import { getDict } from '../i18n/utils';
+
+const t = getDict('en');
+
+/** Older CV parsers mis-map non-ASCII punctuation; keep the PDF to ASCII. */
+const ascii = (s: string) => s.replace(/[‒-―−]/g, '-').replace(/[‘’]/g, "'").replace(/[“”]/g, '"');
+
+const skillGroups = ['frontend', 'backend', 'ai', 'data', 'tooling'] as const;
+
+type ExperienceItem = {
+  company: string;
+  role: string;
+  period: string;
+  location: string;
+  summary: string;
+  bullets?: string[];
+  /** Only set when the engagement was not full-time (Contract / Part-time). */
+  employment?: string;
+};
+
+type CvProject = { name: string; role: string; link: string; body: string };
+
+const experience = t.experience.items as ExperienceItem[];
+const projects = t.cv.projects_items as CvProject[];
+
+const bareUrl = (u: string) => u.replace(/^https?:\/\//, '').replace(/\/$/, '');
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{ascii(t.cv.full_name)} - {ascii(t.cv.subtitle)}</title>
+    <style>
+      @page {
+        size: A4;
+        margin: 14mm 15mm;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        font-size: 10pt;
+      }
+
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        color: #000;
+        background: #fff;
+        line-height: 1.34;
+        max-width: 190mm;
+        margin: 0 auto;
+      }
+
+      /* No letter-spacing anywhere in this document. Chrome bakes tracking in
+         as per-glyph positioning, and text extractors then read a tracked
+         heading as "E D U C AT I O N" instead of "EDUCATION" — which is
+         exactly the standard heading an ATS is looking for. */
+      h1 {
+        font-size: 17pt;
+        text-transform: uppercase;
+        margin-bottom: 2pt;
+      }
+
+      .role-line {
+        font-size: 10.5pt;
+        font-weight: bold;
+        margin-bottom: 5pt;
+      }
+
+      .contact {
+        font-size: 9pt;
+        margin-bottom: 9pt;
+        padding-bottom: 6pt;
+        border-bottom: 1pt solid #000;
+      }
+
+      h2 {
+        font-size: 10pt;
+        text-transform: uppercase;
+        border-bottom: 0.75pt solid #888;
+        padding-bottom: 2pt;
+        margin: 10pt 0 5pt;
+        break-after: avoid;
+        page-break-after: avoid;
+      }
+
+      h3 {
+        font-size: 10pt;
+        margin-bottom: 1pt;
+      }
+
+      .entry {
+        margin-bottom: 6.5pt;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      .entry:last-child {
+        margin-bottom: 0;
+      }
+
+      .meta {
+        font-size: 9pt;
+        margin-bottom: 2pt;
+      }
+
+      /* The bullet is a literal U+2022 in the markup, not a CSS marker.
+         Chrome renders CSS list markers as vector art, so a `list-style: disc`
+         bullet extracts as nothing at all and the whole list collapses into one
+         run-on paragraph. A real character plus a hanging indent looks
+         identical and survives text extraction. */
+      ul {
+        list-style: none;
+        padding-left: 0;
+      }
+
+      li {
+        margin-bottom: 1pt;
+        padding-left: 4mm;
+        text-indent: -4mm;
+      }
+
+      p.body {
+        margin-bottom: 2pt;
+      }
+
+      .skill-row {
+        margin-bottom: 2.5pt;
+      }
+
+      a {
+        color: #000;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>{ascii(t.cv.full_name)}</h1>
+    <p class="role-line">{ascii(t.cv.subtitle)}</p>
+    <p class="contact">
+      {ascii(t.cv.location_value)} | info.ahmadjon@gmail.com | ahmadjon.uz |
+      linkedin.com/in/akhmadjonabdusamadov | github.com/Akhmadjon-dev
+    </p>
+
+    <h2>{ascii(t.cv.summary_label)}</h2>
+    <p class="body">{ascii(t.cv.summary_body)}</p>
+
+    <h2>{ascii(t.cv.experience_label)}</h2>
+    {
+      experience.map((item) => (
+        <div class="entry">
+          <h3>{ascii(item.role)} - {ascii(item.company)}</h3>
+          <p class="meta">
+            {ascii(item.period)} | {item.employment ? `${ascii(item.employment)} | ` : ''}{ascii(item.location)}
+          </p>
+          <ul>
+            {(item.bullets ?? [item.summary]).map((b) => <li>&#8226; {ascii(b)}</li>)}
+          </ul>
+        </div>
+      ))
+    }
+
+    <h2>{ascii(t.cv.skills_label)}</h2>
+    {
+      skillGroups.map((key) => (
+        <p class="skill-row">
+          <strong>{ascii(t.skills.groups[key].label)}:</strong> {ascii(t.skills.groups[key].items.join(', '))}
+        </p>
+      ))
+    }
+
+    <h2>{ascii(t.cv.projects_label)}</h2>
+    {
+      projects.map((p) => (
+        <div class="entry">
+          <h3>{ascii(p.name)} - {ascii(p.role)}</h3>
+          <p class="body">{ascii(p.body)}</p>
+          <p class="meta">{bareUrl(p.link)}</p>
+        </div>
+      ))
+    }
+
+    <h2>{ascii(t.cv.education_label)}</h2>
+    <div class="entry">
+      <h3>{ascii(t.cv.education_item.degree)}</h3>
+      <p class="meta">{ascii(t.cv.education_item.school)} | {ascii(t.cv.education_item.period)}</p>
+    </div>
+
+    <h2>{ascii(t.cv.leadership_label)}</h2>
+    <ul>
+      {t.cv.leadership_items.map((item: string) => <li>&#8226; {ascii(item)}</li>)}
+    </ul>
+
+    <h2>{ascii(t.cv.additional_label)}</h2>
+    <p class="skill-row"><strong>{ascii(t.cv.languages_label)}:</strong> {ascii(t.cv.languages_value)}</p>
+    <p class="skill-row"><strong>{ascii(t.cv.certifications_label)}:</strong> {ascii(t.cv.certifications_value)}</p>
+  </body>
+</html>

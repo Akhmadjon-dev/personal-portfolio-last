@@ -6,11 +6,16 @@
     "uz": "Ombor operatorlari uchun garov va auktsion jarayonini avtomatlashtiradigan sun'iy intellektga asoslangan SaaS platformasi."
   },
   "outcome": {
-    "en": "Cut weeks of manual lien-to-auction work into a single guided workflow. Built the end-to-end UI.",
-    "ru": "Ручной процесс залога-аукциона на недели сжали в единый управляемый поток. End-to-end UI.",
-    "uz": "Haftalab qo'l mehnati talab qiladigan jarayonni yagona yo'naltirilgan oqimga aylantirdik."
+    "en": "Self-storage operators ran the lien-to-auction process by hand — tracking statutory deadlines and notices unit by unit, for weeks per case. I built the end-to-end UI for a SaaS that collapses that into one guided workflow, automating the sequence of required steps and deadlines. An operator can now take a delinquent unit all the way to auction without leaving the app.",
+    "ru": "Операторы складов вели процесс залога-аукциона вручную — отслеживая установленные законом сроки и уведомления по каждому боксу, неделями на каждый случай. Я построил end-to-end UI для SaaS, который сжимает это в один управляемый поток и автоматизирует последовательность обязательных шагов и сроков. Теперь оператор доводит проблемный бокс до аукциона, не выходя из приложения.",
+    "uz": "Ombor operatorlari garov-auktsion jarayonini qo'lda yuritardi — har bir boks uchun qonuniy muddatlar va xabarnomalarni alohida kuzatib, har bir holatga haftalar ketardi. Men buni bitta yo'naltirilgan oqimga siqadigan va majburiy qadamlar ketma-ketligini avtomatlashtiradigan SaaS uchun end-to-end UI ni qurdim. Endi operator muammoli boksni ilovadan chiqmasdan auktsiongacha olib boradi."
   },
-  "tech": ["React", "TypeScript", "Next.js", "Node.js"],
+  "tech": [
+    "React",
+    "TypeScript",
+    "Next.js",
+    "Node.js"
+  ],
   "image": "../../assets/projects/ai-lean.webp",
   "link": "https://app.ai-lean.com/",
   "siteLink": "https://home.ai-lean.com/",

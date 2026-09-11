@@ -8,120 +8,195 @@ interface Props {
 const { locale } = Astro.props;
 const t = getDict(locale);
 
-const skillGroups = [
-  { key: 'frontend' as const },
-  { key: 'backend' as const },
-  { key: 'data' as const },
-  { key: 'tooling' as const },
-];
+// Single column, top to bottom. Every ATS and LLM parser reads the DOM in this
+// order, so the document order IS the résumé order — no grids, no sidebars.
+const skillGroups = ['frontend', 'backend', 'ai', 'data', 'tooling'] as const;
+
+const LINKEDIN = 'https://www.linkedin.com/in/akhmadjonabdusamadov/';
+
+type ExperienceItem = {
+  company: string;
+  role: string;
+  period: string;
+  location: string;
+  summary: string;
+  bullets?: string[];
+  /** Only set when the engagement was not full-time (Contract / Part-time). */
+  employment?: string;
+};
+
+type CvProject = { name: string; role: string; link: string; body: string };
 ---
 
-<article class="max-w-4xl mx-auto px-6 py-16 md:py-24">
-  <header class="mb-14 pb-10 border-b border-mist dark:border-white/10">
-    <p class="font-mono text-xs uppercase tracking-widest text-accent mb-4">{t.cv.title}</p>
-    <h1 class="font-display text-5xl md:text-6xl leading-[1.05] tracking-tight mb-3">Ahmadjon Abdusamadov</h1>
-    <p class="text-xl text-muted mb-8">{t.cv.subtitle}</p>
+<article class="cv max-w-3xl mx-auto px-6 py-16 md:py-24">
+  <header class="mb-12 pb-8 border-b border-mist dark:border-white/10">
+    <h1 class="font-display text-4xl md:text-5xl leading-[1.08] tracking-tight mb-2">{t.cv.full_name}</h1>
+    <p class="text-lg text-muted mb-5">{t.cv.subtitle}</p>
 
-    <dl class="grid sm:grid-cols-2 gap-x-10 gap-y-4 text-sm">
-      <div>
-        <dt class="font-mono text-[11px] uppercase tracking-widest text-muted mb-1">{t.cv.location_label}</dt>
-        <dd>{t.cv.location_value}</dd>
-      </div>
-      <div>
-        <dt class="font-mono text-[11px] uppercase tracking-widest text-muted mb-1">{t.cv.email_label}</dt>
-        <dd><a href="mailto:info.ahmadjon@gmail.com" class="hover:text-accent transition-colors">info.ahmadjon@gmail.com</a></dd>
-      </div>
-      <div>
-        <dt class="font-mono text-[11px] uppercase tracking-widest text-muted mb-1">{t.cv.site_label}</dt>
-        <dd><a href="https://ahmadjon.uz" class="hover:text-accent transition-colors">ahmadjon.uz</a></dd>
-      </div>
-      <div>
-        <dt class="font-mono text-[11px] uppercase tracking-widest text-muted mb-1">{t.cv.linkedin_label}</dt>
-        <dd><a href="https://www.linkedin.com/in/akhmadjonabdusamdov/" target="_blank" rel="noopener" class="hover:text-accent transition-colors">linkedin.com/in/akhmadjonabdusamdov</a></dd>
-      </div>
-    </dl>
-
-    <div class="mt-8 flex flex-wrap gap-3 print:hidden">
-      <a href="/cv.pdf" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-ink text-paper dark:bg-paper dark:text-ink text-sm font-medium hover:opacity-90 transition-opacity">
-        {t.cv.download_pdf} <span aria-hidden="true">↓</span>
+    <!-- Plain text contact line: no icons, no table, no columns. -->
+    <p class="text-sm leading-relaxed">
+      {t.cv.location_value}
+      <span class="text-muted"> &middot; </span>
+      <a href="mailto:info.ahmadjon@gmail.com" class="hover:text-accent transition-colors">info.ahmadjon@gmail.com</a>
+      <span class="text-muted"> &middot; </span>
+      <a href="https://ahmadjon.uz" class="hover:text-accent transition-colors">ahmadjon.uz</a>
+      <span class="text-muted"> &middot; </span>
+      <a href={LINKEDIN} target="_blank" rel="noopener" class="hover:text-accent transition-colors">
+        linkedin.com/in/akhmadjonabdusamadov
       </a>
-      <a href={localizePath('/', locale)} class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-ink/15 dark:border-white/15 text-sm hover:bg-paper-dim dark:hover:bg-white/5 transition-colors">
-        ← {t.cv.back_home}
+      <span class="text-muted"> &middot; </span>
+      <a href="https://github.com/Akhmadjon-dev" target="_blank" rel="noopener" class="hover:text-accent transition-colors">
+        github.com/Akhmadjon-dev
+      </a>
+    </p>
+
+    <div class="mt-7 flex flex-wrap gap-3 print:hidden">
+      <a
+        href="/cv.pdf"
+        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-ink text-paper dark:bg-paper dark:text-ink text-sm font-medium hover:opacity-90 transition-opacity"
+      >
+        {t.cv.download_pdf} <span aria-hidden="true">&darr;</span>
+      </a>
+      <a
+        href={localizePath('/', locale)}
+        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-ink/15 dark:border-white/15 text-sm hover:bg-paper-dim dark:hover:bg-white/5 transition-colors"
+      >
+        &larr; {t.cv.back_home}
       </a>
     </div>
   </header>
 
-  <section class="mb-12">
-    <h2 class="font-display text-2xl md:text-3xl mb-4">{t.cv.summary_label}</h2>
-    <p class="text-muted leading-relaxed">{t.cv.summary_body}</p>
+  <section class="mb-11">
+    <h2 class="cv-h2">{t.cv.summary_label}</h2>
+    <p class="text-ink-soft dark:text-paper/80 leading-relaxed">{t.cv.summary_body}</p>
   </section>
 
-  <section class="mb-12">
-    <h2 class="font-display text-2xl md:text-3xl mb-6">{t.cv.skills_label}</h2>
-    <div class="grid sm:grid-cols-2 gap-x-10 gap-y-5">
-      {skillGroups.map((g) => (
-        <div>
-          <p class="font-mono text-[11px] uppercase tracking-widest text-muted mb-2">{t.skills.groups[g.key].label}</p>
-          <p class="text-sm">{t.skills.groups[g.key].items.join(', ')}</p>
+  <section class="mb-11">
+    <h2 class="cv-h2">{t.cv.experience_label}</h2>
+    <div class="space-y-7">
+      {(t.experience.items as ExperienceItem[]).map((item) => (
+        <div class="cv-entry">
+          <h3 class="text-lg font-semibold leading-snug">{item.role} &mdash; {item.company}</h3>
+          <p class="text-sm text-muted mb-2">
+            {item.period} &middot; {item.employment ? `${item.employment} · ` : ''}{item.location}
+          </p>
+          {item.bullets ? (
+            <ul class="cv-bullets">
+              {item.bullets.map((b) => <li>{b}</li>)}
+            </ul>
+          ) : (
+            <p class="text-ink-soft dark:text-paper/80 leading-relaxed">{item.summary}</p>
+          )}
         </div>
       ))}
     </div>
   </section>
 
-  <section class="mb-12">
-    <h2 class="font-display text-2xl md:text-3xl mb-6">{t.cv.experience_label}</h2>
-    <div class="space-y-8">
-      {t.experience.items.map((item: { company: string; role: string; period: string; location: string; summary: string }) => (
-        <div>
-          <div class="flex flex-col md:flex-row md:items-baseline md:justify-between gap-1 mb-1">
-            <h3 class="font-display text-xl">{item.role} <span class="text-muted font-sans text-base">— {item.company}</span></h3>
-            <span class="font-mono text-xs uppercase tracking-widest text-muted">{item.period}</span>
-          </div>
-          <p class="font-mono text-[11px] uppercase tracking-widest text-accent mb-2">{item.location}</p>
-          <p class="text-muted leading-relaxed">{item.summary}</p>
-        </div>
-      ))}
-    </div>
-  </section>
-
-  <section class="mb-12">
-    <h2 class="font-display text-2xl md:text-3xl mb-4">{t.cv.education_label}</h2>
-    <div class="flex flex-col md:flex-row md:items-baseline md:justify-between gap-1">
-      <div>
-        <p class="font-medium">{t.cv.education_item.degree}</p>
-        <p class="text-muted text-sm">{t.cv.education_item.school}</p>
-      </div>
-      <span class="font-mono text-xs uppercase tracking-widest text-muted">{t.cv.education_item.period}</span>
-    </div>
-  </section>
-
-  <section class="mb-12">
-    <h2 class="font-display text-2xl md:text-3xl mb-4">{t.cv.leadership_label}</h2>
-    <ul class="space-y-2 text-muted">
-      {t.cv.leadership_items.map((item: string) => (
-        <li class="flex gap-3"><span class="text-accent mt-1.5 w-1 h-1 rounded-full bg-accent flex-shrink-0"></span><span>{item}</span></li>
+  <section class="mb-11">
+    <h2 class="cv-h2">{t.cv.skills_label}</h2>
+    <ul class="space-y-1.5 text-sm">
+      {skillGroups.map((key) => (
+        <li>
+          <span class="font-semibold">{t.skills.groups[key].label}:</span>{' '}
+          <span class="text-ink-soft dark:text-paper/80">{t.skills.groups[key].items.join(', ')}</span>
+        </li>
       ))}
     </ul>
   </section>
 
+  <section class="mb-11">
+    <h2 class="cv-h2">{t.cv.projects_label}</h2>
+    <div class="space-y-5">
+      {(t.cv.projects_items as CvProject[]).map((p) => (
+        <div class="cv-entry">
+          <h3 class="text-base font-semibold">
+            {p.name} &mdash; {p.role}
+          </h3>
+          <p class="text-ink-soft dark:text-paper/80 leading-relaxed text-sm mt-1">{p.body}</p>
+          <p class="text-sm mt-1">
+            <a href={p.link} target="_blank" rel="noopener" class="text-accent hover:underline">{p.link.replace(/^https?:\/\//, '').replace(/\/$/, '')}</a>
+          </p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="mb-11">
+    <h2 class="cv-h2">{t.cv.education_label}</h2>
+    <div class="cv-entry">
+      <h3 class="text-base font-semibold">{t.cv.education_item.degree}</h3>
+      <p class="text-sm text-muted">{t.cv.education_item.school} &middot; {t.cv.education_item.period}</p>
+    </div>
+  </section>
+
+  <section class="mb-11">
+    <h2 class="cv-h2">{t.cv.leadership_label}</h2>
+    <ul class="cv-bullets">
+      {t.cv.leadership_items.map((item: string) => <li>{item}</li>)}
+    </ul>
+  </section>
+
   <section>
-    <h2 class="font-display text-2xl md:text-3xl mb-4">{t.cv.additional_label}</h2>
-    <dl class="space-y-3 text-sm">
-      <div>
-        <dt class="font-mono text-[11px] uppercase tracking-widest text-muted mb-1">{t.cv.languages_label}</dt>
-        <dd class="text-muted">{t.cv.languages_value}</dd>
-      </div>
-      <div>
-        <dt class="font-mono text-[11px] uppercase tracking-widest text-muted mb-1">{t.cv.certifications_label}</dt>
-        <dd class="text-muted">{t.cv.certifications_value}</dd>
-      </div>
-    </dl>
+    <h2 class="cv-h2">{t.cv.additional_label}</h2>
+    <ul class="space-y-1.5 text-sm">
+      <li><span class="font-semibold">{t.cv.languages_label}:</span> <span class="text-ink-soft dark:text-paper/80">{t.cv.languages_value}</span></li>
+      <li><span class="font-semibold">{t.cv.certifications_label}:</span> <span class="text-ink-soft dark:text-paper/80">{t.cv.certifications_value}</span></li>
+    </ul>
   </section>
 </article>
 
 <style>
+  .cv-h2 {
+    font-family: var(--font-sans);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding-bottom: 0.45rem;
+    margin-bottom: 1.1rem;
+    border-bottom: 1px solid var(--color-mist);
+  }
+
+  :global(html.dark) .cv-h2 {
+    border-bottom-color: rgb(255 255 255 / 0.12);
+  }
+
+  .cv-bullets {
+    list-style: disc outside;
+    padding-left: 1.15rem;
+  }
+
+  .cv-bullets > li {
+    margin-bottom: 0.3rem;
+    line-height: 1.55;
+    color: var(--color-ink-soft);
+  }
+
+  :global(html.dark) .cv-bullets > li {
+    color: rgb(242 241 236 / 0.8);
+  }
+
+  /* Printing the human-facing page should still yield a clean single-column
+     document. /cv-print is the canonical source for the generated PDF. */
   @media print {
-    @page { margin: 1.5cm; }
-    article { padding: 0; }
+    @page {
+      margin: 1.4cm;
+    }
+
+    .cv {
+      max-width: none;
+      padding: 0;
+      color: #000;
+    }
+
+    .cv-entry {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .cv-h2 {
+      break-after: avoid;
+      page-break-after: avoid;
+    }
   }
 </style>

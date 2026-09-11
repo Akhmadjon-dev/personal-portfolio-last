@@ -6,11 +6,15 @@
     "uz": "Shaxsiy rejalar, vositalar va yo'naltirilgan darslar bilan to'liq til o'rganish dasturi."
   },
   "outcome": {
-    "en": "Frontend for adaptive learning paths plus tutoring tools. Smooth UX even on slow connections.",
-    "ru": "Frontend для адаптивных треков обучения и инструментов тьюторов. Плавный UX даже на слабом интернете.",
-    "uz": "Adaptiv o'quv yo'llari va tyutorlar uchun vositalar uchun frontend. Sekin internetda ham silliq UX."
+    "en": "Language learners stall when a course cannot adapt to what they have already mastered. I built the frontend for adaptive learning paths plus the tutor-facing tools behind them, in React, TypeScript and Redux. Tuned the rendering and data loading so lessons stay responsive on slow mobile connections, which is how most learners arrive.",
+    "ru": "Изучающие язык останавливаются, когда курс не умеет подстраиваться под уже освоенное. Я построил frontend для адаптивных треков обучения и инструментов для тьюторов на React, TypeScript и Redux. Настроил рендеринг и загрузку данных так, чтобы уроки оставались отзывчивыми на медленном мобильном интернете — именно так приходит большинство учеников.",
+    "uz": "Til o'rganuvchilar kurs allaqachon o'zlashtirilgan narsaga moslashmaganda to'xtab qoladi. Men adaptiv o'quv yo'llari va ular ortidagi tyutor vositalari uchun frontendni React, TypeScript va Redux da qurdim. Renderlash va ma'lumot yuklashni shunday sozladim-ki, darslar sekin mobil internetda ham tez ishlaydi — o'quvchilarning ko'pchiligi shunday keladi."
   },
-  "tech": ["React", "TypeScript", "Redux"],
+  "tech": [
+    "React",
+    "TypeScript",
+    "Redux"
+  ],
   "image": "../../assets/projects/lingua.webp",
   "link": "https://app.lingualift.com/",
   "siteLink": "https://www.lingualift.com/",

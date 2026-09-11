@@ -12,7 +12,8 @@
     "astro": "astro",
     "postinstall": "node scripts/copy-conjugations.mjs",
     "predev": "node scripts/copy-conjugations.mjs",
-    "prebuild": "node scripts/copy-conjugations.mjs"
+    "prebuild": "node scripts/copy-conjugations.mjs",
+    "cv:pdf": "astro build && node scripts/build-cv-pdf.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^5.0.4",
